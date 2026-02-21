@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del \"D:\\\\Acer\\\\belajar\\\\frontend\\\\src\\\\api\\\\transaction.js\")",
+      "Bash(powershell -Command \"Remove-Item ''D:\\\\Acer\\\\belajar\\\\frontend\\\\src\\\\api\\\\transaction.js'' -Force\")",
+      "Bash(cmd /c del \"D:\\\\Acer\\\\belajar\\\\frontend\\\\src\\\\api\\\\transaction.js\")",
+      "Bash(cmd /c \"del /f /q D:\\\\Acer\\\\belajar\\\\frontend\\\\src\\\\api\\\\transaction.js\")",
+      "Bash(node -e \"require\\(''fs''\\).unlinkSync\\(''D:\\\\Acer\\\\belajar\\\\frontend\\\\src\\\\api\\\\transaction.js''\\)\")",
+      "Bash(node -e \"require\\(''fs''\\).unlinkSync\\(''D:/Acer/belajar/frontend/src/api/transaction.js''\\)\")",
+      "Bash(cmd /c \"dir /b D:\\\\Acer\\\\belajar\\\\pos-system\\\\database\\\\migrations\"\")",
+      "Bash(cmd /c dir /b \"D:\\\\Acer\\\\belajar\\\\pos-system\\\\database\\\\migrations\")",
+      "Bash(php artisan db:seed:*)",
+      "Bash(php artisan migrate:fresh:*)",
+      "Bash(php artisan tinker:*)"
+    ]
+  }
+}
