@@ -60,35 +60,44 @@ class TransactionController extends Controller
             $transaction = Transaction::create([
                 'user_id' => auth()->id(),
                 'type' => 'sale',
-                'total_amount' => 0, // Will be updated later
+                'status' => 'paid',
+                'subtotal' => 0,
                 'discount' => $validated['discount'] ?? 0,
                 'tax' => $validated['tax'] ?? 0,
+                'total' => 0,
                 'paid_amount' => $validated['paid_amount'],
                 'payment_method' => $validated['payment_method'],
                 'notes' => $validated['notes'] ?? null,
+                'completed_at' => now(),
             ]);
 
-            $totalAmount = 0;
+            $subtotal = 0;
 
             foreach ($validated['items'] as $item) {
                 $product = Product::findOrFail($item['product_id']);
-                $lineTotal = $product->selling_price * $item['quantity'];
-                $totalAmount += $lineTotal;
+                $lineSubtotal = $product->selling_price * $item['quantity'];
+                $subtotal += $lineSubtotal;
 
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
-                    'price' => $product->selling_price,
-                    'total' => $lineTotal,
+                    'purchase_price' => $product->purchase_price,
+                    'selling_price' => $product->selling_price,
+                    'subtotal' => $lineSubtotal,
                 ]);
 
                 // Update product stock
                 $product->decrement('stock', $item['quantity']);
             }
 
-            // Update total amount after calculating line totals
-            $transaction->update(['total_amount' => $totalAmount]);
+            $total = $subtotal - ($validated['discount'] ?? 0) + ($validated['tax'] ?? 0);
+
+            // Update transaction with calculated totals
+            $transaction->update([
+                'subtotal' => $subtotal,
+                'total' => $total,
+            ]);
 
             DB::commit();
 

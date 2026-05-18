@@ -49,10 +49,10 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'nullable|string|max:255|unique:products,sku'.$product->id,
+            'sku' => 'nullable|string|max:255|unique:products,sku',
             'barcode' => 'nullable|string|max:255|unique:products,barcode',
             'category_id' => 'nullable|exists:categories,id',
-            'ourchase_price' => 'required|numeric|min:0',
+            'purchase_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',
@@ -99,7 +99,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:255|unique:products,sku,' . $product->id,
             'barcode' => 'nullable|string|max:255|unique:products,barcode,' . $product->id,
             'category_id' => 'nullable|exists:categories,id',
-            'ourchase_price' => 'required|numeric|min:0',
+            'purchase_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',

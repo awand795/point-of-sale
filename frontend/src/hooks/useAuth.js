@@ -38,7 +38,7 @@ export const useAuth = () => {
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(user));
             setUser(user);
-            navigate("/");
+            navigate("/dashboard");
             return { success: true };
         } catch (err) {
             setError(err.response?.data?.message || "Login failed");
@@ -57,7 +57,7 @@ export const useAuth = () => {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             setUser(null);
-            navigate("/login");
+            navigate("/");
         }
     }, [navigate]);
 
