@@ -41,7 +41,7 @@ jobs:
 
       - name: Generate App Key
         working-directory: pos-system
-        run: php artisan key:generate
+        run: php artisan key:generate --no-interaction
 
       - name: Run Migrations
         working-directory: pos-system
