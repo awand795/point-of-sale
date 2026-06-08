@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Store, ArrowLeft, Globe, Code, Palette, ShoppingBag, Search, Instagram, ExternalLink, Target, Heart, Users, Lightbulb, CheckCircle } from 'lucide-react';
+import { Store, ArrowLeft, Globe, Code, Palette, ShoppingBag, Search, Camera, ExternalLink, Target, Heart, Users, Lightbulb, CheckCircle } from 'lucide-react';
 
 const About = () => {
   const { t, locale } = useLanguage();
@@ -137,7 +137,7 @@ const About = () => {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-xl"
                 >
-                  <Instagram size={16} />
+                  <ExternalLink size={16} />
                   @bikinsite.id
                 </a>
               </div>
@@ -163,7 +163,7 @@ const About = () => {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg"
                 >
-                  <Instagram size={16} />
+                  <ExternalLink size={16} />
                   @adnawaa
                 </a>
               </div>
