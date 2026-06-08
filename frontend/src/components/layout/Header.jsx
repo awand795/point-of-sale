@@ -1,18 +1,29 @@
 import { useAuth } from '../../hooks/useAuth';
-import { Bell } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { Bell, Languages } from 'lucide-react';
 
 const Header = () => {
     const { user } = useAuth();
+    const { t, locale, toggleLanguage } = useLanguage();
 
     return (
         <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0 sticky top-0 z-50">
             <div>
-                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Current Session</h2>
+                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('header.currentSession')}</h2>
                 <p className="text-sm font-bold text-slate-800">{user?.name || 'User Account'}</p>
             </div>
             <div className="flex items-center gap-4">
+                <button
+                    onClick={toggleLanguage}
+                    className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-primary-600 transition-all relative group"
+                >
+                    <Languages size={18} />
+                    <span className="absolute mt-12 text-[8px] font-black uppercase tracking-widest text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {locale === 'id' ? 'EN' : 'ID'}
+                    </span>
+                </button>
                 <div className="hidden md:flex flex-col items-end mr-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Date</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{t('header.date')}</span>
                     <span className="text-xs font-bold text-slate-700">{new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                 </div>
                 <button className="relative w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-primary-600 transition-all group">

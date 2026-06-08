@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Search, Plus, Package } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { useProducts } from "../../hooks/useProducts";
 import { useCategories } from "../../hooks/useCategories";
 
 const ProductGrid = ({ onAddToCart }) => {
+    const { t } = useLanguage();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState(null);
     const { products, loading, searchProducts, filterByCategory } = useProducts({ per_page: 12 });
@@ -33,7 +35,7 @@ const ProductGrid = ({ onAddToCart }) => {
                         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search by name, SKU or barcode..."
+                            placeholder={t('pos.searchProducts')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-400 transition-all placeholder:text-slate-400"
@@ -51,7 +53,7 @@ const ProductGrid = ({ onAddToCart }) => {
                                 : 'bg-white text-slate-600 border border-slate-200 hover:border-primary-300'
                         }`}
                     >
-                        All Categories
+                        {t('pos.allCategories')}
                     </button>
                     {categories.map((cat) => (
                         <button
@@ -78,8 +80,8 @@ const ProductGrid = ({ onAddToCart }) => {
                     {products.length === 0 ? (
                         <div className="col-span-full flex flex-col items-center justify-center py-20 text-slate-400">
                             <Package size={48} className="mb-4 opacity-20" />
-                            <p className="text-lg font-medium">No products found</p>
-                            <p className="text-sm">Try adjusting your search or filters</p>
+                            <p className="text-lg font-medium">{t('pos.noProducts')}</p>
+                            <p className="text-sm">{t('pos.noProductsDesc')}</p>
                         </div>
                     ) : (
                         products.map((product) => (
@@ -96,12 +98,12 @@ const ProductGrid = ({ onAddToCart }) => {
                                     )}
                                     {product.stock <= 0 && (
                                         <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center">
-                                            <span className="bg-white/90 px-3 py-1 rounded-full text-[10px] font-bold text-slate-900 uppercase tracking-wider">Out of Stock</span>
+                                            <span className="bg-white/90 px-3 py-1 rounded-full text-[10px] font-bold text-slate-900 uppercase tracking-wider">{t('pos.outOfStock')}</span>
                                         </div>
                                     )}
                                     <div className="absolute top-2 right-2">
                                         <span className="bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-bold text-slate-600 shadow-sm">
-                                            {product.category?.name || 'Uncategorized'}
+                                            {product.category?.name || (locale === 'id' ? 'Tanpa Kategori' : 'Uncategorized')}
                                         </span>
                                     </div>
                                 </div>
@@ -109,13 +111,13 @@ const ProductGrid = ({ onAddToCart }) => {
                                     <h3 className="text-sm font-bold text-slate-800 line-clamp-1 group-hover:text-primary-600 transition-colors">{product.name}</h3>
                                     <div className="mt-2 flex items-center justify-between">
                                         <div>
-                                            <p className="text-xs text-slate-400 font-medium">Price</p>
+                                            <p className="text-xs text-slate-400 font-medium">{t('pos.price')}</p>
                                             <p className="text-sm font-black text-slate-900">
                                                 Rp {Number(product.selling_price).toLocaleString('id-ID')}
                                             </p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs text-slate-400 font-medium">Stock</p>
+                                            <p className="text-xs text-slate-400 font-medium">{t('pos.stock')}</p>
                                             <p className={`text-xs font-bold ${product.stock < 10 ? 'text-orange-500' : 'text-slate-600'}`}>
                                                 {product.stock} {product.unit || 'pcs'}
                                             </p>
@@ -127,7 +129,7 @@ const ProductGrid = ({ onAddToCart }) => {
                                         className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-primary-600 disabled:bg-slate-200 disabled:text-slate-400 transition-all shadow-sm active:scale-95"
                                     >
                                         <Plus size={14} />
-                                        Add Item
+                                        {t('pos.addItem')}
                                     </button>
                                 </div>
                             </div>

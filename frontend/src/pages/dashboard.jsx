@@ -6,9 +6,10 @@ import {
     AlertTriangle,
     ArrowUpRight
 } from "lucide-react";
+import { useLanguage } from "../i18n/LanguageContext";
 import { transactionApi } from "../api/transactions";
 
-const StatCard = ({ title, value, icon, color, bgColor, trend }) => (
+const StatCard = ({ title, value, icon, color, bgColor, trend, t }) => (
     <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
         <div className="flex items-start justify-between">
             <div className="space-y-3">
@@ -33,6 +34,7 @@ const StatCard = ({ title, value, icon, color, bgColor, trend }) => (
 );
 
 const Dashboard = () => {
+    const { t } = useLanguage();
     const [dashboard, setDashboard] = useState(null);
 
     useEffect(() => {
@@ -51,28 +53,28 @@ const Dashboard = () => {
 
     const stats = [
         {
-            title: "Today's Revenue",
+            title: t('dashboard.todayRevenue'),
             value: `Rp ${Number(dashboard.stats.today_sales).toLocaleString('id-ID')}`,
             icon: <DollarSign size={24} />,
             color: "text-emerald-600",
             bgColor: "bg-emerald-50"
         },
         {
-            title: "Transaction Count",
+            title: t('dashboard.transactionCount'),
             value: dashboard.stats.today_transactions,
             icon: <ShoppingBag size={24} />,
             color: "text-primary-600",
             bgColor: "bg-primary-50"
         },
         {
-            title: "Items Moved",
+            title: t('dashboard.itemsMoved'),
             value: dashboard.stats.today_items_sold,
             icon: <Package size={24} />,
             color: "text-violet-600",
             bgColor: "bg-violet-50"
         },
         {
-            title: "Inventory Alerts",
+            title: t('dashboard.inventoryAlerts'),
             value: dashboard.stats.low_stock_products,
             icon: <AlertTriangle size={24} />,
             color: "text-red-600",
@@ -83,8 +85,8 @@ const Dashboard = () => {
     return (
         <div className="space-y-10">
             <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Executive Dashboard</h1>
-                <p className="text-sm text-slate-500 font-medium">Real-time performance analytics and business insights</p>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('dashboard.title')}</h1>
+                <p className="text-sm text-slate-500 font-medium">{t('dashboard.subtitle')}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -98,20 +100,20 @@ const Dashboard = () => {
                 <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
                     <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
                         <div>
-                            <h2 className="text-lg font-black text-slate-900 tracking-tight">Recent Activity</h2>
-                            <p className="text-xs text-slate-400 font-medium mt-0.5">Live stream of latest sales transactions</p>
+                            <h2 className="text-lg font-black text-slate-900 tracking-tight">{t('dashboard.recentActivity')}</h2>
+                            <p className="text-xs text-slate-400 font-medium mt-0.5">{t('dashboard.recentDesc')}</p>
                         </div>
-                        <button className="text-xs font-bold text-primary-600 hover:text-primary-700 px-3 py-1.5 rounded-lg hover:bg-primary-50 transition-all">View All Reports</button>
+                        <button className="text-xs font-bold text-primary-600 hover:text-primary-700 px-3 py-1.5 rounded-lg hover:bg-primary-50 transition-all">{t('dashboard.viewAllReports')}</button>
                     </div>
                     <div className="p-2">
                         <div className="overflow-hidden">
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                        <th className="px-6 py-4">Invoice</th>
-                                        <th className="px-6 py-4">Customer/User</th>
-                                        <th className="px-6 py-4 text-right">Amount</th>
-                                        <th className="px-6 py-4 text-center">Status</th>
+                                        <th className="px-6 py-4">{t('dashboard.invoice')}</th>
+                                        <th className="px-6 py-4">{t('dashboard.customerUser')}</th>
+                                        <th className="px-6 py-4 text-right">{t('dashboard.amount')}</th>
+                                        <th className="px-6 py-4 text-center">{t('dashboard.status')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
@@ -147,8 +149,8 @@ const Dashboard = () => {
                 {/* Top Products */}
                 <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden flex flex-col">
                     <div className="px-8 py-6 border-b border-slate-50 bg-slate-50/30">
-                        <h2 className="text-lg font-black text-slate-900 tracking-tight">Bestsellers</h2>
-                        <p className="text-xs text-slate-400 font-medium mt-0.5">Top performing products by volume</p>
+                        <h2 className="text-lg font-black text-slate-900 tracking-tight">{t('dashboard.bestsellers')}</h2>
+                        <p className="text-xs text-slate-400 font-medium mt-0.5">{t('dashboard.bestsellersDesc')}</p>
                     </div>
                     <div className="flex-1 p-6 space-y-4">
                         {(dashboard.top_products || []).map((item, index) => (
@@ -169,7 +171,7 @@ const Dashboard = () => {
                                                 style={{ width: `${Math.min(100, (item.total_sold / dashboard.stats.today_items_sold) * 100)}%` }}
                                             ></div>
                                         </div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0">{item.total_sold} Sold</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0">{item.total_sold} {t('dashboard.sold')}</p>
                                     </div>
                                 </div>
                             </div>

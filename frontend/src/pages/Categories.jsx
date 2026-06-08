@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, FolderOpen } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { useCategories } from '../hooks/useCategories';
 
 const Categories = () => {
+    const { t } = useLanguage();
     const {
         categories,
         loading,
@@ -28,7 +30,7 @@ const Categories = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this category?')) {
+        if (window.confirm(t('categories.deleteConfirm'))) {
             try {
                 await deleteCategory(id);
             } catch (err) {
@@ -85,15 +87,15 @@ const Categories = () => {
         <div className="space-y-5">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Categories</h1>
-                    <p className="text-sm text-slate-500">Organize your products into categories</p>
+                <h1 className="text-2xl font-bold text-slate-800">{t('categories.title')}</h1>
+                <p className="text-sm text-slate-500">{t('categories.subtitle')}</p>
                 </div>
                 <button
                     onClick={openCreateModal}
                     className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 transition shadow-sm"
                 >
                     <Plus size={18} />
-                    Add Category
+                    {t('categories.addCategory')}
                 </button>
             </div>
 
@@ -102,7 +104,7 @@ const Categories = () => {
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="text"
-                        placeholder="Search categories..."
+                        placeholder={t('categories.search')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -121,10 +123,10 @@ const Categories = () => {
                 <table className="min-w-full">
                     <thead>
                         <tr className="border-b border-slate-200 bg-slate-50/50">
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Description</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                            <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('categories.name')}</th>
+                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('categories.description')}</th>
+                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('categories.status')}</th>
+                            <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('categories.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -132,7 +134,7 @@ const Categories = () => {
                             <tr>
                                 <td colSpan="4" className="px-5 py-12 text-center">
                                     <FolderOpen size={32} className="mx-auto text-slate-300 mb-2" />
-                                    <p className="text-sm text-slate-400">No categories found</p>
+                                    <p className="text-sm text-slate-400">{t('categories.noCategories')}</p>
                                 </td>
                             </tr>
                         ) : (
@@ -152,7 +154,7 @@ const Categories = () => {
                                                 ? 'bg-emerald-50 text-emerald-700'
                                                 : 'bg-red-50 text-red-700'
                                         }`}>
-                                            {category.is_active ? 'Active' : 'Inactive'}
+                                            {category.is_active ? t('categories.active') : t('categories.inactive')}
                                         </span>
                                     </td>
                                     <td className="px-5 py-3.5 text-right">
@@ -200,7 +202,7 @@ const Categories = () => {
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 mx-4">
                         <div className="flex justify-between items-center mb-5">
                             <h2 className="text-lg font-bold text-slate-800">
-                                {editingCategory ? 'Edit Category' : 'Add Category'}
+                                {editingCategory ? t('categories.edit') : t('categories.addNew')}
                             </h2>
                             <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
                                 <X size={18} />
@@ -213,7 +215,7 @@ const Categories = () => {
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('categories.name')}</label>
                                 <input
                                     type="text"
                                     value={formData.name}
@@ -225,7 +227,7 @@ const Categories = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('categories.description')}</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -244,7 +246,7 @@ const Categories = () => {
                                         className="sr-only peer"
                                     />
                                     <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600"></div>
-                                    <span className="ml-2.5 text-sm font-medium text-slate-700">Active</span>
+                                    <span className="ml-2.5 text-sm font-medium text-slate-700">{t('categories.active')}</span>
                                 </label>
                             </div>
 
@@ -254,14 +256,14 @@ const Categories = () => {
                                     onClick={() => setShowModal(false)}
                                     className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition"
                                 >
-                                    Cancel
+                                    {t('categories.cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
                                     className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm"
                                 >
-                                    {submitting ? 'Saving...' : 'Save'}
+                                    {submitting ? t('categories.saving') : t('categories.save')}
                                 </button>
                             </div>
                         </form>

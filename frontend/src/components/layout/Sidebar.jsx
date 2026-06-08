@@ -7,21 +7,24 @@ import {
     Receipt,
     LogOut,
     Users,
-    Store
+    Store,
+    Languages
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const Sidebar = () => {
     const location = useLocation();
     const { logout, isAdmin } = useAuth();
+    const { t, toggleLanguage, locale } = useLanguage();
 
     const menuItems = [
-        { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { path: '/pos', label: 'POS', icon: ShoppingCart },
-        { path: '/products', label: 'Products', icon: Package },
-        { path: '/categories', label: 'Categories', icon: Tags },
-        { path: '/transactions', label: 'Transactions', icon: Receipt },
-        ...(isAdmin ? [{ path: '/users', label: 'Users', icon: Users }] : []),
+        { path: '/dashboard', label: t('sidebar.dashboard'), icon: LayoutDashboard },
+        { path: '/pos', label: t('sidebar.pos'), icon: ShoppingCart },
+        { path: '/products', label: t('sidebar.products'), icon: Package },
+        { path: '/categories', label: t('sidebar.categories'), icon: Tags },
+        { path: '/transactions', label: t('sidebar.transactions'), icon: Receipt },
+        ...(isAdmin ? [{ path: '/users', label: t('sidebar.users'), icon: Users }] : []),
     ];
 
     return (
@@ -33,7 +36,7 @@ const Sidebar = () => {
                 </div>
                 <div>
                     <h1 className="text-white font-black text-xl tracking-tighter leading-none">LUXE<span className="text-primary-500">POS</span></h1>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Enterprise</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">{t('sidebar.enterprise')}</p>
                 </div>
             </div>
 
@@ -60,14 +63,21 @@ const Sidebar = () => {
                 })}
             </nav>
 
-            {/* Logout */}
-            <div className="px-4 py-8">
+            {/* Language Switcher & Logout */}
+            <div className="px-4 py-6 space-y-2">
+                <button
+                    onClick={toggleLanguage}
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-white/5 hover:text-slate-200 transition-all duration-300"
+                >
+                    <Languages size={18} />
+                    {locale === 'id' ? 'English' : 'Indonesia'}
+                </button>
                 <button
                     onClick={logout}
                     className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300"
                 >
                     <LogOut size={18} />
-                    Logout Account
+                    {t('sidebar.logout')}
                 </button>
             </div>
         </aside>

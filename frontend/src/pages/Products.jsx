@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Trash2, Search, Package } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { useProducts } from '../hooks/useProducts';
 
 const Products = () => {
+    const { t } = useLanguage();
     const { products, loading, error, deleteProduct, searchProducts, pagination, goToPage } = useProducts();
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -11,8 +13,7 @@ const Products = () => {
         searchProducts(searchTerm);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
+    const handleDelete = async (id) => {            if (window.confirm(t('categories.deleteConfirm').replace('category', 'product'))) {
             try {
                 await deleteProduct(id);
             } catch (err) {
@@ -32,16 +33,15 @@ const Products = () => {
     return (
         <div className="space-y-5">
             <div>
-                <h1 className="text-2xl font-bold text-slate-800">Products</h1>
-                <p className="text-sm text-slate-500">Manage your product inventory</p>
+                <h1 className="text-2xl font-bold text-slate-800">{t('products.title')}</h1>
+                <p className="text-sm text-slate-500">{t('products.subtitle')}</p>
             </div>
 
             <form onSubmit={handleSearch} className="flex">
                 <div className="relative flex-1">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder="Search products..."
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />                        <input
+                            type="text"
+                            placeholder={t('products.search')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -60,10 +60,10 @@ const Products = () => {
                 <table className="min-w-full">
                     <thead>
                         <tr className="border-b border-slate-200 bg-slate-50/50">
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Product</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Price</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Stock</th>
-                            <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('products.product')}</th>
+                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('products.price')}</th>
+                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('products.stock')}</th>
+                            <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('products.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -71,7 +71,7 @@ const Products = () => {
                             <tr>
                                 <td colSpan="4" className="px-5 py-12 text-center">
                                     <Package size={32} className="mx-auto text-slate-300 mb-2" />
-                                    <p className="text-sm text-slate-400">No products found</p>
+                                    <p className="text-sm text-slate-400">{t('products.noProducts')}</p>
                                 </td>
                             </tr>
                         ) : (
@@ -106,7 +106,7 @@ const Products = () => {
                                                     ? 'bg-amber-50 text-amber-700'
                                                     : 'bg-red-50 text-red-700'
                                         }`}>
-                                            {product.stock} units
+                                            {product.stock} {t('products.units')}
                                         </span>
                                     </td>
                                     <td className="px-5 py-3.5 text-right">

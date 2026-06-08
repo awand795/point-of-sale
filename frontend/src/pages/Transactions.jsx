@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Eye, X, Search, Receipt, Calendar, Filter, Download, ArrowUpRight } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { useTransactions } from '../hooks/useTransactions';
 
 const statusStyles = {
@@ -10,6 +11,7 @@ const statusStyles = {
 };
 
 const Transactions = () => {
+    const { t } = useLanguage();
     const {
         transactions,
         loading,
@@ -36,7 +38,7 @@ const Transactions = () => {
     };
 
     const handleCancel = async (id) => {
-        if (window.confirm('Are you sure you want to cancel this transaction?')) {
+        if (window.confirm(t('transactions.deleteConfirm'))) {
             const result = await cancelTransaction(id);
             if (!result.success) {
                 alert(result.error || 'Failed to cancel transaction');
@@ -56,12 +58,12 @@ const Transactions = () => {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Sales History</h1>
-                    <p className="text-sm text-slate-500 font-medium">Tracking and managing your retail flow</p>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('transactions.title')}</h1>
+                    <p className="text-sm text-slate-500 font-medium">{t('transactions.subtitle')}</p>
                 </div>
                 <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
                     <Download size={16} />
-                    Export Reports
+                    {t('transactions.exportReports')}
                 </button>
             </div>
 
@@ -70,8 +72,7 @@ const Transactions = () => {
                 <div className="flex items-center gap-2 px-2">
                     <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
                         <Filter size={14} />
-                    </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filters</span>
+                    </div>                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('transactions.filters')}</span>
                 </div>
                 
                 <form onSubmit={handleDateFilter} className="flex items-center gap-2">
@@ -97,10 +98,10 @@ const Transactions = () => {
                         onChange={(e) => handleStatusFilter(e.target.value)}
                         className="pl-4 pr-10 py-2 bg-slate-50 border border-transparent rounded-2xl text-xs font-bold focus:bg-white focus:border-primary-200 focus:ring-4 focus:ring-primary-50 transition-all outline-none appearance-none cursor-pointer"
                     >
-                        <option value="">Status: All Records</option>
-                        <option value="completed">Status: Completed</option>
-                        <option value="pending">Status: Pending</option>
-                        <option value="cancelled">Status: Cancelled</option>
+                        <option value="">{t('transactions.allStatus')}</option>
+                        <option value="completed">{t('transactions.completed')}</option>
+                        <option value="pending">{t('transactions.pending')}</option>
+                        <option value="cancelled">{t('transactions.cancelled')}</option>
                     </select>
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                         <Filter size={12} />
@@ -120,13 +121,13 @@ const Transactions = () => {
                     <table className="min-w-full text-left">
                         <thead>
                             <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50">
-                                <th className="px-8 py-5">Invoice</th>
-                                <th className="px-8 py-5">Date & Time</th>
-                                <th className="px-8 py-5">Cashier</th>
-                                <th className="px-8 py-5 text-right">Amount</th>
-                                <th className="px-8 py-5">Method</th>
-                                <th className="px-8 py-5 text-center">Status</th>
-                                <th className="px-8 py-5 text-right">Actions</th>
+                                <th className="px-8 py-5">{t('transactions.invoice')}</th>
+                                <th className="px-8 py-5">{t('transactions.dateTime')}</th>
+                                <th className="px-8 py-5">{t('transactions.cashier')}</th>
+                                <th className="px-8 py-5 text-right">{t('transactions.amount')}</th>
+                                <th className="px-8 py-5">{t('transactions.method')}</th>
+                                <th className="px-8 py-5 text-center">{t('transactions.status')}</th>
+                                <th className="px-8 py-5 text-right">{t('transactions.actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -136,8 +137,8 @@ const Transactions = () => {
                                         <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                             <Receipt size={32} className="text-slate-200" />
                                         </div>
-                                        <p className="text-lg font-bold text-slate-400">No records found</p>
-                                        <p className="text-sm text-slate-300 mt-1">Try clearing filters to see more results</p>
+                                        <p className="text-lg font-bold text-slate-400">{t('transactions.noRecords')}</p>
+                                        <p className="text-sm text-slate-300 mt-1">{t('transactions.noRecordsDesc')}</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -186,7 +187,7 @@ const Transactions = () => {
                                                 <button
                                                     onClick={() => setShowDetail(trx)}
                                                     className="p-2 rounded-xl text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-all"
-                                                    title="View Details"
+                                                    title={t('transactions.viewDetails')}
                                                 >
                                                     <Eye size={18} />
                                                 </button>
@@ -194,7 +195,7 @@ const Transactions = () => {
                                                     <button
                                                         onClick={() => handleCancel(trx.id)}
                                                         className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                                                        title="Cancel Order"
+                                                        title={t('transactions.cancelOrder')}
                                                     >
                                                         <X size={18} />
                                                     </button>
@@ -233,7 +234,7 @@ const Transactions = () => {
                     <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in duration-300">
                         <div className="px-10 py-8 bg-slate-900 text-white flex justify-between items-start">
                             <div>
-                                <h2 className="text-2xl font-black tracking-tight">Receipt</h2>
+                                <h2 className="text-2xl font-black tracking-tight">{t('transactions.receipt')}</h2>
                                 <p className="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">{showDetail.invoice_number}</p>
                             </div>
                             <button 
@@ -248,21 +249,21 @@ const Transactions = () => {
                             <div className="grid grid-cols-2 gap-8 mb-10">
                                 <div className="space-y-4">
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Transaction Date</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('transactions.transactionDate')}</p>
                                         <p className="text-sm font-bold text-slate-800 mt-1">{new Date(showDetail.created_at).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' })}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cashier Terminal</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('transactions.cashierTerminal')}</p>
                                         <p className="text-sm font-bold text-slate-800 mt-1">{showDetail.user?.name || 'Walk-in'}</p>
                                     </div>
                                 </div>
                                 <div className="space-y-4">
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment Info</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('transactions.paymentInfo')}</p>
                                         <p className="text-sm font-bold text-slate-800 mt-1 capitalize">{showDetail.payment_method || '-'} Card/Cash</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Order Status</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('transactions.orderStatus')}</p>
                                         <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mt-1 border ${
                                             statusStyles[showDetail.status] || 'bg-slate-50 text-slate-400 border-slate-100'
                                         }`}>
@@ -274,7 +275,7 @@ const Transactions = () => {
 
                             {showDetail.items && showDetail.items.length > 0 && (
                                 <div className="mb-10">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Line Items</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('transactions.lineItems')}</p>
                                     <div className="space-y-4">
                                         {showDetail.items.map((item, idx) => (
                                             <div key={idx} className="flex justify-between items-center group">
@@ -291,23 +292,23 @@ const Transactions = () => {
 
                             <div className="space-y-3 pt-8 border-t border-slate-100">
                                 <div className="flex justify-between text-xs font-bold">
-                                    <span className="text-slate-400">Subtotal</span>
+                                    <span className="text-slate-400">{t('transactions.subtotal')}</span>
                                     <span className="text-slate-700">Rp {Number(showDetail.subtotal).toLocaleString('id-ID')}</span>
                                 </div>
                                 {Number(showDetail.discount) > 0 && (
                                     <div className="flex justify-between text-xs font-bold text-red-500">
-                                        <span>Total Discount</span>
+                                        <span>{t('transactions.totalDiscount')}</span>
                                         <span>- Rp {Number(showDetail.discount).toLocaleString('id-ID')}</span>
                                     </div>
                                 )}
                                 {Number(showDetail.tax) > 0 && (
                                     <div className="flex justify-between text-xs font-bold">
-                                        <span className="text-slate-400">Tax Charges</span>
+                                        <span className="text-slate-400">{t('transactions.taxCharges')}</span>
                                         <span className="text-slate-700">Rp {Number(showDetail.tax).toLocaleString('id-ID')}</span>
                                     </div>
                                 )}
                                 <div className="flex justify-between items-end pt-4">
-                                    <span className="text-sm font-black text-slate-900 uppercase tracking-widest">Total Amount</span>
+                                    <span className="text-sm font-black text-slate-900 uppercase tracking-widest">{t('transactions.totalAmount')}</span>
                                     <span className="text-3xl font-black text-primary-600 tracking-tighter">Rp {Number(showDetail.total).toLocaleString('id-ID')}</span>
                                 </div>
                             </div>
@@ -317,13 +318,13 @@ const Transactions = () => {
                                     onClick={() => setShowDetail(null)}
                                     className="flex-1 py-4 text-xs font-black uppercase tracking-widest text-slate-400 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all"
                                 >
-                                    Dismiss
+                                    {t('transactions.dismiss')}
                                 </button>
                                 <button
                                     className="flex-1 py-4 text-xs font-black uppercase tracking-widest text-white bg-slate-900 rounded-2xl hover:bg-primary-600 shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-2"
                                 >
                                     <Download size={14} />
-                                    Download PDF
+                                    {t('transactions.downloadPDF')}
                                 </button>
                             </div>
                         </div>

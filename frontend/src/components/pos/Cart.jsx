@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Minus, Plus, Trash2, ShoppingCart, CreditCard, Banknote, Wallet } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { transactionApi } from "../../api/transactions";
 
 const Cart = ({ cart }) => {
+    const { t } = useLanguage();
     const {
         items,
         updateQuantity,
@@ -68,9 +70,9 @@ const Cart = ({ cart }) => {
             <div className="px-6 py-5 bg-slate-900 text-white flex items-center justify-between shrink-0">
                 <div>
                     <h2 className="font-bold flex items-center text-lg">
-                        Current Order
+                        {t('pos.currentOrder')}
                     </h2>
-                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-0.5">Customer: Walk-in</p>
+                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-0.5">{t('pos.customer')}: Walk-in</p>
                 </div>
                 {itemCount > 0 && (
                     <button 
@@ -89,8 +91,8 @@ const Cart = ({ cart }) => {
                         <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                             <ShoppingCart size={32} className="text-slate-200" />
                         </div>
-                        <p className="text-sm font-bold text-slate-400">Your cart is empty</p>
-                        <p className="text-xs text-slate-300 mt-1 text-center px-10">Add products from the list to start a new transaction</p>
+                        <p className="text-sm font-bold text-slate-400">{t('pos.cartEmpty')}</p>
+                        <p className="text-xs text-slate-300 mt-1 text-center px-10">{t('pos.cartEmptyDesc')}</p>
                     </div>
                 ) : (
                     items.map((item) => (
@@ -132,7 +134,7 @@ const Cart = ({ cart }) => {
             <div className="shrink-0 border-t border-slate-100 bg-slate-50/30 px-6 py-6 space-y-4">
                 <div className="space-y-2">
                     <div className="flex justify-between text-xs font-bold">
-                        <span className="text-slate-400">Subtotal</span>
+                        <span className="text-slate-400">{t('pos.subtotal')}</span>
                         <span className="text-slate-700">Rp {subtotal.toLocaleString('id-ID')}</span>
                     </div>
 
@@ -159,13 +161,13 @@ const Cart = ({ cart }) => {
                 </div>
 
                 <div className="flex justify-between items-end pb-2">
-                    <span className="text-sm font-bold text-slate-800">Total Payable</span>
+                    <span className="text-sm font-bold text-slate-800">{t('pos.totalPayable')}</span>
                     <span className="text-2xl font-black text-slate-900 tracking-tight">Rp {total.toLocaleString('id-ID')}</span>
                 </div>
 
                 {/* Payment method selection */}
                 <div className="space-y-2">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment Method</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('pos.paymentMethod')}</p>
                     <div className="grid grid-cols-4 gap-2">
                         {paymentMethods.map((method) => (
                             <button
@@ -186,7 +188,7 @@ const Cart = ({ cart }) => {
 
                 <div className="space-y-3">
                     <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300 uppercase tracking-widest">Received</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300 uppercase tracking-widest">{t('pos.received')}</span>
                         <input
                             type="number"
                             value={paidAmount || ''}
@@ -197,7 +199,7 @@ const Cart = ({ cart }) => {
 
                     {change > 0 && (
                         <div className="flex justify-between items-center px-4 py-3 bg-emerald-50 rounded-2xl border border-emerald-100">
-                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Change Return</span>
+                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t('pos.changeReturn')}</span>
                             <span className="text-sm font-black text-emerald-700">Rp {change.toLocaleString('id-ID')}</span>
                         </div>
                     )}
@@ -208,7 +210,7 @@ const Cart = ({ cart }) => {
                     disabled={isEmpty || processing || paidAmount < total}
                     className="w-full py-5 bg-primary-600 text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-primary-700 disabled:bg-slate-100 disabled:text-slate-300 transition-all shadow-xl shadow-primary-100 active:scale-[0.98]"
                 >
-                    {processing ? 'Processing...' : 'Complete Transaction'}
+                    {processing ? t('pos.processing') : t('pos.completeTransaction')}
                 </button>
             </div>
         </div>
