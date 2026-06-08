@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->preventRequestForgery(except: [
-            'api/*',
+            '*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
