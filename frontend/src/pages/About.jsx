@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Store, ArrowLeft, Globe, Code, Palette, ShoppingBag, Search, Camera, ExternalLink, Target, Heart, Users, Lightbulb, CheckCircle } from 'lucide-react';
+import { Store, ArrowLeft, Globe, Code, Palette, ShoppingBag, Search, ExternalLink, Target, Heart, Users, Lightbulb, CheckCircle } from 'lucide-react';
 
 const About = () => {
   const { t, locale } = useLanguage();
