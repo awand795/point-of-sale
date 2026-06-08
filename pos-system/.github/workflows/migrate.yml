@@ -1,0 +1,50 @@
+name: migrate
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Run database seeder after migration?'
+        type: boolean
+        default: true
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+
+      - name: Install Dependencies
+        working-directory: pos-system
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Setup .env
+        working-directory: pos-system
+        run: |
+          cp .env.example .env
+          echo "APP_KEY=${{ secrets.APP_KEY }}" >> .env
+          echo "APP_ENV=production" >> .env
+          echo "APP_DEBUG=false" >> .env
+          echo "DB_CONNECTION=pgsql" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+
+      - name: Run Migrations
+        working-directory: pos-system
+        run: php artisan migrate --force
+
+      - name: Run Database Seeder
+        if: ${{ github.event.inputs.seed == 'true' }}
+        working-directory: pos-system
+        run: php artisan db:seed --force
