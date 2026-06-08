@@ -14,7 +14,7 @@ const Login = () => {
         if (searchParams.get('demo') === 'true') {
             setFormData({
                 email: 'admin@example.com',
-                password: 'password'
+                password: 'admin1234'
             });
         }
     }, [searchParams]);
