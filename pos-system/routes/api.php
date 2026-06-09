@@ -41,6 +41,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
-    Route::apiResource('users', UserController::class)->middleware('can:users-manage');
-    Route::get('/users/roles/list', [UserController::class, 'roles'])->middleware('can:users-manage');
+    Route::get('/users/roles/list', [UserController::class, 'roles']);
+    Route::apiResource('users', UserController::class);
 });

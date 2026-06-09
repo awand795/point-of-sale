@@ -18,6 +18,7 @@ import Discounts from "./pages/Discounts";
 import Stores from "./pages/Stores";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
+import Users from "./pages/Users";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ function App() {
               <Route path="/stores" element={<Stores />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/users" element={<Users />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

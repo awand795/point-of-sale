@@ -6,5 +6,4 @@ export const userApi = {
     create: (data) => api.post('/users', data),
     update: (id, data) => api.put(`/users/${id}`, data),
     delete: (id) => api.delete(`/users/${id}`),
-    updateRole: (id, roles) => api.put(`/users/${id}/role`, { roles }),
 };

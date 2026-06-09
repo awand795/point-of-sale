@@ -1,17 +1,32 @@
 import { useState } from 'react';
 import { BarChart3, TrendingUp, DollarSign, ShoppingBag, Package, Calendar, Download, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useReports } from '../hooks/useReports';
 
 const Reports = () => {
     const { t } = useLanguage();
+    const { reports, loading, error, filterByDate } = useReports();
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
-    const stats = [
+    const handleFilter = () => {
+        if (dateRange.start && dateRange.end) {
+            filterByDate(dateRange.start, dateRange.end);
+        }
+    };
+
+    const stats = reports ? [
+        { title: 'Total Revenue', value: `Rp ${Number(reports.total_revenue || 0).toLocaleString('id-ID')}`, icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50', change: '+0%' },
+        { title: 'Total Orders', value: reports.total_orders || '0', icon: ShoppingBag, color: 'text-primary-600', bg: 'bg-primary-50', change: '+0%' },
+        { title: 'Items Sold', value: reports.total_items || '0', icon: Package, color: 'text-violet-600', bg: 'bg-violet-50', change: '+0%' },
+        { title: 'Avg. Order Value', value: `Rp ${Number(reports.avg_order_value || 0).toLocaleString('id-ID')}`, icon: TrendingUp, color: 'text-amber-600', bg: 'bg-amber-50', change: '+0%' },
+    ] : [
         { title: 'Total Revenue', value: 'Rp 0', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50', change: '+0%' },
         { title: 'Total Orders', value: '0', icon: ShoppingBag, color: 'text-primary-600', bg: 'bg-primary-50', change: '+0%' },
         { title: 'Items Sold', value: '0', icon: Package, color: 'text-violet-600', bg: 'bg-violet-50', change: '+0%' },
         { title: 'Avg. Order Value', value: 'Rp 0', icon: TrendingUp, color: 'text-amber-600', bg: 'bg-amber-50', change: '+0%' },
     ];
+
+    if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div></div>;
 
     return (
         <div className="space-y-8">
@@ -24,13 +39,18 @@ const Reports = () => {
                     <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">
                         <input type="date" value={dateRange.start} onChange={(e) => setDateRange(d => ({ ...d, start: e.target.value }))} className="px-3 py-2 bg-slate-50 border border-transparent rounded-xl text-xs font-bold focus:bg-white focus:border-primary-200 outline-none transition-all" />
                         <span className="text-xs text-slate-400">—</span>
-                        <input type="date" value={dateRange.end} onChange={(e) => setDateRange(d => ({ ...d, end: e.target.value }))} className="px-3 py-2 bg-slate-50 border border-transparent rounded-xl text-xs font-bold focus:bg-white focus:border-primary-200 outline-none transition-all" />
+                        <input type="date" value={dateRange.end} onChange={(e) => { setDateRange(d => ({ ...d, end: e.target.value })); setTimeout(() => handleFilter(), 0); }} className="px-3 py-2 bg-slate-50 border border-transparent rounded-xl text-xs font-bold focus:bg-white focus:border-primary-200 outline-none transition-all" />
                     </div>
+                    <button onClick={handleFilter} className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-2xl text-xs font-bold hover:bg-primary-600 transition-all shadow-sm">
+                        <Calendar size={16} /> Filter
+                    </button>
                     <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
                         <Download size={16} /> Export
                     </button>
                 </div>
             </div>
+
+            {error && <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">{error}</div>}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {stats.map((stat, idx) => {
@@ -71,7 +91,7 @@ const Reports = () => {
                 <div className="flex items-center justify-center h-64 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-200">
                     <div className="text-center">
                         <BarChart3 size={48} className="mx-auto text-slate-300 mb-3" />
-                        <p className="text-sm font-bold text-slate-400">Revenue chart will appear here</p>
+                        <p className="text-sm font-bold text-slate-400">{reports ? 'Chart data loaded' : 'Revenue chart will appear here'}</p>
                         <p className="text-xs text-slate-300 mt-1">Select a date range to generate reports</p>
                     </div>
                 </div>
@@ -83,7 +103,7 @@ const Reports = () => {
                     <div className="flex items-center justify-center h-48 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-200">
                         <div className="text-center">
                             <Package size={32} className="mx-auto text-slate-300 mb-2" />
-                            <p className="text-sm font-bold text-slate-400">No data yet</p>
+                            <p className="text-sm font-bold text-slate-400">{reports?.top_products?.length ? `${reports.top_products.length} products` : 'No data yet'}</p>
                         </div>
                     </div>
                 </div>

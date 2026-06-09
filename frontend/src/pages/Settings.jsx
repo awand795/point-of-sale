@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Save, Settings2, Building, Receipt, Bell, Shield } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSettings } from '../hooks/useSettings';
@@ -34,6 +34,19 @@ const Settings = () => {
             setSaving(false);
         }
     };
+
+    // Sync settings into form state when data loads
+    useEffect(() => {
+        if (Object.keys(settings).length > 0) {
+            const merged = {};
+            Object.values(settings).forEach(group => {
+                group.forEach(setting => {
+                    merged[setting.key] = setting.value;
+                });
+            });
+            setForm(prev => ({ ...prev, ...merged }));
+        }
+    }, [settings]);
 
     const updateForm = (key, value) => {
         setForm(prev => ({ ...prev, [key]: value }));
