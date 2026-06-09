@@ -3,14 +3,21 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { Bell, Languages } from 'lucide-react';
 
 const Header = () => {
-    const { user } = useAuth();
+    const { user, isDemo } = useAuth();
     const { t, locale, toggleLanguage } = useLanguage();
 
     return (
         <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0 sticky top-0 z-50">
-            <div>
-                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('header.currentSession')}</h2>
-                <p className="text-sm font-bold text-slate-800">{user?.name || 'User Account'}</p>
+            <div className="flex items-center gap-3">
+                <div>
+                    <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('header.currentSession')}</h2>
+                    <p className="text-sm font-bold text-slate-800">{user?.name || 'User Account'}</p>
+                </div>
+                {isDemo && (
+                    <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest rounded-lg border border-amber-200 shadow-sm">
+                        DEMO
+                    </span>
+                )}
             </div>
             <div className="flex items-center gap-4">
                 <button

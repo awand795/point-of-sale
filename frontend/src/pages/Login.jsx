@@ -13,15 +13,15 @@ const Login = () => {
     useEffect(() => {
         if (searchParams.get('demo') === 'true') {
             setFormData({
-                email: 'admin@example.com',
-                password: 'admin1234'
+                email: 'demo@example.com',
+                password: 'demo1234'
             });
         }
     }, [searchParams]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await login(formData);
+        await login(formData, searchParams.get('demo') === 'true');
     }
 
     return (

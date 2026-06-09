@@ -35,6 +35,14 @@ class DatabaseSeeder extends Seeder
         ]);
         $cashier->assignRole('cashier');
 
+        // Demo user (untuk mode demo via ?demo=true)
+        $demoUser = User::factory()->create([
+            'name' => 'Demo User',
+            'email' => 'demo@example.com',
+            'password' => bcrypt('demo1234'),
+        ]);
+        $demoUser->assignRole('admin');
+
         // Categories
         $categories = [
             ['name' => 'Electronics', 'slug' => 'electronics'],

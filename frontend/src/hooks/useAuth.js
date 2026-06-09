@@ -8,6 +8,8 @@ export const useAuth = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const isDemo = localStorage.getItem("isDemo") === "true";
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         const cachedUser = localStorage.getItem("user");
@@ -42,7 +44,7 @@ export const useAuth = () => {
         }
     }, []);
 
-    const login = useCallback(async (credentials) => {
+    const login = useCallback(async (credentials, isDemo = false) => {
         setLoading(true);
         setError(null);
         try {
@@ -50,6 +52,7 @@ export const useAuth = () => {
             const {user, token} = response.data.data;
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("isDemo", isDemo ? "true" : "false");
             setUser(user);
             navigate("/dashboard");
             return { success: true };
@@ -69,6 +72,7 @@ export const useAuth = () => {
         } finally {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
+            localStorage.removeItem("isDemo");
             setUser(null);
             navigate("/");
         }
@@ -85,6 +89,7 @@ export const useAuth = () => {
         isAuthenticated,
         isAdmin,
         isCashier,
+        isDemo,
         loading,
         error,
     };
