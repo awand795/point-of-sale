@@ -11,6 +11,13 @@ import POS from "./pages/POS";
 import Products from "./pages/Products";
 import Categories from "./pages/Categories";
 import Transactions from "./pages/Transactions";
+import Customers from "./pages/Customers";
+import Suppliers from "./pages/Suppliers";
+import Purchases from "./pages/Purchases";
+import Discounts from "./pages/Discounts";
+import Stores from "./pages/Stores";
+import Settings from "./pages/Settings";
+import Reports from "./pages/Reports";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +47,13 @@ function App() {
               <Route path="/products" element={<Products />} />
               <Route path="/categories" element={<Categories />} />
               <Route path="/transactions" element={<Transactions />} />
+              <Route path="/customers" element={<Customers />} />
+              <Route path="/suppliers" element={<Suppliers />} />
+              <Route path="/purchases" element={<Purchases />} />
+              <Route path="/discounts" element={<Discounts />} />
+              <Route path="/stores" element={<Stores />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/reports" element={<Reports />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

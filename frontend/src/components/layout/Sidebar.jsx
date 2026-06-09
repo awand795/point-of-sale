@@ -8,7 +8,14 @@ import {
     LogOut,
     Users,
     Store,
-    Languages
+    Languages,
+    UserCircle,
+    Truck,
+    PackageCheck,
+    Tag,
+    BarChart3,
+    Settings2,
+    Bell
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -18,14 +25,56 @@ const Sidebar = () => {
     const { logout, isAdmin } = useAuth();
     const { t, toggleLanguage, locale } = useLanguage();
 
-    const menuItems = [
+    const mainMenu = [
         { path: '/dashboard', label: t('sidebar.dashboard'), icon: LayoutDashboard },
         { path: '/pos', label: t('sidebar.pos'), icon: ShoppingCart },
         { path: '/products', label: t('sidebar.products'), icon: Package },
         { path: '/categories', label: t('sidebar.categories'), icon: Tags },
         { path: '/transactions', label: t('sidebar.transactions'), icon: Receipt },
-        ...(isAdmin ? [{ path: '/users', label: t('sidebar.users'), icon: Users }] : []),
     ];
+
+    const crmMenu = [
+        { path: '/customers', label: t('sidebar.customers'), icon: UserCircle },
+        { path: '/suppliers', label: t('sidebar.suppliers'), icon: Truck },
+    ];
+
+    const inventoryMenu = [
+        { path: '/purchases', label: t('sidebar.purchases'), icon: PackageCheck },
+        { path: '/discounts', label: t('sidebar.discounts'), icon: Tag },
+    ];
+
+    const managementMenu = [
+        { path: '/stores', label: t('sidebar.stores'), icon: Store },
+        { path: '/reports', label: t('sidebar.reports'), icon: BarChart3 },
+        ...(isAdmin ? [{ path: '/users', label: t('sidebar.users'), icon: Users }] : []),
+        { path: '/settings', label: t('sidebar.settings'), icon: Settings2 },
+    ];
+
+    const renderMenuSection = (items, sectionTitle) => (
+        <div className="mb-4">
+            {sectionTitle && (
+                <p className="px-4 mb-2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">{sectionTitle}</p>
+            )}
+            {items.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                return (
+                    <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 mb-0.5 ${
+                            isActive
+                                ? 'bg-primary-600 text-white shadow-xl shadow-primary-900/40 translate-x-1'
+                                : 'text-slate-500 hover:bg-white/5 hover:text-slate-200'
+                        }`}
+                    >
+                        <Icon size={18} />
+                        {item.label}
+                    </Link>
+                );
+            })}
+        </div>
+    );
 
     return (
         <aside className="w-64 bg-sidebar flex flex-col h-screen shrink-0">
@@ -41,26 +90,11 @@ const Sidebar = () => {
             </div>
 
             {/* Menu */}
-            <nav className="flex-1 py-4 px-4 space-y-2 overflow-y-auto">
-                {menuItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location.pathname === item.path;
-
-                    return (
-                        <Link
-                            key={item.path}
-                            to={item.path}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 ${
-                                isActive
-                                    ? 'bg-primary-600 text-white shadow-xl shadow-primary-900/40 translate-x-1'
-                                    : 'text-slate-500 hover:bg-white/5 hover:text-slate-200'
-                            }`}
-                        >
-                            <Icon size={18} />
-                            {item.label}
-                        </Link>
-                    );
-                })}
+            <nav className="flex-1 py-4 px-4 overflow-y-auto">
+                {renderMenuSection(mainMenu, t('sidebar.main'))}
+                {renderMenuSection(crmMenu, t('sidebar.crm'))}
+                {renderMenuSection(inventoryMenu, t('sidebar.inventory'))}
+                {renderMenuSection(managementMenu, t('sidebar.management'))}
             </nav>
 
             {/* Language Switcher & Logout */}
