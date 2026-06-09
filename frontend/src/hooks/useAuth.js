@@ -10,7 +10,13 @@ export const useAuth = () => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (token) {
+        const cachedUser = localStorage.getItem("user");
+        if (token && cachedUser) {
+            // Gunakan data user dari cache agar tidak perlu panggil API /me
+            // yang bermasalah di Vercel (PATH_INFO menghilangkan prefix /api).
+            setUser(JSON.parse(cachedUser));
+            setLoading(false);
+        } else if (token) {
             fetchUser();
         } else {
             setLoading(false);
@@ -21,6 +27,7 @@ export const useAuth = () => {
         try {
             const response = await authApi.me();
             setUser(response.data.data);
+            localStorage.setItem("user", JSON.stringify(response.data.data));
         } catch (err) {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
