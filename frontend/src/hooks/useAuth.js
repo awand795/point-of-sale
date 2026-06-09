@@ -79,8 +79,8 @@ export const useAuth = () => {
     }, [navigate]);
 
     const isAuthenticated = !!user;
-    const isAdmin = user?.roles?.some(role => role.name === "ROLE_ADMIN");
-    const isCashier = user?.roles?.some(role => role.name === "ROLE_CASHIER");
+    const isAdmin = user?.roles?.some(role => role.name === "admin");
+    const isCashier = user?.roles?.some(role => role.name === "cashier");
 
     return{
         user,
