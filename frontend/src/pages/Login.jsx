@@ -72,6 +72,12 @@ const Login = () => {
                         </div>
                     )}
 
+                    {searchParams.get('expired') === 'true' && !error && (
+                        <div className="mb-6 p-4 bg-amber-50 border border-amber-100 text-amber-600 rounded-2xl text-xs font-bold">
+                            {t('login.sessionExpired') || 'Your session has expired. Please log in again.'}
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">{t('login.email')}</label>

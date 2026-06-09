@@ -128,7 +128,18 @@ function respond(data, status = 200) {
 }
 
 export function handleDemoRequest(method, url, data, params) {
-    const path = url.replace(/^/api//, '').replace(/^//, '');
+    // Remove origin if it exists to handle absolute URLs
+    let cleanUrl = url;
+    try {
+        if (url.startsWith('http')) {
+            cleanUrl = new URL(url).pathname;
+        }
+    } catch (e) {
+        // Fallback if URL constructor fails
+        cleanUrl = url.replace(/^https?:\/\/[^\/]+/, '');
+    }
+
+    const path = cleanUrl.replace(/^\/api\//, '').replace(/^\//, '');
     const parts = path.split('/');
     const resource = parts[0];
     const id = parts[1];

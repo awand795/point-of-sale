@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "./i18n/LanguageContext";
+import { useAuth } from "./hooks/useAuth";
 import Layout from "./components/layout/Layout";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -23,8 +24,17 @@ import Users from "./pages/Users";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" />;
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary-600 border-t-transparent"></div>
+      </div>
+    );
+  }
+  
+  return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
 function App() {

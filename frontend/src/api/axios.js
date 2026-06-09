@@ -49,11 +49,21 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         // In demo mode, don't redirect on 401
-        if (localStorage.getItem('isDemo') !== 'true') {
-            if (error.response?.status === 401 && error.config?.url === '/me') {
+        const isDemo = localStorage.getItem('isDemo') === 'true';
+        
+        if (!isDemo && error.response?.status === 401) {
+            // Check if it's a login request - we don't want to redirect while trying to login
+            const isLoginRequest = error.config?.url?.includes('/login');
+            
+            if (!isLoginRequest) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = '/login';
+                localStorage.removeItem('isDemo');
+                
+                // Only redirect if not already on the login page
+                if (window.location.pathname !== '/login') {
+                    window.location.href = '/login?expired=true';
+                }
             }
         }
         return Promise.reject(error);
