@@ -15,33 +15,30 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Roles
-        Role::create(['name' => 'admin']);
-        Role::create(['name' => 'cashier']);
-        Role::create(['name' => 'manager']);
+        // Roles - use firstOrCreate so it's safe to run multiple times
+        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'cashier', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'web']);
 
-        // Users
-        $admin = User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('admin1234'),
-        ]);
-        $admin->assignRole('admin');
+        // Users - use firstOrCreate so it's safe to run multiple times
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            ['name' => 'Admin User', 'password' => bcrypt('admin1234'), 'email_verified_at' => now()]
+        );
+        if (!$admin->hasRole('admin')) $admin->assignRole('admin');
 
-        $cashier = User::factory()->create([
-            'name' => 'Budi Kasir',
-            'email' => 'cashier@example.com',
-            'password' => bcrypt('cashier1234'),
-        ]);
-        $cashier->assignRole('cashier');
+        $cashier = User::firstOrCreate(
+            ['email' => 'cashier@example.com'],
+            ['name' => 'Budi Kasir', 'password' => bcrypt('cashier1234'), 'email_verified_at' => now()]
+        );
+        if (!$cashier->hasRole('cashier')) $cashier->assignRole('cashier');
 
         // Demo user (untuk mode demo via ?demo=true)
-        $demoUser = User::factory()->create([
-            'name' => 'Demo User',
-            'email' => 'demo@example.com',
-            'password' => bcrypt('demo1234'),
-        ]);
-        $demoUser->assignRole('admin');
+        $demoUser = User::firstOrCreate(
+            ['email' => 'demo@example.com'],
+            ['name' => 'Demo User', 'password' => bcrypt('demo1234'), 'email_verified_at' => now()]
+        );
+        if (!$demoUser->hasRole('admin')) $demoUser->assignRole('admin');
 
         // Categories
         $categories = [
@@ -51,7 +48,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Home & Garden', 'slug' => 'home-garden'],
         ];
         foreach ($categories as $category) {
-            Category::create($category);
+            Category::firstOrCreate(['slug' => $category['slug']], $category);
         }
 
         // Products
@@ -79,10 +76,11 @@ class DatabaseSeeder extends Seeder
 
         $createdProducts = [];
         foreach ($products as $item) {
-            $createdProducts[] = Product::create(array_merge($item, [
+            $data = array_merge($item, [
                 'slug' => Str::slug($item['name']),
                 'unit' => 'pcs',
-            ]));
+            ]);
+            $createdProducts[] = Product::firstOrCreate(['sku' => $item['sku']], $data);
         }
 
         // Transactions
@@ -191,26 +189,31 @@ class DatabaseSeeder extends Seeder
             $paidAmount = $trxData['status'] === 'paid' ? $total : 0;
             $createdAt = now()->subDays($trxData['days_ago'])->subHours(rand(1, 8));
 
-            $transaction = Transaction::create([
-                'invoice_number' => 'INV-' . str_pad($index + 1, 6, '0', STR_PAD_LEFT),
-                'user_id' => $trxData['user']->id,
-                'type' => 'sale',
-                'status' => $trxData['status'],
-                'subtotal' => $subtotal,
-                'tax' => $trxData['tax'],
-                'discount' => $trxData['discount'],
-                'total' => $total,
-                'paid_amount' => $paidAmount,
-                'payment_method' => $trxData['payment_method'],
-                'completed_at' => $trxData['status'] === 'paid' ? $createdAt : null,
-                'created_at' => $createdAt,
-                'updated_at' => $createdAt,
-            ]);
+            $transaction = Transaction::firstOrCreate(
+                ['invoice_number' => 'INV-' . str_pad($index + 1, 6, '0', STR_PAD_LEFT)],
+                [
+                    'user_id' => $trxData['user']->id,
+                    'type' => 'sale',
+                    'status' => $trxData['status'],
+                    'subtotal' => $subtotal,
+                    'tax' => $trxData['tax'],
+                    'discount' => $trxData['discount'],
+                    'total' => $total,
+                    'paid_amount' => $paidAmount,
+                    'payment_method' => $trxData['payment_method'],
+                    'completed_at' => $trxData['status'] === 'paid' ? $createdAt : null,
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
+                ]
+            );
 
-            foreach ($itemsToCreate as $item) {
-                TransactionItem::create(array_merge($item, [
-                    'transaction_id' => $transaction->id,
-                ]));
+            // Only create items for newly created transactions to avoid duplicates on re-seed
+            if ($transaction->wasRecentlyCreated) {
+                foreach ($itemsToCreate as $item) {
+                    TransactionItem::create(array_merge($item, [
+                        'transaction_id' => $transaction->id,
+                    ]));
+                }
             }
         }
     }
