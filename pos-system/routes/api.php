@@ -5,6 +5,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\TransactionController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CustomerController;
+use App\Http\Controllers\Api\SupplierController;
+use App\Http\Controllers\Api\PurchaseController;
+use App\Http\Controllers\Api\DiscountController;
+use App\Http\Controllers\Api\StoreController;
+use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\SeedDemoController;
 use Illuminate\Support\Facades\Artisan;
 
@@ -45,16 +54,6 @@ Route::get('/seed-db', function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-use App\Http\Controllers\Api\CustomerController;
-use App\Http\Controllers\Api\SupplierController;
-use App\Http\Controllers\Api\PurchaseController;
-use App\Http\Controllers\Api\DiscountController;
-use App\Http\Controllers\Api\StoreController;
-use App\Http\Controllers\Api\SettingController;
-use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\SeedDemoController;
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', ProductController::class);
     Route::apiResource('categories', CategoryController::class);
@@ -75,6 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::post('notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
     Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    // This is the controller that handles the demo data seeding from the frontend
     Route::post('/seed-demo', [SeedDemoController::class, 'seed']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
