@@ -14,12 +14,9 @@ export const useAuth = () => {
         const token = localStorage.getItem("token");
         const cachedUser = localStorage.getItem("user");
         if (token && cachedUser) {
-            // Gunakan data user dari cache agar tidak perlu panggil API /me
-            // yang bermasalah di Vercel (PATH_INFO menghilangkan prefix /api).
             try {
                 setUser(JSON.parse(cachedUser));
             } catch {
-                // Cache corrupt, fallback ke API
                 fetchUser();
                 return;
             }
@@ -47,22 +44,33 @@ export const useAuth = () => {
     const login = useCallback(async (credentials, isDemo = false) => {
         setLoading(true);
         setError(null);
+
+        // Demo mode: login completely offline with mock data
+        if (isDemo) {
+            const demoUserData = {
+                id: 1,
+                name: 'Demo User',
+                email: 'demo@example.com',
+                phone: '081234567890',
+                is_active: true,
+                last_login_at: new Date().toISOString(),
+                roles: [{ id: 1, name: 'admin', guard_name: 'web' }],
+            };
+            localStorage.setItem("token", "demo-token-luxepos");
+            localStorage.setItem("user", JSON.stringify(demoUserData));
+            localStorage.setItem("isDemo", "true");
+            setUser(demoUserData);
+            navigate("/dashboard");
+            setLoading(false);
+            return { success: true };
+        }
+
         try {
             const response = await authApi.login(credentials);
             const {user, token} = response.data.data;
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(user));
-            localStorage.setItem("isDemo", isDemo ? "true" : "false");
             setUser(user);
-            // If demo, seed the database with dummy data
-            if (isDemo) {
-                try {
-                    await authApi.seedDemo();
-                } catch (seedErr) {
-                    console.log("Demo seeding note:", seedErr?.response?.data?.message || "Already seeded or seed skipped");
-                }
-            }
-
             navigate("/dashboard");
             return { success: true };
         } catch (err) {
