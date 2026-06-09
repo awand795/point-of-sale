@@ -25,11 +25,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
-        }
+        // Jangan langsung hapus token & redirect di sini.
+        // Di Vercel, PATH_INFO bikin prefix /api hilang, jd route web yg pake session
+        // kena 401 meskipun Bearer token valid. Biarkan masing2 komponen handle error.
         return Promise.reject(error);
     }
 );
