@@ -5,7 +5,42 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\TransactionController;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\SeedDemoController;
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/migrate-db', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        $output = Artisan::output();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Migrations completed',
+            'output' => $output
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+Route::get('/seed-db', function () {
+    try {
+        Artisan::call('db:seed', ['--force' => true]);
+        $output = Artisan::output();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Seeding completed',
+            'output' => $output
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
