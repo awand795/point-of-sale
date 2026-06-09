@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, X, Users, Shield, Ban, CheckCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, X, Users as UsersIcon, Shield, Ban, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { userApi } from '../api/user';
 
@@ -96,7 +96,7 @@ const Users = () => {
                         <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                     </tr></thead>
                     <tbody className="divide-y divide-slate-100">
-                        {users.length === 0 ? (<tr><td colSpan="5" className="px-5 py-12 text-center"><Users size={32} className="mx-auto text-slate-300 mb-2" /><p className="text-sm text-slate-400">No users found</p></td></tr>) : users.map((u) => (
+                        {users.length === 0 ? (<tr><td colSpan="5" className="px-5 py-12 text-center"><UsersIcon size={32} className="mx-auto text-slate-300 mb-2" /><p className="text-sm text-slate-400">No users found</p></td></tr>) : users.map((u) => (
                             <tr key={u.id} className="hover:bg-slate-50/50 transition">
                                 <td className="px-5 py-3.5">
                                     <div className="flex items-center gap-3">
