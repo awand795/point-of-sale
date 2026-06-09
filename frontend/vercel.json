@@ -3,6 +3,12 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install --legacy-peer-deps",
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
   "env": {
     "VITE_API_URL": "https://luxepos-backend.vercel.app/api",
     "VITE_SUPABASE_URL": "https://kmuqkviozrzmyynyueof.supabase.co",
