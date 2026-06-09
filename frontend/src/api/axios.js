@@ -16,21 +16,32 @@ api.interceptors.request.use(
 
         // DEMO MODE: intercept all requests and return mock data
         if (isDemo) {
-            const method = config.method?.toLowerCase() || 'get';
-            const url = config.url || '';
-            let data = config.data;
+            config.adapter = (config) => {
+                const method = config.method?.toLowerCase() || 'get';
+                const url = config.url || '';
+                let data = config.data;
 
-            if (typeof data === 'string') {
-                try { data = JSON.parse(data); } catch (e) { /* ignore */ }
-            }
+                if (typeof data === 'string') {
+                    try { data = JSON.parse(data); } catch (e) { /* ignore */ }
+                }
 
-            const response = handleDemoRequest(method, url, data, config.params);
+                const response = handleDemoRequest(method, url, data, config.params);
 
-            // Simulate realistic network delay
-            const delay = method === 'get' ? 200 : 300;
-            return new Promise((resolve) => {
-                setTimeout(() => resolve({ ...response, config }), delay);
-            });
+                // Simulate realistic network delay
+                const delay = method === 'get' ? 200 : 300;
+                
+                return new Promise((resolve) => {
+                    setTimeout(() => resolve({
+                        ...response,
+                        config,
+                        status: response.status || 200,
+                        statusText: 'OK',
+                        headers: response.headers || {},
+                        data: response.data
+                    }), delay);
+                });
+            };
+            return config;
         }
 
         // Normal mode: add auth token

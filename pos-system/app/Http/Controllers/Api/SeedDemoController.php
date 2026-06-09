@@ -94,6 +94,8 @@ class SeedDemoController extends Controller
         ];
         foreach ($categories as $category) {
             Category::create($category);
+        }
+    }
 
     private function seedProducts()
     {
@@ -120,9 +122,6 @@ class SeedDemoController extends Controller
             $createdProducts[] = Product::create($data);
         }
         return $createdProducts;
-    }
-
-        }
     }
 
  
