@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Plus, Search, X, Eye, PackageCheck, Filter, Truck, Package } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { usePurchases }
-import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/usePurchases';
+import { usePurchases } from '../hooks/usePurchases';
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
 const statusStyles = {
     pending: 'bg-amber-50 text-amber-600 border-amber-100',

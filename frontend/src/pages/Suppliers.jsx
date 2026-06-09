@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Building, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useSuppliers }
-import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/useSuppliers';
+import { useSuppliers } from '../hooks/useSuppliers';
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
 const Suppliers = () => {
     const { t } = useLanguage();

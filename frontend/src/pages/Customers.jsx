@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Users, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useCustomers }
-import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/useCustomers';
+import { useCustomers } from '../hooks/useCustomers';
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
 const Customers = () => {
     const { t } = useLanguage();

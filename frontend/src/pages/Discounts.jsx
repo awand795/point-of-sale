@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Tag, Calendar, Percent, DollarSign } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useDiscounts }
-import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/useDiscounts';
+import { useDiscounts } from '../hooks/useDiscounts';
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
 const Discounts = () => {
     const { t } = useLanguage();
