@@ -14,7 +14,13 @@ export const useAuth = () => {
         if (token && cachedUser) {
             // Gunakan data user dari cache agar tidak perlu panggil API /me
             // yang bermasalah di Vercel (PATH_INFO menghilangkan prefix /api).
-            setUser(JSON.parse(cachedUser));
+            try {
+                setUser(JSON.parse(cachedUser));
+            } catch {
+                // Cache corrupt, fallback ke API
+                fetchUser();
+                return;
+            }
             setLoading(false);
         } else if (token) {
             fetchUser();
