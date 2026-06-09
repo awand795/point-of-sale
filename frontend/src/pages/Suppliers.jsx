@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Building, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useAuth } from '../hooks/useAuth';
 import { useSuppliers } from '../hooks/useSuppliers';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
 const Suppliers = () => {
     const { t } = useLanguage();
     const { suppliers, loading, error, createSupplier, updateSupplier, deleteSupplier, searchSuppliers, pagination, goToPage } = useSuppliers();
+    const { isDemo } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
@@ -18,11 +20,22 @@ const Suppliers = () => {
     const openCreate = () => { setEditing(null); setForm({ name: '', company: '', email: '', phone: '', address: '', tax_id: '', notes: '' }); setFormError(null); setShowModal(true); };
     const openEdit = (s) => { setEditing(s); setForm({ name: s.name || '', company: s.company || '', email: s.email || '', phone: s.phone || '', address: s.address || '', tax_id: s.tax_id || '', notes: s.notes || '' }); setFormError(null); setShowModal(true); };
     const handleSubmit = async (e) => {
-        e.preventDefault(); setSubmitting(true); setFormError(null);
+        e.preventDefault();
+        if (isDemo) {
+            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
+        setSubmitting(true); setFormError(null);
         try { if (editing) { await updateSupplier(editing.id, form); } else { await createSupplier(form); } setShowModal(false); }
         catch (err) { setFormError(err.response?.data?.message || 'Failed to save supplier'); } finally { setSubmitting(false); }
     };
-    const handleDelete = async (id) => { if (window.confirm('Delete this supplier?')) { try { await deleteSupplier(id); } catch { alert('Failed to delete supplier'); } } };
+    const handleDelete = async (id) => {
+        if (isDemo) {
+            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
+        if (window.confirm('Delete this supplier?')) { try { await deleteSupplier(id); } catch { alert('Failed to delete supplier'); } }
+    };
 
     if (loading) return <LoadingSpinner text="Memuat supplier..." />;
 
@@ -78,7 +91,7 @@ const Suppliers = () => {
                     </div>
                     <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Address</label><textarea value={form.address} onChange={(e) => setForm(f => ({...f, address: e.target.value}))} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none" rows="2" /></div>
                     <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Notes</label><input type="text" value={form.notes} onChange={(e) => setForm(f => ({...f, notes: e.target.value}))} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" /></div>
-                    <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Cancel</button><button type="submit" disabled={submitting} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button></div>
+                    <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Cancel</button><button type="submit" disabled={submitting || isDemo} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button></div>
                 </form>
             </div></div>)}
         </div>

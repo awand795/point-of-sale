@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Users, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useAuth } from '../hooks/useAuth';
 import { useCustomers } from '../hooks/useCustomers';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
@@ -11,6 +12,7 @@ const Customers = () => {
         createCustomer, updateCustomer, deleteCustomer,
         searchCustomers, pagination, goToPage,
     } = useCustomers();
+    const { isDemo } = useAuth();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -37,6 +39,10 @@ const Customers = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isDemo) {
+            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
         setSubmitting(true);
         setFormError(null);
         try {
@@ -54,6 +60,10 @@ const Customers = () => {
     };
 
     const handleDelete = async (id) => {
+        if (isDemo) {
+            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
         if (window.confirm('Are you sure you want to delete this customer?')) {
             try { await deleteCustomer(id); } catch { alert('Failed to delete customer'); }
         }
@@ -176,7 +186,7 @@ const Customers = () => {
                             </div>
                             <div className="flex justify-end gap-2 pt-2">
                                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Cancel</button>
-                                <button type="submit" disabled={submitting} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button>
+                                <button type="submit" disabled={submitting || isDemo} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button>
                             </div>
                         </form>
                     </div>

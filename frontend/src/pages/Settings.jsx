@@ -3,10 +3,12 @@ import { Save, Settings2, Building, Receipt, Bell, Shield } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LoadingSpinner } from "../components/shared/EmptyState";
 import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../hooks/useAuth';
 
 const Settings = () => {
     const { t } = useLanguage();
     const { settings, loading, error, updateSettings } = useSettings();
+    const { isDemo } = useAuth();
     const [activeTab, setActiveTab] = useState('general');
     const [form, setForm] = useState({});
     const [saving, setSaving] = useState(false);
@@ -20,6 +22,10 @@ const Settings = () => {
     ];
 
     const handleSave = async () => {
+        if (isDemo) {
+            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
         setSaving(true);
         setSuccess(false);
         try {
@@ -105,7 +111,7 @@ const Settings = () => {
                     {success && <p className="text-sm font-medium text-emerald-600 flex items-center gap-1.5"><Shield size={14} />Settings saved successfully</p>}
                     {error && <p className="text-sm font-medium text-red-600">{error}</p>}
                     {!success && !error && <div />}
-                    <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm"><Save size={16} /> {saving ? 'Saving...' : 'Save Settings'}</button>
+                    <button onClick={handleSave} disabled={saving || isDemo} className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm"><Save size={16} /> {saving ? 'Saving...' : 'Save Settings'}</button>
                 </div>
             </div>
         </div>

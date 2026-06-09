@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, Search, X, Users as UsersIcon, Shield, Ban, CheckCi
 import { useLanguage } from '../i18n/LanguageContext';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 import { userApi } from '../api/user';
+import { useAuth } from '../hooks/useAuth';
 
 const Users = () => {
     const { t } = useLanguage();
@@ -12,6 +13,7 @@ const Users = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
+    const { isDemo } = useAuth();
     const [form, setForm] = useState({ name: '', email: '', password: '', phone: '', role: 'cashier' });
     const [formError, setFormError] = useState(null);
     const [submitting, setSubmitting] = useState(false);
@@ -49,6 +51,10 @@ const Users = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isDemo) {
+            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
         setSubmitting(true);
         setFormError(null);
         try {
@@ -69,6 +75,10 @@ const Users = () => {
     };
 
     const handleDelete = async (id) => {
+        if (isDemo) {
+            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
         if (window.confirm('Delete this user?')) {
             try { await userApi.delete(id); setUsers(prev => prev.filter(u => u.id !== id)); } catch { alert('Failed to delete user'); }
         }
@@ -140,7 +150,7 @@ const Users = () => {
                         <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Phone</label><input type="text" value={form.phone} onChange={(e) => setForm(f => ({...f, phone: e.target.value}))} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" /></div>
                         <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Role</label><select value={form.role} onChange={(e) => setForm(f => ({...f, role: e.target.value}))} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"><option value="admin">Admin</option><option value="cashier">Cashier</option></select></div>
                     </div>
-                    <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Cancel</button><button type="submit" disabled={submitting} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button></div>
+                    <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Cancel</button><button type="submit" disabled={submitting || isDemo} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button></div>
                 </form>
             </div></div>)}
         </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Eye, X, Search, Receipt, Calendar, Filter, Download, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useAuth } from '../hooks/useAuth';
 import { useTransactions } from '../hooks/useTransactions';
 
 const statusStyles = {
@@ -22,6 +23,7 @@ const Transactions = () => {
         filterByStatus,
         cancelTransaction,
     } = useTransactions();
+    const { isDemo } = useAuth();
 
     const [dateFilter, setDateFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
@@ -38,6 +40,10 @@ const Transactions = () => {
     };
 
     const handleCancel = async (id) => {
+        if (isDemo) {
+            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
         if (window.confirm(t('transactions.deleteConfirm'))) {
             const result = await cancelTransaction(id);
             if (!result.success) {

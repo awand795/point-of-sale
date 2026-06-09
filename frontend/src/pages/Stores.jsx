@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Store, MapPin, Phone, Mail, Building } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useAuth } from '../hooks/useAuth';
 import { useStores } from '../hooks/useStores';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
 const Stores = () => {
     const { t } = useLanguage();
     const { stores, loading, error, createStore, updateStore, deleteStore, pagination, goToPage } = useStores();
+    const { isDemo } = useAuth();
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState({ name: '', code: '', address: '', phone: '', email: '' });
@@ -16,11 +18,22 @@ const Stores = () => {
     const openCreate = () => { setEditing(null); setForm({ name: '', code: '', address: '', phone: '', email: '' }); setFormError(null); setShowModal(true); };
     const openEdit = (s) => { setEditing(s); setForm({ name: s.name || '', code: s.code || '', address: s.address || '', phone: s.phone || '', email: s.email || '' }); setFormError(null); setShowModal(true); };
     const handleSubmit = async (e) => {
-        e.preventDefault(); setSubmitting(true); setFormError(null);
+        e.preventDefault();
+        if (isDemo) {
+            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
+        setSubmitting(true); setFormError(null);
         try { if (editing) { await updateStore(editing.id, form); } else { await createStore(form); } setShowModal(false); }
         catch (err) { setFormError(err.response?.data?.message || 'Failed to save store'); } finally { setSubmitting(false); }
     };
-    const handleDelete = async (id) => { if (window.confirm('Delete this store?')) { try { await deleteStore(id); } catch { alert('Failed to delete store'); } } };
+    const handleDelete = async (id) => {
+        if (isDemo) {
+            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
+        if (window.confirm('Delete this store?')) { try { await deleteStore(id); } catch { alert('Failed to delete store'); } }
+    };
 
     if (loading) return <LoadingSpinner text="Memuat toko..." />;
 
@@ -72,7 +85,7 @@ const Stores = () => {
                         <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Phone</label><input type="text" value={form.phone} onChange={(e) => setForm(f => ({...f, phone: e.target.value}))} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" /></div>
                         <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label><input type="email" value={form.email} onChange={(e) => setForm(f => ({...f, email: e.target.value}))} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" /></div>
                     </div>
-                    <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Cancel</button><button type="submit" disabled={submitting} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button></div>
+                    <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Cancel</button><button type="submit" disabled={submitting || isDemo} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button></div>
                 </form>
             </div></div>)}
         </div>

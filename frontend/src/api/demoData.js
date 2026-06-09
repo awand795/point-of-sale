@@ -123,8 +123,17 @@ function searchIn(data, term, fields) {
     return data.filter(item => fields.some(f => String(item[f] || '').toLowerCase().includes(lower)));
 }
 
+const DEMO_BLOCKED_MSG = 'Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya untuk melakukan perubahan data.';
+
+const BLOCKED_WRITE_RESOURCES = ['products', 'categories', 'customers', 'suppliers', 'discounts', 'stores', 'purchases', 'transactions', 'settings', 'notifications', 'users'];
+
 function respond(data, status = 200) {
     return { data: data, status: status, headers: {}, config: {} };
+}
+
+function isWriteBlocked(method, resource) {
+    const writeMethods = ['post', 'put', 'delete', 'patch'];
+    return writeMethods.includes(method) && BLOCKED_WRITE_RESOURCES.includes(resource);
 }
 
 export function handleDemoRequest(method, url, data, params) {
@@ -143,6 +152,11 @@ export function handleDemoRequest(method, url, data, params) {
     const parts = path.split('/');
     const resource = parts[0];
     const id = parts[1];
+
+    // Block all write operations on data resources in demo mode
+    if (isWriteBlocked(method, resource)) {
+        return respond({ status: 'error', message: DEMO_BLOCKED_MSG }, 403);
+    }
 
     if (resource === 'login' && method === 'post') {
         return respond({ status: 'success', message: 'Login successfully', data: { user: demoUser, token: 'demo-token-luxepos' } });

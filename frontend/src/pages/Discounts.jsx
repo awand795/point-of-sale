@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Tag, Calendar, Percent, DollarSign } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useAuth } from '../hooks/useAuth';
 import { useDiscounts } from '../hooks/useDiscounts';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
 const Discounts = () => {
     const { t } = useLanguage();
     const { discounts, loading, error, createDiscount, updateDiscount, deleteDiscount, searchDiscounts, pagination, goToPage } = useDiscounts();
+    const { isDemo } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
@@ -18,11 +20,22 @@ const Discounts = () => {
     const openCreate = () => { setEditing(null); setForm({ name: '', code: '', type: 'percentage', value: '', min_purchase: '', max_uses: '', start_date: '', end_date: '', description: '' }); setFormError(null); setShowModal(true); };
     const openEdit = (d) => { setEditing(d); setForm({ name: d.name || '', code: d.code || '', type: d.type || 'percentage', value: d.value || '', min_purchase: d.min_purchase || '', max_uses: d.max_uses || '', start_date: d.start_date || '', end_date: d.end_date || '', description: d.description || '' }); setFormError(null); setShowModal(true); };
     const handleSubmit = async (e) => {
-        e.preventDefault(); setSubmitting(true); setFormError(null);
+        e.preventDefault();
+        if (isDemo) {
+            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
+        setSubmitting(true); setFormError(null);
         try { if (editing) { await updateDiscount(editing.id, form); } else { await createDiscount(form); } setShowModal(false); }
         catch (err) { setFormError(err.response?.data?.message || 'Failed to save discount'); } finally { setSubmitting(false); }
     };
-    const handleDelete = async (id) => { if (window.confirm('Delete this discount?')) { try { await deleteDiscount(id); } catch { alert('Failed to delete discount'); } } };
+    const handleDelete = async (id) => {
+        if (isDemo) {
+            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
+        if (window.confirm('Delete this discount?')) { try { await deleteDiscount(id); } catch { alert('Failed to delete discount'); } }
+    };
 
     if (loading) return <LoadingSpinner text="Memuat diskon..." />;
 
@@ -91,7 +104,7 @@ const Discounts = () => {
                         <div><label className="block text-sm font-medium text-slate-700 mb-1.5">End Date</label><input type="date" value={form.end_date} onChange={(e) => setForm(f => ({...f, end_date: e.target.value}))} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" /></div>
                     </div>
                     <div><label className="block text-sm font-medium text-slate-700 mb-1.5">Description</label><textarea value={form.description} onChange={(e) => setForm(f => ({...f, description: e.target.value}))} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none" rows="2" /></div>
-                    <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Cancel</button><button type="submit" disabled={submitting} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button></div>
+                    <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Cancel</button><button type="submit" disabled={submitting || isDemo} className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm">{submitting ? 'Saving...' : 'Save'}</button></div>
                 </form>
             </div></div>)}
         </div>

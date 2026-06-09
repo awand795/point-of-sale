@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, FolderOpen } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useAuth } from '../hooks/useAuth';
 import { useCategories } from '../hooks/useCategories';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
@@ -17,6 +18,7 @@ const Categories = () => {
         pagination,
         goToPage,
     } = useCategories();
+    const { isDemo } = useAuth();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -31,6 +33,10 @@ const Categories = () => {
     };
 
     const handleDelete = async (id) => {
+        if (isDemo) {
+            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
         if (window.confirm(t('categories.deleteConfirm'))) {
             try {
                 await deleteCategory(id);
@@ -60,6 +66,10 @@ const Categories = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isDemo) {
+            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            return;
+        }
         setSubmitting(true);
         setFormError(null);
         try {
@@ -261,7 +271,7 @@ const Categories = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={submitting}
+                                    disabled={submitting || isDemo}
                                     className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm"
                                 >
                                     {submitting ? t('categories.saving') : t('categories.save')}
