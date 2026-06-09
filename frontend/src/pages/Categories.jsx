@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, FolderOpen } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useCategories } from '../hooks/useCategories';
+import { useCategories }
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/useCategories';
 
 const Categories = () => {
     const { t } = useLanguage();
@@ -87,8 +88,8 @@ const Categories = () => {
         <div className="space-y-5">
             <div className="flex justify-between items-center">
                 <div>
-                <h1 className="text-2xl font-bold text-slate-800">{t('categories.title')}</h1>
-                <p className="text-sm text-slate-500">{t('categories.subtitle')}</p>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('categories.title')}</h1>
+                <p className="text-sm text-slate-500 font-medium">{t('categories.subtitle')}</p>
                 </div>
                 <button
                     onClick={openCreateModal}
@@ -119,14 +120,14 @@ const Categories = () => {
                 <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">{error}</div>
             )}
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
                 <table className="min-w-full">
                     <thead>
                         <tr className="border-b border-slate-200 bg-slate-50/50">
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('categories.name')}</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('categories.description')}</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('categories.status')}</th>
-                            <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('categories.actions')}</th>
+                            <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('categories.name')}</th>
+                            <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('categories.description')}</th>
+                            <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('categories.status')}</th>
+                            <th className="px-5 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('categories.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -144,7 +145,7 @@ const Categories = () => {
                                         <p className="text-sm font-medium text-slate-800">{category.name}</p>
                                     </td>
                                     <td className="px-5 py-3.5">
-                                        <p className="text-sm text-slate-500 truncate max-w-xs">
+                                        <p className="text-sm text-slate-500 font-medium truncate max-w-xs">
                                             {category.description || '-'}
                                         </p>
                                     </td>

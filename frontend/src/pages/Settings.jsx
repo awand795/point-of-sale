@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Save, Settings2, Building, Receipt, Bell, Shield } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { LoadingSpinner } from "../components/shared/EmptyState";
 import { useSettings } from '../hooks/useSettings';
 
 const Settings = () => {
@@ -52,7 +53,7 @@ const Settings = () => {
         setForm(prev => ({ ...prev, [key]: value }));
     };
 
-    if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div></div>;
+    if (loading) return <LoadingSpinner text="Memuat pengaturan..." />;
 
     const generalFields = ['app_name', 'app_description', 'currency', 'tax_rate', 'language'];
     const businessFields = ['company_name', 'company_address', 'company_phone', 'company_email', 'tax_id'];
@@ -68,7 +69,7 @@ const Settings = () => {
 
     return (
         <div className="space-y-6">
-            <div><h1 className="text-2xl font-bold text-slate-800">{t('sidebar.settings')}</h1><p className="text-sm text-slate-500">Configure your application settings</p></div>
+            <div><h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('sidebar.settings')}</h1><p className="text-sm text-slate-500 font-medium">Configure your application settings</p></div>
 
             <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit">
                 {tabs.map(tab => {

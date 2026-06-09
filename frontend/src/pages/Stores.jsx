@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Store, MapPin, Phone, Mail, Building } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useStores } from '../hooks/useStores';
+import { useStores }
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/useStores';
 
 const Stores = () => {
     const { t } = useLanguage();
@@ -21,12 +22,12 @@ const Stores = () => {
     };
     const handleDelete = async (id) => { if (window.confirm('Delete this store?')) { try { await deleteStore(id); } catch { alert('Failed to delete store'); } } };
 
-    if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div></div>;
+    if (loading) return <LoadingSpinner text="Memuat toko..." />;
 
     return (
         <div className="space-y-5">
             <div className="flex justify-between items-center">
-                <div><h1 className="text-2xl font-bold text-slate-800">{t('sidebar.stores')}</h1><p className="text-sm text-slate-500">Manage multiple store/outlet locations</p></div>
+                <div><h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('sidebar.stores')}</h1><p className="text-sm text-slate-500 font-medium">Manage multiple store/outlet locations</p></div>
                 <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 transition shadow-sm"><Plus size={18} /> Add Store</button>
             </div>
             {error && <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">{error}</div>}

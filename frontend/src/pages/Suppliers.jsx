@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Building, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useSuppliers } from '../hooks/useSuppliers';
+import { useSuppliers }
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/useSuppliers';
 
 const Suppliers = () => {
     const { t } = useLanguage();
@@ -23,12 +24,12 @@ const Suppliers = () => {
     };
     const handleDelete = async (id) => { if (window.confirm('Delete this supplier?')) { try { await deleteSupplier(id); } catch { alert('Failed to delete supplier'); } } };
 
-    if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div></div>;
+    if (loading) return <LoadingSpinner text="Memuat supplier..." />;
 
     return (
         <div className="space-y-5">
             <div className="flex justify-between items-center">
-                <div><h1 className="text-2xl font-bold text-slate-800">{t('sidebar.suppliers')}</h1><p className="text-sm text-slate-500">Manage your suppliers and vendors</p></div>
+                <div><h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('sidebar.suppliers')}</h1><p className="text-sm text-slate-500 font-medium">Manage your suppliers and vendors</p></div>
                 <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 transition shadow-sm"><Plus size={18} /> Add Supplier</button>
             </div>
             <form onSubmit={handleSearch} className="flex">
@@ -36,7 +37,7 @@ const Suppliers = () => {
                 <button type="submit" className="ml-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition"><Search size={18} /></button>
             </form>
             {error && <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">{error}</div>}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
                 <table className="min-w-full">
                     <thead><tr className="border-b border-slate-200 bg-slate-50/50"><th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th><th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact</th><th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Tax ID</th><th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th></tr></thead>
                     <tbody className="divide-y divide-slate-100">
@@ -51,7 +52,7 @@ const Suppliers = () => {
                                 <td className="px-5 py-3.5">
                                     <div className="space-y-0.5">{s.email && <p className="text-xs text-slate-500"><Mail size={12} className="inline mr-1" />{s.email}</p>}{s.phone && <p className="text-xs text-slate-500"><Phone size={12} className="inline mr-1" />{s.phone}</p>}</div>
                                 </td>
-                                <td className="px-5 py-3.5"><p className="text-sm text-slate-500">{s.tax_id || '-'}</p></td>
+                                <td className="px-5 py-3.5"><p className="text-sm text-slate-500 font-medium">{s.tax_id || '-'}</p></td>
                                 <td className="px-5 py-3.5 text-right">
                                     <button onClick={() => openEdit(s)} className="p-1.5 rounded-lg text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition"><Edit size={16} /></button>
                                     <button onClick={() => handleDelete(s.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition ml-1"><Trash2 size={16} /></button>

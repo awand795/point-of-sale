@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Users, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useCustomers } from '../hooks/useCustomers';
+import { useCustomers }
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/useCustomers';
 
 const Customers = () => {
     const { t } = useLanguage();
@@ -58,14 +59,14 @@ const Customers = () => {
         }
     };
 
-    if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div></div>;
+    if (loading) return <LoadingSpinner text="Memuat pelanggan..." />;
 
     return (
         <div className="space-y-5">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">{t('sidebar.customers')}</h1>
-                    <p className="text-sm text-slate-500">Manage your customer database</p>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('sidebar.customers')}</h1>
+                    <p className="text-sm text-slate-500 font-medium">Manage your customer database</p>
                 </div>
                 <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 transition shadow-sm">
                     <Plus size={18} /> Add Customer
@@ -82,7 +83,7 @@ const Customers = () => {
 
             {error && <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">{error}</div>}
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
                 <table className="min-w-full">
                     <thead>
                         <tr className="border-b border-slate-200 bg-slate-50/50">
@@ -116,7 +117,7 @@ const Customers = () => {
                                     </div>
                                 </td>
                                 <td className="px-5 py-3.5">
-                                    <p className="text-sm text-slate-500 truncate max-w-[200px]">{c.address || '-'}</p>
+                                    <p className="text-sm text-slate-500 font-medium truncate max-w-[200px]">{c.address || '-'}</p>
                                 </td>
                                 <td className="px-5 py-3.5 text-right">
                                     <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition"><Edit size={16} /></button>

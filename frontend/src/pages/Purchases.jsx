@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Plus, Search, X, Eye, PackageCheck, Filter, Truck, Package } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { usePurchases } from '../hooks/usePurchases';
+import { usePurchases }
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/usePurchases';
 
 const statusStyles = {
     pending: 'bg-amber-50 text-amber-600 border-amber-100',
@@ -27,11 +28,11 @@ const Purchases = () => {
         filterByStatus(value || undefined);
     };
 
-    if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div></div>;
+    if (loading) return <LoadingSpinner text="Memuat pembelian..." />;
 
     return (
         <div className="space-y-5">
-            <div><h1 className="text-2xl font-bold text-slate-800">{t('sidebar.purchases')}</h1><p className="text-sm text-slate-500">Manage purchase orders and stock receiving</p></div>
+            <div><h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('sidebar.purchases')}</h1><p className="text-sm text-slate-500 font-medium">Manage purchase orders and stock receiving</p></div>
 
             <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <div className="flex items-center gap-2"><Filter size={14} className="text-slate-400" /><span className="text-xs font-semibold text-slate-400 uppercase">Status</span></div>
@@ -45,7 +46,7 @@ const Purchases = () => {
 
             {error && <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">{error}</div>}
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
                 <table className="min-w-full">
                     <thead><tr className="border-b border-slate-200 bg-slate-50/50">
                         <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Invoice</th>

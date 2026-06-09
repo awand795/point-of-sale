@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BarChart3, TrendingUp, DollarSign, ShoppingBag, Package, Calendar, Download, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 import { useReports } from '../hooks/useReports';
 
 const Reports = () => {
@@ -26,14 +27,14 @@ const Reports = () => {
         { title: 'Avg. Order Value', value: 'Rp 0', icon: TrendingUp, color: 'text-amber-600', bg: 'bg-amber-50', change: '+0%' },
     ];
 
-    if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div></div>;
+    if (loading) return <LoadingSpinner text="Memuat laporan..." />;
 
     return (
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('sidebar.reports')}</h1>
-                    <p className="text-sm text-slate-500 font-medium">Business analytics and performance reports</p>
+                    <p className="text-sm text-slate-500 font-medium font-medium">Business analytics and performance reports</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">

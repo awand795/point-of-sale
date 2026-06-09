@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Tag, Calendar, Percent, DollarSign } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useDiscounts } from '../hooks/useDiscounts';
+import { useDiscounts }
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/useDiscounts';
 
 const Discounts = () => {
     const { t } = useLanguage();
@@ -23,12 +24,12 @@ const Discounts = () => {
     };
     const handleDelete = async (id) => { if (window.confirm('Delete this discount?')) { try { await deleteDiscount(id); } catch { alert('Failed to delete discount'); } } };
 
-    if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div></div>;
+    if (loading) return <LoadingSpinner text="Memuat diskon..." />;
 
     return (
         <div className="space-y-5">
             <div className="flex justify-between items-center">
-                <div><h1 className="text-2xl font-bold text-slate-800">{t('sidebar.discounts')}</h1><p className="text-sm text-slate-500">Manage discounts and promotional campaigns</p></div>
+                <div><h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('sidebar.discounts')}</h1><p className="text-sm text-slate-500 font-medium">Manage discounts and promotional campaigns</p></div>
                 <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 transition shadow-sm"><Plus size={18} /> Add Discount</button>
             </div>
             <form onSubmit={handleSearch} className="flex">

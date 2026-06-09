@@ -5,11 +5,11 @@ import {
     Package,
     AlertTriangle,
     ArrowUpRight,
-    BarChart3,
-    RefreshCw
+    BarChart3
 } from "lucide-react";
 import { useLanguage } from "../i18n/LanguageContext";
 import { transactionApi } from "../api/transactions";
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
 const StatCard = ({ title, value, icon, color, bgColor, trend }) => (
     <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
@@ -35,23 +35,6 @@ const StatCard = ({ title, value, icon, color, bgColor, trend }) => (
     </div>
 );
 
-const EmptyState = ({ icon: Icon, title, desc, onRetry }) => (
-    <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center">
-            <Icon size={40} className="text-slate-300" />
-        </div>
-        <div className="text-center">
-            <p className="text-lg font-bold text-slate-400">{title}</p>
-            <p className="text-sm text-slate-300 mt-1 max-w-md">{desc}</p>
-        </div>
-        {onRetry && (
-            <button onClick={onRetry} className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 transition shadow-sm mt-2">
-                <RefreshCw size={16} /> Refresh Data
-            </button>
-        )}
-    </div>
-);
-
 const Dashboard = () => {
     const { t } = useLanguage();
     const [dashboard, setDashboard] = useState(null);
@@ -74,7 +57,6 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetchDashboard();
-        // Timeout fallback — if API doesn't respond in 15s, show empty state
         const timeoutId = setTimeout(() => {
             setLoading(l => {
                 if (l) {
@@ -88,25 +70,25 @@ const Dashboard = () => {
     }, []);
 
     if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center h-96 gap-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-100 border-t-primary-600"></div>
-                <div className="text-center">
-                    <p className="text-sm font-bold text-slate-400">Loading dashboard...</p>
-                    <p className="text-xs text-slate-300 mt-1">Fetching real-time data</p>
-                </div>
-            </div>
-        );
+        return <LoadingSpinner text="Memuat dashboard..." />;
     }
 
     if (error || !dashboard) {
         return (
-            <EmptyState
-                icon={BarChart3}
-                title="No Dashboard Data"
-                desc={error || "The dashboard API is not available. This may happen when the backend server is starting up. Please try again."}
-                onRetry={fetchDashboard}
-            />
+            <div className="space-y-10">
+                <div>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('dashboard.title')}</h1>
+                    <p className="text-sm text-slate-500 font-medium">{t('dashboard.subtitle')}</p>
+                </div>
+                <EmptyState
+                    icon={BarChart3}
+                    title="Dashboard Belum Siap"
+                    description={error || "Data dashboard belum tersedia. Sistem mungkin masih memulai atau belum ada data transaksi."}
+                    action
+                    onAction={fetchDashboard}
+                    actionLabel="Muat Ulang"
+                />
+            </div>
         );
     }
 
@@ -169,9 +151,12 @@ const Dashboard = () => {
                     </div>
                     <div className="p-2">
                         {recentTransactions.length === 0 ? (
-                            <div className="text-center py-12">
-                                <p className="text-sm font-bold text-slate-400">No transactions yet</p>
-                                <p className="text-xs text-slate-300 mt-1">Start selling to see activity here</p>
+                            <div className="flex flex-col items-center justify-center py-16">
+                                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                    <BarChart3 size={36} className="text-slate-200" />
+                                </div>
+                                <p className="text-base font-bold text-slate-400">Belum Ada Transaksi</p>
+                                <p className="text-xs text-slate-300 mt-1">Mulai bertransaksi untuk melihat aktivitas di sini</p>
                             </div>
                         ) : (
                             <div className="overflow-hidden">
@@ -223,9 +208,12 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-1 p-6">
                         {topProducts.length === 0 ? (
-                            <div className="text-center py-8">
-                                <p className="text-sm font-bold text-slate-400">No products sold yet</p>
-                                <p className="text-xs text-slate-300 mt-1">Sales data will appear here</p>
+                            <div className="flex flex-col items-center justify-center py-10">
+                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                                    <Package size={28} className="text-slate-200" />
+                                </div>
+                                <p className="text-sm font-bold text-slate-400">Belum Ada Produk Terjual</p>
+                                <p className="text-xs text-slate-300 mt-1">Data penjualan akan muncul di sini</p>
                             </div>
                         ) : (
                             <div className="space-y-4">

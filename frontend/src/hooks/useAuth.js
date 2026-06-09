@@ -54,6 +54,15 @@ export const useAuth = () => {
             localStorage.setItem("user", JSON.stringify(user));
             localStorage.setItem("isDemo", isDemo ? "true" : "false");
             setUser(user);
+            // If demo, seed the database with dummy data
+            if (isDemo) {
+                try {
+                    await authApi.seedDemo();
+                } catch (seedErr) {
+                    console.log("Demo seeding note:", seedErr?.response?.data?.message || "Already seeded or seed skipped");
+                }
+            }
+
             navigate("/dashboard");
             return { success: true };
         } catch (err) {

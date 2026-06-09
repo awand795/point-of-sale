@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Trash2, Search, Package } from 'lucide-react';
+import { Trash2, Search, Package, X, RefreshCw } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 import { useProducts } from '../hooks/useProducts';
 
 const Products = () => {
@@ -31,10 +32,10 @@ const Products = () => {
     }
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-8">
             <div>
-                <h1 className="text-2xl font-bold text-slate-800">{t('products.title')}</h1>
-                <p className="text-sm text-slate-500">{t('products.subtitle')}</p>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('products.title')}</h1>
+                <p className="text-sm text-slate-500 font-medium">{t('products.subtitle')}</p>
             </div>
 
             <form onSubmit={handleSearch} className="flex">
@@ -53,10 +54,10 @@ const Products = () => {
             </form>
 
             {error && (
-                <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">{error}</div>
+                <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-xs font-bold">{error}</div>
             )}
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
                 <table className="min-w-full">
                     <thead>
                         <tr className="border-b border-slate-200 bg-slate-50/50">
@@ -69,15 +70,14 @@ const Products = () => {
                     <tbody className="divide-y divide-slate-100">
                         {products.length === 0 ? (
                             <tr>
-                                <td colSpan="4" className="px-5 py-12 text-center">
-                                    <Package size={32} className="mx-auto text-slate-300 mb-2" />
-                                    <p className="text-sm text-slate-400">{t('products.noProducts')}</p>
+                                <td colSpan="4" className="px-8 py-20 text-center">
+                                    <EmptyState icon={Package} title="Belum Ada Produk" description="Belum ada produk yang tersedia. Tambahkan produk baru untuk mulai berjualan." />
                                 </td>
                             </tr>
                         ) : (
                             products.map((product) => (
                                 <tr key={product.id} className="hover:bg-slate-50/50 transition">
-                                    <td className="px-5 py-3.5">
+                                    <td className="px-8 py-5">
                                         <div className="flex items-center">
                                             <div className="h-10 w-10 flex-shrink-0 bg-slate-100 rounded-lg overflow-hidden">
                                                 {product.image ? (
@@ -93,12 +93,12 @@ const Products = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-5 py-3.5">
+                                    <td className="px-8 py-5">
                                         <p className="text-sm font-semibold text-slate-700">
                                             Rp {Number(product.selling_price).toLocaleString('id-ID')}
                                         </p>
                                     </td>
-                                    <td className="px-5 py-3.5">
+                                    <td className="px-8 py-5">
                                         <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
                                             product.stock > 10
                                                 ? 'bg-emerald-50 text-emerald-700'
@@ -109,7 +109,7 @@ const Products = () => {
                                             {product.stock} {t('products.units')}
                                         </span>
                                     </td>
-                                    <td className="px-5 py-3.5 text-right">
+                                    <td className="px-8 py-5 text-right">
                                         <button
                                             onClick={() => handleDelete(product.id)}
                                             className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
