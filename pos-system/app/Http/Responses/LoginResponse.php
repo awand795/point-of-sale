@@ -17,6 +17,9 @@ class LoginResponse implements LoginResponseContract
     {
         if ($request->wantsJson()) {
             $user = $request->user();
+            if (! $user) {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
