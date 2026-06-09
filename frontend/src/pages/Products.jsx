@@ -3,12 +3,14 @@ import { Trash2, Search, Package, X, RefreshCw } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { useProducts } from '../hooks/useProducts';
 
 const Products = () => {
     const { t } = useLanguage();
     const { products, loading, error, deleteProduct, searchProducts, pagination, goToPage } = useProducts();
     const { isDemo } = useAuth();
+    const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearch = (e) => {
@@ -18,7 +20,7 @@ const Products = () => {
 
     const handleDelete = async (id) => {
         if (isDemo) {
-            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         if (window.confirm(t('categories.deleteConfirm').replace('category', 'product'))) {

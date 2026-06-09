@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Search, X, Eye, PackageCheck, Filter, Truck, Package } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { usePurchases } from '../hooks/usePurchases';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
@@ -15,12 +16,13 @@ const Purchases = () => {
     const { t } = useLanguage();
     const { purchases, loading, error, receivePurchase, filterByStatus, pagination, goToPage } = usePurchases();
     const { isDemo } = useAuth();
+    const { showToast } = useToast();
     const [statusFilter, setStatusFilter] = useState('');
     const [showDetail, setShowDetail] = useState(null);
 
     const handleReceive = async (id) => {
         if (isDemo) {
-            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         if (window.confirm('Receive this purchase order? This will update stock.')) {

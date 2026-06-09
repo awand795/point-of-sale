@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Store, MapPin, Phone, Mail, Building } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { useStores } from '../hooks/useStores';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
@@ -9,6 +10,7 @@ const Stores = () => {
     const { t } = useLanguage();
     const { stores, loading, error, createStore, updateStore, deleteStore, pagination, goToPage } = useStores();
     const { isDemo } = useAuth();
+    const { showToast } = useToast();
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState({ name: '', code: '', address: '', phone: '', email: '' });
@@ -20,7 +22,7 @@ const Stores = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isDemo) {
-            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         setSubmitting(true); setFormError(null);
@@ -29,7 +31,7 @@ const Stores = () => {
     };
     const handleDelete = async (id) => {
         if (isDemo) {
-            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         if (window.confirm('Delete this store?')) { try { await deleteStore(id); } catch { alert('Failed to delete store'); } }

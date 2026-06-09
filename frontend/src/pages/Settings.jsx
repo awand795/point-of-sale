@@ -3,12 +3,14 @@ import { Save, Settings2, Building, Receipt, Bell, Shield } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LoadingSpinner } from "../components/shared/EmptyState";
 import { useSettings } from '../hooks/useSettings';
+import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 
 const Settings = () => {
     const { t } = useLanguage();
     const { settings, loading, error, updateSettings } = useSettings();
     const { isDemo } = useAuth();
+    const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState('general');
     const [form, setForm] = useState({});
     const [saving, setSaving] = useState(false);
@@ -23,7 +25,7 @@ const Settings = () => {
 
     const handleSave = async () => {
         if (isDemo) {
-            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         setSaving(true);

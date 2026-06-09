@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Users, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { useCustomers } from '../hooks/useCustomers';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
@@ -13,6 +14,7 @@ const Customers = () => {
         searchCustomers, pagination, goToPage,
     } = useCustomers();
     const { isDemo } = useAuth();
+    const { showToast } = useToast();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -40,7 +42,7 @@ const Customers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isDemo) {
-            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         setSubmitting(true);
@@ -61,7 +63,7 @@ const Customers = () => {
 
     const handleDelete = async (id) => {
         if (isDemo) {
-            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         if (window.confirm('Are you sure you want to delete this customer?')) {

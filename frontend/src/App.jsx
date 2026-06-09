@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import { useAuth } from "./hooks/useAuth";
+import { ToastProvider } from "./hooks/useToast";
 import Layout from "./components/layout/Layout";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -41,6 +42,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+        <ToastProvider>
         <Router>
           <Routes>
             <Route path="/" element={<Landing />} />
@@ -71,6 +73,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>
+        </ToastProvider>
       </LanguageProvider>
     </QueryClientProvider>
   );

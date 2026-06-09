@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Building, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { useSuppliers } from '../hooks/useSuppliers';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
@@ -9,6 +10,7 @@ const Suppliers = () => {
     const { t } = useLanguage();
     const { suppliers, loading, error, createSupplier, updateSupplier, deleteSupplier, searchSuppliers, pagination, goToPage } = useSuppliers();
     const { isDemo } = useAuth();
+    const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
@@ -22,7 +24,7 @@ const Suppliers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isDemo) {
-            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         setSubmitting(true); setFormError(null);
@@ -31,7 +33,7 @@ const Suppliers = () => {
     };
     const handleDelete = async (id) => {
         if (isDemo) {
-            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         if (window.confirm('Delete this supplier?')) { try { await deleteSupplier(id); } catch { alert('Failed to delete supplier'); } }

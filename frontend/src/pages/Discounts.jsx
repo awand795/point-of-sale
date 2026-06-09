@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, Tag, Calendar, Percent, DollarSign } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { useDiscounts } from '../hooks/useDiscounts';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
@@ -9,6 +10,7 @@ const Discounts = () => {
     const { t } = useLanguage();
     const { discounts, loading, error, createDiscount, updateDiscount, deleteDiscount, searchDiscounts, pagination, goToPage } = useDiscounts();
     const { isDemo } = useAuth();
+    const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
@@ -22,7 +24,7 @@ const Discounts = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isDemo) {
-            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         setSubmitting(true); setFormError(null);
@@ -31,7 +33,7 @@ const Discounts = () => {
     };
     const handleDelete = async (id) => {
         if (isDemo) {
-            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         if (window.confirm('Delete this discount?')) { try { await deleteDiscount(id); } catch { alert('Failed to delete discount'); } }

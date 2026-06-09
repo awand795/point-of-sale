@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, FolderOpen } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { useCategories } from '../hooks/useCategories';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
@@ -19,6 +20,7 @@ const Categories = () => {
         goToPage,
     } = useCategories();
     const { isDemo } = useAuth();
+    const { showToast } = useToast();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -34,7 +36,7 @@ const Categories = () => {
 
     const handleDelete = async (id) => {
         if (isDemo) {
-            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         if (window.confirm(t('categories.deleteConfirm'))) {
@@ -67,7 +69,7 @@ const Categories = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isDemo) {
-            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         setSubmitting(true);

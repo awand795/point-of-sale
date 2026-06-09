@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, Search, X, Users as UsersIcon, Shield, Ban, CheckCi
 import { useLanguage } from '../i18n/LanguageContext';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 import { userApi } from '../api/user';
+import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 
 const Users = () => {
@@ -14,6 +15,7 @@ const Users = () => {
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
     const { isDemo } = useAuth();
+    const { showToast } = useToast();
     const [form, setForm] = useState({ name: '', email: '', password: '', phone: '', role: 'cashier' });
     const [formError, setFormError] = useState(null);
     const [submitting, setSubmitting] = useState(false);
@@ -52,7 +54,7 @@ const Users = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isDemo) {
-            setFormError('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         setSubmitting(true);
@@ -76,7 +78,7 @@ const Users = () => {
 
     const handleDelete = async (id) => {
         if (isDemo) {
-            alert('Mode demo: fitur ini tidak tersedia. Silakan login dengan akun sebenarnya.');
+            showToast('warning');
             return;
         }
         if (window.confirm('Delete this user?')) {
