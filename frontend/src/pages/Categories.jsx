@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Search, X, FolderOpen } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useCategories }
-import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState"; from '../hooks/useCategories';
+import { useCategories } from '../hooks/useCategories';
+import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 
 const Categories = () => {
     const { t } = useLanguage();
