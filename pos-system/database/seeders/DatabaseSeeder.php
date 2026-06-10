@@ -280,6 +280,8 @@ class DatabaseSeeder extends Seeder
             ['key' => 'receipt_footer', 'value' => 'Terima kasih telah berbelanja di BikinPOS!', 'group' => 'receipt'],
             ['key' => 'receipt_header', 'value' => 'BikinPOS Enterprise — Premium Retail Solution', 'group' => 'receipt'],
             ['key' => 'show_logo', 'value' => 'true', 'group' => 'receipt'],
+            ['key' => 'pdf_header_text', 'value' => 'PT BikinPOS Teknologi Indonesia | Jl. Thamrin No. 1, Jakarta Pusat', 'group' => 'pdf'],
+            ['key' => 'pdf_footer_text', 'value' => 'Terima kasih sudah berbelanja! — www.bikinpos.com', 'group' => 'pdf'],
             ['key' => 'low_stock_alert', 'value' => 'true', 'group' => 'notifications'],
             ['key' => 'daily_report', 'value' => 'true', 'group' => 'notifications'],
             ['key' => 'email_notifications', 'value' => 'true', 'group' => 'notifications'],
