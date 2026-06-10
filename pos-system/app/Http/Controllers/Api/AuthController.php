@@ -95,5 +95,21 @@ class AuthController extends Controller
                 'data' => $request->user()->load('roles'),
             ], 200);
         }
+
+        public function updateTheme(Request $request)
+        {
+            $request->validate([
+                'theme' => 'required|string|in:light,dark',
+            ]);
+
+            $user = $request->user();
+            $user->update(['theme' => $request->theme]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Theme updated',
+                'data' => ['theme' => $user->theme],
+            ], 200);
+        }
     
 }

@@ -78,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/seed-demo', [SeedDemoController::class, 'seed']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::put('/me/theme', [AuthController::class, 'updateTheme']);
     Route::get('/users/roles/list', [UserController::class, 'roles']);
     Route::apiResource('users', UserController::class);
 });
