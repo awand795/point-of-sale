@@ -4,7 +4,8 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { useCategories } from '../hooks/useCategories';
-import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
+import PageHeader from "../components/shared/PageHeader";
+import { LoadingSpinner } from "../components/shared/EmptyState";
 
 const Categories = () => {
     const { t } = useLanguage();
@@ -29,9 +30,9 @@ const Categories = () => {
     const [formError, setFormError] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        searchCategories(searchTerm);
+    const handleSearch = (value) => {
+        setSearchTerm(value);
+        searchCategories(value);
     };
 
     const handleDelete = async (id) => {
@@ -90,98 +91,90 @@ const Categories = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div>
+            <div className="space-y-6">
+                <PageHeader title={t('categories.title')} subtitle={t('categories.subtitle')} />
+                <LoadingSpinner />
             </div>
         );
     }
 
     return (
-        <div className="space-y-5">
-            <div className="flex justify-between items-center">
-                <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t('categories.title')}</h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('categories.subtitle')}</p>
-                </div>
-                <button
-                    onClick={openCreateModal}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 transition shadow-sm"
-                >
-                    <Plus size={18} />
-                    {t('categories.addCategory')}
-                </button>
+        <div className="space-y-6">
+            <PageHeader
+                title={t('categories.title')}
+                subtitle={t('categories.subtitle')}
+                action={true}
+                actionLabel={t('categories.addCategory')}
+                actionIcon={Plus}
+                onAction={openCreateModal}
+            />
+
+            {/* Search — debounced */}
+            <div className="relative max-w-sm">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                    type="text"
+                    placeholder={t('categories.search')}
+                    value={searchTerm}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="w-full pl-9 pr-4 h-9 bg-surface dark:bg-surface-raised border border-slate-200 dark:border-white/[0.12] rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 dark:focus:border-primary-400 transition-colors placeholder:text-slate-400 dark:placeholder-slate-500"
+                />
             </div>
 
-            <form onSubmit={handleSearch} className="flex">
-                <div className="relative flex-1">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder={t('categories.search')}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    />
-                </div>
-                <button type="submit" className="ml-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition">
-                    <Search size={18} />
-                </button>
-            </form>
-
             {error && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-sm">{error}</div>
+                <div className="px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-lg text-xs font-medium text-red-600 dark:text-red-400">{error}</div>
             )}
 
-            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl shadow-slate-200/40 dark:shadow-none border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+            <div className="bg-surface dark:bg-surface-raised rounded-xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden">
                 <table className="min-w-full">
                     <thead>
-                        <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-                            <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t('categories.name')}</th>
-                            <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t('categories.description')}</th>
-                            <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t('categories.status')}</th>
-                            <th className="px-5 py-3 text-right text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t('categories.actions')}</th>
+                        <tr className="border-b border-slate-100 dark:border-white/[0.06]">
+                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('categories.name')}</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('categories.description')}</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('categories.status')}</th>
+                            <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400">{t('categories.actions')}</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                    <tbody className="divide-y divide-slate-50 dark:divide-white/[0.04]">
                         {categories.length === 0 ? (
                             <tr>
-                                <td colSpan="4" className="px-5 py-12 text-center">
-                                    <FolderOpen size={32} className="mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+                                <td colSpan="4" className="px-4 py-12 text-center">
+                                    <FolderOpen size={28} className="mx-auto text-slate-300 dark:text-slate-600 mb-2" />
                                     <p className="text-sm text-slate-400 dark:text-slate-500">{t('categories.noCategories')}</p>
                                 </td>
                             </tr>
                         ) : (
                             categories.map((category) => (
-                                <tr key={category.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition">
-                                    <td className="px-5 py-3.5">
+                                <tr key={category.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors group">
+                                    <td className="px-4 py-3">
                                         <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{category.name}</p>
                                     </td>
-                                    <td className="px-5 py-3.5">
+                                    <td className="px-4 py-3">
                                         <p className="text-sm text-slate-500 dark:text-slate-400 font-medium truncate max-w-xs">
                                             {category.description || '-'}
                                         </p>
                                     </td>
-                                    <td className="px-5 py-3.5">
-                                        <span className={`inline-flex px-2.5 py-0.5 text-xs font-medium rounded-full ${
+                                    <td className="px-4 py-3">
+                                        <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-md ${
                                             category.is_active
-                                                ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                                : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                                                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
+                                                : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
                                         }`}>
                                             {category.is_active ? t('categories.active') : t('categories.inactive')}
                                         </span>
                                     </td>
-                                    <td className="px-5 py-3.5 text-right">
+                                    <td className="px-4 py-3 text-right">
                                         <button
                                             onClick={() => openEditModal(category)}
-                                            className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition"
+                                            className="p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all"
                                         >
-                                            <Edit size={16} />
+                                            <Edit size={14} />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(category.id)}
-                                            className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition ml-1"
+                                            className="p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all ml-1"
                                         >
-                                            <Trash2 size={16} />
+                                            <Trash2 size={14} />
                                         </button>
                                     </td>
                                 </tr>
@@ -191,16 +184,16 @@ const Categories = () => {
                 </table>
             </div>
 
-            {pagination.last_page > 1 && (
-                <div className="flex justify-center gap-1.5">
+            {pagination?.last_page > 1 && (
+                <div className="flex justify-center gap-1">
                     {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((page) => (
                         <button
                             key={page}
                             onClick={() => goToPage(page)}
-                            className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition ${
+                            className={`w-7 h-7 flex items-center justify-center rounded-md text-xs font-medium transition-all ${
                                 pagination.current_page === page
-                                    ? 'bg-primary-600 text-white shadow-sm'
-                                    : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600'
+                                    ? 'bg-primary-500 text-white'
+                                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
                             }`}
                         >
                             {page}
@@ -212,18 +205,18 @@ const Categories = () => {
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 mx-4">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md p-6 mx-4">
                         <div className="flex justify-between items-center mb-5">
-                            <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+                            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
                                 {editingCategory ? t('categories.edit') : t('categories.addNew')}
                             </h2>
-                            <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                            <button onClick={() => setShowModal(false)} className="p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
                                 <X size={18} />
                             </button>
                         </div>
 
                         {formError && (
-                            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-sm">{formError}</div>
+                            <div className="mb-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-lg text-xs font-medium text-red-600 dark:text-red-400">{formError}</div>
                         )}
 
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -233,7 +226,7 @@ const Categories = () => {
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                    className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                    className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                     placeholder="Category name"
                                     required
                                 />
@@ -244,7 +237,7 @@ const Categories = () => {
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                                    className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                                    className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                                     placeholder="Optional description"
                                     rows="3"
                                 />
@@ -258,7 +251,7 @@ const Categories = () => {
                                         onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-9 h-5 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:dark:border-slate-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600"></div>
+                                    <div className="w-9 h-5 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:dark:border-slate-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
                                     <span className="ml-2.5 text-sm font-medium text-slate-700 dark:text-slate-300">{t('categories.active')}</span>
                                 </label>
                             </div>
@@ -267,14 +260,14 @@ const Categories = () => {
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition"
+                                    className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
                                 >
                                     {t('categories.cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting || isDemo}
-                                    className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm"
+                                    className="px-4 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 disabled:opacity-50 transition-all shadow-sm"
                                 >
                                     {submitting ? t('categories.saving') : t('categories.save')}
                                 </button>

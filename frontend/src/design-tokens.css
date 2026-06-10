@@ -1,0 +1,99 @@
+/* ════════════════════════════════════════════════════════════
+   BikinPOS — Design Tokens ("Precision Commerce")
+   ════════════════════════════════════════════════════════════ */
+
+/* ─── Brand Palette ─── */
+@theme {
+  --color-brand: #0D5C63;
+  --color-brand-light: #10929E;
+  --color-brand-subtle: #E8F4F5;
+  --color-accent: #F5A623;
+  --color-accent-subtle: #FEF5E4;
+
+  /* Primary scale (maps to brand teal, replaces old purple) */
+  --color-primary-50: #E8F4F5;
+  --color-primary-100: #C5E6E9;
+  --color-primary-200: #9BD4D9;
+  --color-primary-300: #6DBFC7;
+  --color-primary-400: #3DA9B3;
+  --color-primary-500: #0D5C63;
+  --color-primary-600: #0A4A50;
+  --color-primary-700: #08383D;
+  --color-primary-800: #052529;
+  --color-primary-900: #031316;
+
+  /* Neutral ink */
+  --color-ink-900: #0A0F14;
+  --color-ink-700: #1E2A35;
+  --color-ink-500: #4A5568;
+  --color-ink-300: #94A3B8;
+  --color-ink-100: #E2E8F0;
+  --color-ink-50: #F8FAFC;
+
+  /* Semantic */
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-info: #2563EB;
+
+  /* Surfaces (light mode defaults) */
+  --color-surface: #FFFFFF;
+  --color-surface-raised: #F8FAFC;
+  --color-surface-overlay: #F1F5F9;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-strong: rgba(0, 0, 0, 0.16);
+
+  /* Typography — Geist via npm */
+  --font-display: 'Geist', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Border radius — never exceed 16px for cards */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadows — no colored shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* ─── Dark Mode Surface Overrides ─── */
+.dark {
+  --color-surface: #0D1117;
+  --color-surface-raised: #161B22;
+  --color-surface-overlay: #1C2128;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  --color-primary-50: #0A1A1E;
+  --color-primary-100: #0D262B;
+  --color-primary-200: #08383D;
+  --color-primary-300: #0A4A50;
+  --color-primary-400: #3DA9B3;
+  --color-primary-500: #6DBFC7;
+  --color-primary-600: #9BD4D9;
+  --color-primary-700: #C5E6E9;
+  --color-primary-800: #E8F4F5;
+  --color-primary-900: #F0F9FA;
+}
+
+/* ─── Sidebar Colour (static, not theme-dependent) ─── */
+@theme {
+  --color-sidebar: #0A0F14;
+  --color-sidebar-hover: #161B22;
+  --color-sidebar-active: #0D5C63;
+}

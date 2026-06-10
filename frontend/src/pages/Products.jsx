@@ -1,21 +1,24 @@
 import { useState } from 'react';
-import { Trash2, Search, Package, X, RefreshCw } from 'lucide-react';
+import { Trash2, Search, Package, X, Plus, Edit } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
+import PageHeader from "../components/shared/PageHeader";
+import DataTable from "../components/shared/DataTable";
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { useProducts } from '../hooks/useProducts';
 
 const Products = () => {
-    const { t } = useLanguage();
+    const { t, locale } = useLanguage();
     const { products, loading, error, deleteProduct, searchProducts, pagination, goToPage } = useProducts();
     const { isDemo } = useAuth();
     const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearch = (e) => {
-        e.preventDefault();
-        searchProducts(searchTerm);
+        const term = e.target?.value ?? e;
+        setSearchTerm(term);
+        searchProducts(term);
     };
 
     const handleDelete = async (id) => {
@@ -32,124 +35,130 @@ const Products = () => {
         }
     };
 
-    if (loading) {
+    const columns = [
+        {
+            key: 'name',
+            label: t('products.product'),
+            sortable: true,
+            render: (row) => (
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/[0.06] overflow-hidden flex items-center justify-center shrink-0">
+                        {row.image ? (
+                            <img src={row.image} alt={row.name} className="w-full h-full object-cover" />
+                        ) : (
+                            <Package size={14} className="text-slate-400 dark:text-slate-500" />
+                        )}
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{row.name}</p>
+                        {row.sku && <p className="text-[10px] text-slate-400 dark:text-slate-500">{row.sku}</p>}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            key: 'selling_price',
+            label: t('products.price'),
+            sortable: true,
+            align: 'right',
+            render: (row) => (
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 tabular-nums">
+                    Rp {Number(row.selling_price).toLocaleString('id-ID')}
+                </span>
+            ),
+        },
+        {
+            key: 'stock',
+            label: t('products.stock'),
+            sortable: true,
+            align: 'center',
+            render: (row) => {
+                const stock = Number(row.stock);
+                let color = 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400';
+                if (stock <= 0) color = 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
+                else if (stock < 10) color = 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400';
+                return (
+                    <span className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-medium ${color}`}>
+                        {stock} {t('products.units')}
+                    </span>
+                );
+            },
+        },
+        {
+            key: 'actions',
+            label: t('products.actions'),
+            align: 'right',
+            width: '80px',
+            render: (row) => (
+                <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button className="p-1.5 rounded-md text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all">
+                        <Edit size={14} />
+                    </button>
+                    <button
+                        onClick={() => handleDelete(row.id)}
+                        className="p-1.5 rounded-md text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                    >
+                        <Trash2 size={14} />
+                    </button>
+                </div>
+            ),
+        },
+    ];
+
+    if (loading && products.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent"></div>
+            <div className="space-y-6">
+                <PageHeader title={t('products.title')} subtitle={t('products.subtitle')} />
+                <LoadingSpinner text={locale === 'id' ? 'Memuat produk...' : 'Loading products...'} />
             </div>
         );
     }
 
     return (
-        <div className="space-y-8">
-            <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t('products.title')}</h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('products.subtitle')}</p>
-            </div>
+        <div className="space-y-6">
+            <PageHeader
+                title={t('products.title')}
+                subtitle={t('products.subtitle')}
+                action={true}
+                actionLabel={locale === 'id' ? 'Tambah Produk' : 'Add Product'}
+            />
 
-            <form onSubmit={handleSearch} className="flex">
-                <div className="relative flex-1">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />                        <input
-                            type="text"
-                            placeholder={t('products.search')}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    />
-                </div>
-                <button type="submit" className="ml-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition">
-                    <Search size={18} />
-                </button>
-            </form>
+            {/* Search */}
+            <div className="relative max-w-sm">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                    type="text"
+                    placeholder={t('products.search')}
+                    value={searchTerm}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="w-full pl-9 pr-4 h-9 bg-surface dark:bg-surface-raised border border-slate-200 dark:border-white/[0.12] rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 dark:focus:border-primary-400 transition-colors placeholder:text-slate-400 dark:placeholder-slate-500"
+                />
+            </div>
 
             {error && (
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400 rounded-2xl text-xs font-bold">{error}</div>
-            )}
-
-            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl shadow-slate-200/40 dark:shadow-none border border-slate-100 dark:border-slate-700/50 overflow-hidden">
-                <table className="min-w-full">
-                    <thead>
-                        <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('products.product')}</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('products.price')}</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('products.stock')}</th>
-                            <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('products.actions')}</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                        {products.length === 0 ? (
-                            <tr>
-                                <td colSpan="4" className="px-8 py-20 text-center">
-                                    <EmptyState icon={Package} title="Belum Ada Produk" description="Belum ada produk yang tersedia. Tambahkan produk baru untuk mulai berjualan." />
-                                </td>
-                            </tr>
-                        ) : (
-                            products.map((product) => (
-                                <tr key={product.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition">
-                                    <td className="px-8 py-5">
-                                        <div className="flex items-center">
-                                            <div className="h-10 w-10 flex-shrink-0 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden">
-                                                {product.image ? (
-                                                    <img src={product.image} alt={product.name} className="h-10 w-10 object-cover" />
-                                                ) : (
-                                                    <div className="h-10 w-10 flex items-center justify-center text-slate-300 dark:text-slate-500">
-                                                        <Package size={18} />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="ml-3">
-                                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{product.name}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-5">
-                                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                            Rp {Number(product.selling_price).toLocaleString('id-ID')}
-                                        </p>
-                                    </td>
-                                    <td className="px-8 py-5">
-                                        <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
-                                            product.stock > 10
-                                                ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                                : product.stock > 0
-                                                    ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                                                    : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                                        }`}>
-                                            {product.stock} {t('products.units')}
-                                        </span>
-                                    </td>
-                                    <td className="px-8 py-5 text-right">
-                                        <button
-                                            onClick={() => handleDelete(product.id)}
-                                            className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            {pagination.last_page > 1 && (
-                <div className="flex justify-center gap-1.5">
-                    {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((page) => (
-                        <button
-                            key={page}
-                            onClick={() => goToPage(page)}
-                            className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition ${
-                                pagination.current_page === page
-                                    ? 'bg-primary-600 text-white shadow-sm'
-                                    : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600'
-                            }`}
-                        >
-                            {page}
-                        </button>
-                    ))}
+                <div className="px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-lg text-xs font-medium text-red-600 dark:text-red-400">
+                    {error}
                 </div>
             )}
+
+            <DataTable
+                columns={columns}
+                data={products}
+                pageSize={pagination?.per_page || 10}
+                currentPage={pagination?.current_page}
+                totalPages={pagination?.last_page}
+                onPageChange={goToPage}
+                emptyState={
+                    <div className="bg-surface dark:bg-surface-raised rounded-xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden">
+                        <EmptyState
+                            icon={Package}
+                            title={locale === 'id' ? 'Belum Ada Produk' : 'No Products'}
+                            description={locale === 'id' ? 'Belum ada produk yang tersedia.' : 'No products available yet.'}
+                        />
+                    </div>
+                }
+                loading={false}
+            />
         </div>
     );
 };

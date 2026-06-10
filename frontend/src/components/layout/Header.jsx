@@ -1,59 +1,160 @@
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { Bell, Languages, Moon, Sun } from 'lucide-react';
+import { Bell, Moon, Sun, Languages, LogOut, Settings, User, ChevronDown } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
+import { useLocation, Link } from 'react-router-dom';
+
+// Route label map
+const ROUTE_LABELS = {
+    '/dashboard': { id: 'Dasbor', en: 'Dashboard' },
+    '/pos': { id: 'POS', en: 'POS' },
+    '/products': { id: 'Produk', en: 'Products' },
+    '/categories': { id: 'Kategori', en: 'Categories' },
+    '/transactions': { id: 'Transaksi', en: 'Transactions' },
+    '/customers': { id: 'Pelanggan', en: 'Customers' },
+    '/suppliers': { id: 'Pemasok', en: 'Suppliers' },
+    '/purchases': { id: 'Pembelian', en: 'Purchases' },
+    '/discounts': { id: 'Diskon', en: 'Discounts' },
+    '/stores': { id: 'Toko', en: 'Stores' },
+    '/reports': { id: 'Laporan', en: 'Reports' },
+    '/settings': { id: 'Pengaturan', en: 'Settings' },
+    '/users': { id: 'Pengguna', en: 'Users' },
+};
 
 const Header = () => {
-    const { user, isDemo } = useAuth();
-    const { t, locale, toggleLanguage } = useLanguage();
+    const { user, isDemo, logout } = useAuth();
+    const { locale, toggleLanguage } = useLanguage();
     const { isDark, toggleTheme } = useTheme();
+    const location = useLocation();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const currentLabel = ROUTE_LABELS[location.pathname]?.[locale] || location.pathname.replace('/', '').charAt(0).toUpperCase() + location.pathname.slice(2);
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        const handleClick = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, []);
 
     return (
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-4 flex justify-between items-center shrink-0 sticky top-0 z-50 transition-colors duration-300">
-            <div className="flex items-center gap-3">
-                <div>
-                    <h2 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t('header.currentSession')}</h2>
-                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{user?.name || 'User Account'}</p>
-                </div>
+        <header className="h-[52px] bg-surface border-b border-white/[0.08] dark:border-white/[0.08] flex items-center justify-between px-6 shrink-0 sticky top-0 z-50">
+            {/* Left: breadcrumb-style page name */}
+            <div className="flex items-center gap-2">
+                <h2 className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                    {currentLabel}
+                </h2>
                 {isDemo && (
-                    <span className="px-2.5 py-1 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-amber-200 dark:border-amber-700 shadow-sm">
+                    <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[9px] font-semibold rounded-md border border-amber-200 dark:border-amber-700/50">
                         DEMO
                     </span>
                 )}
             </div>
-            <div className="flex items-center gap-4">
-                <button
-                    onClick={(e) => toggleTheme(e.clientX, e.clientY)}
-                    className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all relative group"
-                >
-                    {isDark ? <Sun key={isDark ? 'dark' : 'light'} size={18} className="theme-icon-enter" /> : <Moon key={isDark ? 'dark' : 'light'} size={18} className="theme-icon-enter" />}
-                    <span className="absolute mt-12 text-[8px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        {isDark ? (locale === 'id' ? 'Terang' : 'Light') : (locale === 'id' ? 'Gelap' : 'Dark')}
-                    </span>
+
+            {/* Right: Notification + User dropdown */}
+            <div className="flex items-center gap-2">
+                {/* Notification bell */}
+                <button className="relative w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.06]">
+                    <Bell size={16} />
+                    <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-primary-500 rounded-full ring-2 ring-white dark:ring-surface" />
                 </button>
-                <button
-                    onClick={toggleLanguage}
-                    className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all relative group"
-                >
-                    <Languages size={18} />
-                    <span className="absolute mt-12 text-[8px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {locale === 'id' ? 'EN' : 'ID'}
-                    </span>
-                </button>
-                <div className="hidden md:flex flex-col items-end mr-2">
-                    <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">{t('header.date')}</span>
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
-                </div>
-                <button className="relative w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all group">
-                    <Bell size={18} />
-                    <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary-500 rounded-full border-2 border-white dark:border-slate-900"></span>
-                </button>
-                <div className="flex items-center gap-3 pl-4 border-l border-slate-100 dark:border-slate-800">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-primary-100 dark:shadow-primary-900/30">
-                        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                    </div>
+
+                {/* User dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                    <button
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                        className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all text-left"
+                    >
+                        <div className="w-6 h-6 rounded-md bg-primary-500/10 flex items-center justify-center text-primary-600 dark:text-primary-400 text-[10px] font-semibold">
+                            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                        <span className="text-xs font-medium text-slate-700 dark:text-slate-300 hidden sm:block">
+                            {user?.name || 'User'}
+                        </span>
+                        <ChevronDown
+                            size={12}
+                            className={`text-slate-400 transition-transform duration-200 ${
+                                dropdownOpen ? 'rotate-180' : ''
+                            }`}
+                        />
+                    </button>
+
+                    {dropdownOpen && (
+                        <div className="absolute right-0 top-full mt-1.5 w-48 bg-surface dark:bg-surface-raised border border-slate-200 dark:border-white/[0.08] rounded-xl shadow-xl dark:shadow-black/40 overflow-hidden z-50 animate-fadeIn">
+                            {/* User info */}
+                            <div className="px-4 py-3 border-b border-slate-100 dark:border-white/[0.06]">
+                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+                                    {user?.name || 'User'}
+                                </p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
+                                    {user?.email || ''}
+                                </p>
+                            </div>
+
+                            {/* Menu items */}
+                            <div className="py-1">
+                                <Link
+                                    to="/settings"
+                                    onClick={() => setDropdownOpen(false)}
+                                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] hover:text-slate-800 dark:hover:text-slate-200 transition-all"
+                                >
+                                    <Settings size={14} />
+                                    Settings
+                                </Link>
+                                <button
+                                    onClick={(e) => {
+                                        toggleTheme(e.clientX, e.clientY);
+                                        setDropdownOpen(false);
+                                    }}
+                                    className="flex items-center gap-2.5 w-full px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] hover:text-slate-800 dark:hover:text-slate-200 transition-all"
+                                >
+                                    {isDark ? <Sun size={14} /> : <Moon size={14} />}
+                                    {isDark ? 'Light Mode' : 'Dark Mode'}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        toggleLanguage();
+                                        setDropdownOpen(false);
+                                    }}
+                                    className="flex items-center gap-2.5 w-full px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] hover:text-slate-800 dark:hover:text-slate-200 transition-all"
+                                >
+                                    <Languages size={14} />
+                                    {locale === 'id' ? 'English' : 'Indonesia'}
+                                </button>
+                            </div>
+
+                            <div className="border-t border-slate-100 dark:border-white/[0.06] py-1">
+                                <button
+                                    onClick={() => {
+                                        logout();
+                                        setDropdownOpen(false);
+                                    }}
+                                    className="flex items-center gap-2.5 w-full px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-all"
+                                >
+                                    <LogOut size={14} />
+                                    Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            <style>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(4px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadeIn {
+                    animation: fadeIn 0.15s ease-out both;
+                }
+            `}</style>
         </header>
     );
 };
