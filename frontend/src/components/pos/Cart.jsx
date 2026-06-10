@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Minus, Plus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Wallet, Printer, Receipt } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { transactionApi } from "../../api/transactions";
 
 const Cart = ({ cart }) => {
-    const { t } = useLanguage();
+    const { t, locale } = useLanguage();
     const { items, updateQuantity, removeFromCart, subtotal, itemCount, calculateTotal, getCartItemsForApi, clearCart, isEmpty } = cart;
 
     const [discount, setDiscount] = useState(0);
@@ -13,17 +13,32 @@ const Cart = ({ cart }) => {
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [processing, setProcessing] = useState(false);
     const [note, setNote] = useState('');
-    const [success, setSuccess] = useState(false);
+    const [receiptData, setReceiptData] = useState(null);
 
     const total = calculateTotal(discount, tax);
     const change = paidAmount - total;
+    const isValidPayment = paidAmount >= total;
+
+    const getPaymentMethodInfo = (method) => {
+        const found = paymentMethods.find(p => p.value === method);
+        const iconMap = {
+            cash: <Banknote size={14} />,
+            debit: <CreditCard size={14} />,
+            credit: <CreditCard size={14} />,
+            qris: <Smartphone size={14} />,
+        };
+        return {
+            label: found ? found.label : method,
+            icon: iconMap[method] || <Banknote size={14} />
+        };
+    };
 
     const handleCheckout = async () => {
         if (isEmpty) return;
         if (paidAmount < total) return;
         setProcessing(true);
         try {
-            await transactionApi.create({
+            const response = await transactionApi.create({
                 items: getCartItemsForApi(),
                 discount,
                 tax,
@@ -31,80 +46,370 @@ const Cart = ({ cart }) => {
                 payment_method: paymentMethod,
                 notes: note
             });
-            setSuccess(true);
-            setTimeout(() => {
-                clearCart();
-                setPaidAmount(0);
-                setDiscount(0);
-                setTax(0);
-                setNote('');
-                setSuccess(false);
-            }, 1500);
+
+            // Save receipt data
+            const invoiceData = response?.data?.invoice_number
+                ? `INV-${String(response.data.invoice_number).padStart(5, '0')}`
+                : `INV-${Date.now().toString(36).toUpperCase()}`;
+
+            setReceiptData({
+                invoice: invoiceData,
+                date: new Date(),
+                items: [...items],
+                subtotal,
+                discount,
+                tax,
+                total,
+                paidAmount,
+                change,
+                paymentMethod,
+            });
         } catch (err) {
             alert(err.response?.data?.message || 'Failed to create transaction');
         }
         setProcessing(false);
     };
 
+    const handleCloseReceipt = () => {
+        clearCart();
+        setPaidAmount(0);
+        setDiscount(0);
+        setTax(0);
+        setNote('');
+        setReceiptData(null);
+    };
+
+    const handlePrintReceipt = () => {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            // Fallback: print the current window
+            window.print();
+            return;
+        }
+
+        const formatPrice = (val) => `Rp ${(val || 0).toLocaleString('id-ID')}`;
+        const payLabel = paymentMethodLabels[paymentMethod]?.[locale] || paymentMethod;
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>Receipt - ${receiptData.invoice}</title>
+                <style>
+                    @page { margin: 0; size: 80mm auto; }
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body {
+                        font-family: 'Courier New', monospace;
+                        font-size: 12px;
+                        width: 80mm;
+                        padding: 10px 8px;
+                        color: #000;
+                    }
+                    .header { text-align: center; margin-bottom: 12px; }
+                    .header h1 { font-size: 18px; font-weight: bold; letter-spacing: 2px; }
+                    .header p { font-size: 10px; color: #555; margin-top: 2px; }
+                    .divider { border-top: 1px dashed #000; margin: 8px 0; }
+                    .info { font-size: 10px; margin-bottom: 8px; }
+                    .info-row { display: flex; justify-content: space-between; }
+                    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+                    th { text-align: left; font-size: 9px; text-transform: uppercase; padding-bottom: 4px; }
+                    th.qty { width: 40px; text-align: center; }
+                    th.price { width: 70px; text-align: right; }
+                    td { padding: 2px 0; vertical-align: top; }
+                    td.qty { text-align: center; }
+                    td.price { text-align: right; }
+                    .item-name { font-size: 11px; }
+                    .totals { margin-top: 4px; }
+                    .totals-row { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 0; }
+                    .totals-row.total { font-size: 14px; font-weight: bold; border-top: 2px solid #000; padding-top: 4px; margin-top: 2px; }
+                    .payment { margin-top: 8px; }
+                    .payment-row { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 0; }
+                    .footer { text-align: center; margin-top: 16px; font-size: 10px; }
+                    .footer p { margin-top: 2px; }
+                    @media print {
+                        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>BikinPOS</h1>
+                    <p>Point of Sale Terminal</p>
+                </div>
+                <div class="divider"></div>
+                <div class="info">
+                    <div class="info-row">
+                        <span>${receiptData.invoice}</span>
+                        <span>${receiptData.date.toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div style="margin-top: 4px;">Kasir: Walk-in Customer</div>
+                </div>
+                <div class="divider"></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="qty">Qty</th>
+                            <th class="price">Harga</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${receiptData.items.map(item => `
+                            <tr>
+                                <td><div class="item-name">${item.name}</div></td>
+                                <td class="qty">${item.quantity}x</td>
+                                <td class="price">${formatPrice(item.price * item.quantity)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="divider"></div>
+                <div class="totals">
+                    <div class="totals-row">
+                        <span>Subtotal</span>
+                        <span>${formatPrice(receiptData.subtotal)}</span>
+                    </div>
+                    ${receiptData.discount > 0 ? `
+                    <div class="totals-row">
+                        <span>Discount</span>
+                        <span>-${formatPrice(receiptData.discount)}</span>
+                    </div>` : ''}
+                    ${receiptData.tax > 0 ? `
+                    <div class="totals-row">
+                        <span>Tax</span>
+                        <span>+${formatPrice(receiptData.tax)}</span>
+                    </div>` : ''}
+                    <div class="totals-row total">
+                        <span>TOTAL</span>
+                        <span>${formatPrice(receiptData.total)}</span>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="payment">
+                    <div class="payment-row">
+                        <span>${payLabel}</span>
+                        <span>${formatPrice(receiptData.paidAmount)}</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>Kembalian</span>
+                        <span>${formatPrice(receiptData.change)}</span>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="footer">
+                    <p>Terima kasih! / Thank you!</p>
+                    <p style="font-size: 8px; margin-top: 4px;">www.bikinpos.com</p>
+                </div>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    };
+
     const paymentMethods = [
-        { value: 'cash', label: 'Cash', icon: <Banknote size={22} />, color: 'from-emerald-500 to-teal-600' },
-        { value: 'debit', label: 'Debit', icon: <CreditCard size={22} />, color: 'from-blue-500 to-indigo-600' },
-        { value: 'credit', label: 'Credit', icon: <CreditCard size={22} />, color: 'from-violet-500 to-purple-600' },
-        { value: 'qris', label: 'QRIS', icon: <Smartphone size={22} />, color: 'from-orange-500 to-rose-600' },
+        { value: 'cash', label: 'Cash', icon: <Banknote size={18} /> },
+        { value: 'debit', label: 'Debit', icon: <CreditCard size={18} /> },
+        { value: 'credit', label: 'Credit', icon: <CreditCard size={18} /> },
+        { value: 'qris', label: 'QRIS', icon: <Smartphone size={18} /> },
     ];
+
+    const formatPrice = (val) => `Rp ${(val || 0).toLocaleString('id-ID')}`;
 
     return (
         <div className="h-full flex flex-col bg-white rounded-3xl border border-slate-200/60 shadow-xl overflow-hidden relative">
-            {/* Success overlay */}
-            {success && (
-                <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center animate-fadeIn">
-                    <div className="w-20 h-20 bg-emerald-100 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-emerald-100">
-                        <Check size={40} className="text-emerald-600" />
+            {/* Receipt Preview Overlay */}
+            {receiptData && (
+                <div className="absolute inset-0 z-50 bg-white animate-fadeIn flex flex-col print:static">
+                    {/* Receipt Header */}
+                    <div className="shrink-0 px-5 py-4 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                                <Check size={18} className="text-emerald-400" />
+                            </div>
+                            <div>
+                                <h2 className="font-bold text-sm">{t('pos.receiptSuccess')}</h2>
+                                <p className="text-[9px] text-slate-400 font-medium uppercase tracking-widest">{receiptData.invoice}</p>
+                            </div>
+                        </div>
                     </div>
-                    <p className="text-2xl font-black text-slate-900">Transaction Complete!</p>
-                    <p className="text-sm text-slate-500 font-medium mt-2">Receipt is being printed...</p>
+
+                    {/* Receipt Content */}
+                    <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 scrollbar-thin">
+                        {/* Store header */}
+                        <div className="text-center border-b border-dashed border-slate-200 pb-4">
+                            <h3 className="text-lg font-black text-slate-900 tracking-tight">BikinPOS</h3>
+                            <p className="text-[10px] text-slate-400 font-medium mt-0.5">Point of Sale Terminal</p>
+                        </div>
+
+                        {/* Invoice info */}
+                        <div className="flex justify-between text-[11px]">
+                            <div>
+                                <p className="font-bold text-slate-700">{receiptData.invoice}</p>
+                                <p className="text-slate-400 mt-0.5">{t('pos.receiptCashier')}: Walk-in</p>
+                            </div>
+                            <div className="text-right text-slate-400">
+                                <p>{receiptData.date.toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', {
+                                    day: 'numeric', month: 'short', year: 'numeric'
+                                })}</p>
+                                <p>{receiptData.date.toLocaleTimeString(locale === 'id' ? 'id-ID' : 'en-US', {
+                                    hour: '2-digit', minute: '2-digit'
+                                })}</p>
+                            </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="border-t border-dashed border-slate-200" />
+
+                        {/* Items header */}
+                        <div className="flex items-center gap-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                            <div className="flex-1">{t('pos.receiptItem')}</div>
+                            <div className="w-10 text-center">{t('pos.receiptQty')}</div>
+                            <div className="w-24 text-right">Subtotal</div>
+                        </div>
+
+                        {/* Items list */}
+                        <div className="space-y-2">
+                            {receiptData.items.map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-2 text-sm animate-slideIn" style={{ animationDelay: `${idx * 40}ms` }}>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-bold text-slate-800 truncate text-xs">{item.name}</p>
+                                        <p className="text-[10px] text-slate-400">{formatPrice(item.price)}</p>
+                                    </div>
+                                    <div className="w-10 text-center">
+                                        <span className="text-xs font-bold text-slate-600">{item.quantity}x</span>
+                                    </div>
+                                    <div className="w-24 text-right">
+                                        <span className="text-xs font-bold text-slate-800 tabular-nums">
+                                            {formatPrice(item.price * item.quantity)}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Divider */}
+                        <div className="border-t border-dashed border-slate-200" />
+
+                        {/* Totals */}
+                        <div className="space-y-1.5">
+                            <div className="flex justify-between text-xs">
+                                <span className="text-slate-400">Subtotal</span>
+                                <span className="font-bold text-slate-700 tabular-nums">{formatPrice(receiptData.subtotal)}</span>
+                            </div>
+                            {receiptData.discount > 0 && (
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-400">Discount</span>
+                                    <span className="font-bold text-red-500 tabular-nums">-{formatPrice(receiptData.discount)}</span>
+                                </div>
+                            )}
+                            {receiptData.tax > 0 && (
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-slate-400">Tax</span>
+                                    <span className="font-bold text-emerald-600 tabular-nums">+{formatPrice(receiptData.tax)}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center pt-2 border-t-2 border-slate-800">
+                                <span className="text-sm font-black text-slate-800">TOTAL</span>
+                                <span className="text-lg font-black text-slate-900 tabular-nums">{formatPrice(receiptData.total)}</span>
+                            </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="border-t border-dashed border-slate-200" />
+
+                        {/* Payment info */}
+                        <div className="space-y-1.5">
+                            <div className="flex justify-between text-xs">
+                                <span className="flex items-center gap-1.5 text-slate-400">
+                                    {getPaymentMethodInfo(receiptData.paymentMethod).icon}
+                                    {getPaymentMethodInfo(receiptData.paymentMethod).label}
+                                </span>
+                                <span className="font-bold text-slate-700 tabular-nums">{formatPrice(receiptData.paidAmount)}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                                <span className="text-slate-400">{t('pos.changeReturn')}</span>
+                                <span className="font-bold text-emerald-600 tabular-nums">{formatPrice(receiptData.change)}</span>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="text-center pt-2 border-t border-dashed border-slate-200">
+                            <p className="text-[11px] font-medium text-slate-400">
+                                {t('pos.receiptThankYou')}
+                            </p>
+                            <p className="text-[8px] text-slate-300 mt-0.5">www.bikinpos.com</p>
+                        </div>
+                    </div>
+
+                    {/* Receipt Actions */}
+                    <div className="shrink-0 border-t border-slate-100 bg-slate-50/80 px-4 py-3 flex gap-2">
+                        <button onClick={handlePrintReceipt}
+                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border-2 border-slate-200 text-slate-700 font-bold text-[10px] uppercase tracking-widest rounded-xl hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50/50 transition-all active:scale-[0.97]"
+                        >
+                            <Printer size={16} />
+                            {t('pos.receiptPrint')}
+                        </button>
+                        <button onClick={handleCloseReceipt}
+                            className="flex-[2] flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-primary-600 to-violet-600 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-primary-200/40 transition-all active:scale-[0.97] shadow-md"
+                        >
+                            <Receipt size={16} />
+                            {t('pos.receiptNewTransaction')}
+                        </button>
+                    </div>
                 </div>
             )}
 
             {/* Header */}
-            <div className="shrink-0 px-6 py-5 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
+            <div className="shrink-0 px-5 py-4 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
                 <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="font-bold text-lg flex items-center gap-2">
-                            <ShoppingCart size={20} className="text-primary-400" />
-                            {t('pos.currentOrder')}
-                        </h2>
-                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-1">
-                            {t('pos.customer')}: <span className="text-white">Walk-in</span>
-                            {itemCount > 0 && <span className="ml-3 text-primary-400">{itemCount} items</span>}
-                        </p>
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                            <ShoppingCart size={18} className="text-primary-400" />
+                        </div>
+                        <div>
+                            <h2 className="font-bold text-sm">{t('pos.currentOrder')}</h2>
+                            <p className="text-[9px] text-slate-400 font-medium uppercase tracking-widest">
+                                {t('pos.customer')}: <span className="text-white">Walk-in</span>
+                            </p>
+                        </div>
                     </div>
-                    {itemCount > 0 && (
-                        <button onClick={clearCart}
-                            className="p-2.5 bg-white/10 hover:bg-red-500/20 text-white/50 hover:text-red-400 rounded-xl transition-all active:scale-90">
-                            <Trash2 size={16} />
-                        </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                        {itemCount > 0 && (
+                            <span className="px-2.5 py-1 bg-white/10 rounded-lg text-[10px] font-bold text-primary-300 tabular-nums">
+                                {itemCount} items
+                            </span>
+                        )}
+                        {itemCount > 0 && (
+                            <button onClick={clearCart}
+                                className="p-2 bg-white/10 hover:bg-red-500/20 text-white/50 hover:text-red-400 rounded-xl transition-all active:scale-90">
+                                <Trash2 size={14} />
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto min-h-0 px-4 py-2 space-y-1">
+            <div className="flex-1 overflow-y-auto min-h-0 px-3 py-2 space-y-0.5 scrollbar-thin">
                 {items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-slate-200">
-                        <div className="w-28 h-28 bg-slate-50/50 rounded-3xl flex items-center justify-center mb-6 border-2 border-dashed border-slate-200">
-                            <ShoppingCart size={44} className="text-slate-200" />
+                        <div className="w-24 h-24 bg-slate-50/50 rounded-3xl flex items-center justify-center mb-5 border-2 border-dashed border-slate-200">
+                            <ShoppingCart size={40} className="text-slate-200" />
                         </div>
                         <p className="text-sm font-bold text-slate-400">{t('pos.cartEmpty')}</p>
-                        <p className="text-xs text-slate-300 mt-1 text-center px-8">{t('pos.cartEmptyDesc')}</p>
+                        <p className="text-[11px] text-slate-300 mt-1 text-center px-6 leading-relaxed">{t('pos.cartEmptyDesc')}</p>
                     </div>
                 ) : (
                     items.map((item, idx) => (
                         <div key={item.id}
-                            className="group flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50/80 transition-all duration-200 animate-slideIn"
+                            className="group flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 transition-all duration-150 animate-slideIn"
                             style={{ animationDelay: `${idx * 30}ms` }}
                         >
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden shrink-0 flex items-center justify-center text-slate-500 font-bold text-xs uppercase shadow-sm">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden shrink-0 flex items-center justify-center text-slate-500 font-bold text-[10px] uppercase shadow-sm">
                                 {item.image ? (
                                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                 ) : (
@@ -112,26 +417,26 @@ const Cart = ({ cart }) => {
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-2">
-                                    <h3 className="text-sm font-bold text-slate-800 truncate">{item.name}</h3>
+                                <div className="flex items-start justify-between gap-1">
+                                    <h3 className="text-xs font-bold text-slate-800 truncate">{item.name}</h3>
                                     <button onClick={() => removeFromCart(item.id)}
-                                        className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all shrink-0">
-                                        <X size={14} />
+                                        className="p-0.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all shrink-0">
+                                        <X size={12} />
                                     </button>
                                 </div>
-                                <p className="text-[11px] font-bold text-primary-600 mt-0.5">
+                                <p className="text-[10px] font-bold text-primary-600 mt-0.5">
                                     Rp {(item.price || 0).toLocaleString('id-ID')}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl shadow-sm border border-slate-100">
+                            <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg shadow-sm border border-slate-100">
                                 <button onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition active:scale-90">
-                                    <Minus size={12} />
+                                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition active:scale-90">
+                                    <Minus size={11} />
                                 </button>
-                                <span className="w-5 text-center text-xs font-black text-slate-700 tabular-nums">{item.quantity}</span>
+                                <span className="w-5 text-center text-[11px] font-black text-slate-700 tabular-nums">{item.quantity}</span>
                                 <button onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition active:scale-90">
-                                    <Plus size={12} />
+                                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition active:scale-90">
+                                    <Plus size={11} />
                                 </button>
                             </div>
                         </div>
@@ -139,86 +444,116 @@ const Cart = ({ cart }) => {
                 )}
             </div>
 
-            {/* Checkout Footer */}
-            <div className="shrink-0 border-t border-slate-100 bg-slate-50/50 px-6 py-5 space-y-4">
-                {/* Totals */}
-                <div className="space-y-2.5">
-                    <div className="flex justify-between text-sm">
-                        <span className="text-slate-400 font-medium">{t('pos.subtotal')}</span>
-                        <span className="font-bold text-slate-700 tabular-nums">Rp {subtotal.toLocaleString('id-ID')}</span>
+            {/* Checkout Footer - Compact */}
+            {!receiptData && (
+            <div className="shrink-0 border-t border-slate-100 bg-slate-50/80 px-4 py-3 space-y-2.5">
+                {/* Totals Row */}
+                <div className="flex items-center gap-2">
+                    <div className="flex-1 flex items-center justify-between px-3 py-2 bg-white rounded-xl border border-slate-100 shadow-sm">
+                        <span className="text-[10px] font-medium text-slate-400">{t('pos.subtotal')}</span>
+                        <span className="text-xs font-bold text-slate-700 tabular-nums">Rp {subtotal.toLocaleString('id-ID')}</span>
                     </div>
-                    <div className="flex gap-2">
-                        <div className="relative flex-1">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400 uppercase tracking-wider">DISC</span>
-                            <input type="number" value={discount || ''} onChange={(e) => setDiscount(Number(e.target.value))}
-                                className="w-full pl-14 pr-3 py-2.5 text-xs font-bold border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-50 focus:border-primary-400 transition-all bg-white" />
-                        </div>
-                        <div className="relative flex-1">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400 uppercase tracking-wider">TAX</span>
-                            <input type="number" value={tax || ''} onChange={(e) => setTax(Number(e.target.value))}
-                                className="w-full pl-12 pr-3 py-2.5 text-xs font-bold border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-50 focus:border-primary-400 transition-all bg-white" />
-                        </div>
+                    <div className="w-16 shrink-0">
+                        <input type="number" value={discount || ''} onChange={(e) => setDiscount(Number(e.target.value))}
+                            placeholder="Disc"
+                            className="w-full px-2.5 py-2 text-[10px] font-bold border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-50 focus:border-primary-400 transition-all bg-white text-center tabular-nums"
+                        />
+                    </div>
+                    <div className="w-16 shrink-0">
+                        <input type="number" value={tax || ''} onChange={(e) => setTax(Number(e.target.value))}
+                            placeholder="Tax"
+                            className="w-full px-2.5 py-2 text-[10px] font-bold border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-50 focus:border-primary-400 transition-all bg-white text-center tabular-nums"
+                        />
                     </div>
                 </div>
 
-                {/* Total */}
-                <div className="flex justify-between items-center py-3 px-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                    <span className="text-sm font-bold text-slate-800">{t('pos.totalPayable')}</span>
-                    <span className="text-2xl font-black text-slate-900 tracking-tight tabular-nums">Rp {total.toLocaleString('id-ID')}</span>
+                {/* Total Payable */}
+                <div className="flex justify-between items-center px-4 py-2.5 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl shadow-lg shadow-slate-200/50">
+                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">{t('pos.totalPayable')}</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-lg font-black text-white tracking-tight tabular-nums">Rp {total.toLocaleString('id-ID')}</span>
+                    </div>
                 </div>
 
                 {/* Payment Method */}
-                <div className="space-y-2.5">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('pos.paymentMethod')}</p>
-                    <div className="grid grid-cols-4 gap-2">
-                        {paymentMethods.map((method) => (
-                            <button key={method.value}
-                                onClick={() => setPaymentMethod(method.value)}
-                                className={`relative flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl border-2 transition-all duration-200 active:scale-95 ${
-                                    paymentMethod === method.value
-                                        ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200'
-                                        : 'bg-white border-slate-100 text-slate-400 hover:border-slate-300 hover:text-slate-600'
+                <div className="flex items-center gap-1.5">
+                    {paymentMethods.map((method) => (
+                        <button key={method.value}
+                            onClick={() => setPaymentMethod(method.value)}
+                            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl border transition-all duration-150 active:scale-95 ${
+                                paymentMethod === method.value
+                                    ? 'bg-slate-900 border-slate-900 text-white shadow-md'
+                                    : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600'
+                            }`}
+                        >
+                            {method.icon}
+                            <span className="text-[7px] font-bold uppercase tracking-tight">{method.label}</span>
+                        </button>
+                    ))}
+                </div>
+
+                {/* Quick Amount Buttons */}
+                {items.length > 0 && (
+                    <div className="flex items-center gap-1.5">
+                        {[10000, 20000, 50000, 100000].map((amount) => (
+                            <button
+                                key={amount}
+                                onClick={() => setPaidAmount(amount)}
+                                className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-bold transition-all duration-150 active:scale-95 ${
+                                    paidAmount === amount
+                                        ? 'bg-slate-900 text-white shadow-sm'
+                                        : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'
                                 }`}
                             >
-                                {method.icon}
-                                <span className="text-[8px] font-bold uppercase tracking-tight">{method.label}</span>
-                                {paymentMethod === method.value && (
-                                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary-500 rounded-full flex items-center justify-center shadow-lg">
-                                        <Check size={10} className="text-white" />
-                                    </span>
-                                )}
+                                Rp {(amount).toLocaleString('id-ID')}
                             </button>
                         ))}
+                        <button
+                            onClick={() => setPaidAmount(total)}
+                            className={`px-2.5 py-1.5 rounded-lg text-[9px] font-bold transition-all duration-150 active:scale-95 ${
+                                paidAmount === total
+                                    ? 'bg-emerald-600 text-white shadow-sm'
+                                    : 'bg-white border border-slate-200 text-slate-500 hover:border-emerald-300 hover:text-emerald-600'
+                            }`}
+                        >
+                            {t('pos.exactAmount')}
+                        </button>
                     </div>
-                </div>
+                )}
 
-                {/* Received & Change */}
-                <div className="space-y-2.5">
-                    <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('pos.received')}</span>
+                {/* Received + Change + Checkout */}
+                <div className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[8px] font-black text-slate-400 uppercase tracking-widest">{t('pos.received')}</span>
                         <input type="number" value={paidAmount || ''} onChange={(e) => setPaidAmount(Number(e.target.value))}
-                            className="w-full pl-24 pr-4 py-3.5 text-lg font-black bg-white border-2 border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all tabular-nums shadow-sm" />
+                            className="w-full pl-16 pr-3 py-2.5 text-sm font-black bg-white border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-50 focus:border-primary-400 transition-all tabular-nums"
+                        />
                     </div>
-                    {change > 0 && (
-                        <div className="flex justify-between items-center px-4 py-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100/50 animate-slideIn">
-                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t('pos.changeReturn')}</span>
-                            <span className="text-base font-black text-emerald-700 tabular-nums">Rp {change.toLocaleString('id-ID')}</span>
-                        </div>
-                    )}
+                    <button onClick={handleCheckout}
+                        disabled={isEmpty || processing || !isValidPayment}
+                        className="px-5 py-2.5 bg-gradient-to-r from-primary-600 to-violet-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-primary-200/40 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:from-slate-200 disabled:to-slate-200 transition-all active:scale-[0.97] shadow-md shadow-primary-100 shrink-0"
+                    >
+                        {processing ? (
+                            <span className="flex items-center gap-1.5">
+                                <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                                {t('pos.processing')}
+                            </span>
+                        ) : t('pos.completeTransaction')}
+                    </button>
                 </div>
 
-                {/* Checkout Button */}
-                <button onClick={handleCheckout}
-                    disabled={isEmpty || processing || paidAmount < total}
-                    className="w-full py-5 bg-gradient-to-r from-primary-600 to-violet-600 text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:shadow-xl hover:shadow-primary-200/50 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:from-slate-100 disabled:to-slate-100 transition-all active:scale-[0.98] shadow-lg shadow-primary-100">
-                    {processing ? (
-                        <span className="flex items-center justify-center gap-2">
-                            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                            {t('pos.processing')}
+                {/* Change Return */}
+                {change > 0 && (
+                    <div className="flex justify-between items-center px-3.5 py-2.5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100/50 animate-slideIn">
+                        <span className="flex items-center gap-2">
+                            <Wallet size={14} className="text-emerald-500" />
+                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t('pos.changeReturn')}</span>
                         </span>
-                    ) : t('pos.completeTransaction')}
-                </button>
+                        <span className="text-sm font-black text-emerald-700 tabular-nums">Rp {change.toLocaleString('id-ID')}</span>
+                    </div>
+                )}
             </div>
+            )}
 
             {/* Animations */}
             <style>{`
@@ -226,6 +561,11 @@ const Cart = ({ cart }) => {
                 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
                 .animate-slideIn { animation: slideIn 0.3s ease-out forwards; }
                 .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+                .scrollbar-thin::-webkit-scrollbar { width: 3px; }
+                .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+                .scrollbar-thin::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+                .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+                .scrollbar-thin { scrollbar-width: thin; }
             `}</style>
         </div>
     );
