@@ -664,11 +664,6 @@ export const exportReceiptPdf = (data, options = {}) => {
             const footerLines = doc.splitTextToSize(pdfFooter, pageW - 28);
             doc.text(footerLines, pageW / 2, y, { align: 'center' });
             y += footerLines.length * 3 + 2;
-        } else {
-            centerText('Terima kasih sudah berbelanja!', y, 7);
-            y += 3;
-            centerText('www.bikinpos.com', y, 7);
-            y += 3;
         }
         centerText(`Dicetak: ${new Date().toLocaleString('id-ID')}`, y, 7);
 
