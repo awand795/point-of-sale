@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Eye, X, Search, Receipt, Calendar, Filter, Download, Loader2 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
@@ -35,7 +35,6 @@ const Transactions = () => {
     const [showDetail, setShowDetail] = useState(null);
     const [exporting, setExporting] = useState(false);
     const [downloading, setDownloading] = useState(false);
-    const receiptContentRef = useRef(null);
 
     const handleDateFilter = (e) => {
         e.preventDefault();
@@ -108,13 +107,17 @@ const Transactions = () => {
         setExporting(false);
     };
 
-    const handleDownloadReceipt = async () => {
+    const handleDownloadReceipt = () => {
         setDownloading(true);
         try {
-            await exportReceiptPdf(receiptContentRef.current, {
+            exportReceiptPdf(showDetail, {
                 filename: `${showDetail?.invoice_number || 'receipt'}.pdf`,
             });
-        } catch {}
+            showToast('success', locale === 'id' ? 'PDF berhasil diunduh' : 'PDF downloaded successfully');
+        } catch (e) {
+            console.error('Receipt export failed:', e);
+            showToast('error', locale === 'id' ? 'Gagal mengunduh PDF' : 'Failed to download PDF');
+        }
         setDownloading(false);
     };
 
@@ -322,7 +325,7 @@ const Transactions = () => {
                             </button>
                         </div>
 
-                        <div className="p-6 dark:text-white" ref={receiptContentRef}>
+                        <div className="p-6 dark:text-white">
                             <div className="grid grid-cols-2 gap-6 mb-6">
                                 <div className="space-y-4">
                                     <div>

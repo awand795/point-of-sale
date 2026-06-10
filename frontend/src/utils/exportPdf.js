@@ -440,76 +440,185 @@ export const exportToPdf = async (element, options = {}) => {
 };
 
 /**
- * Export receipt content as a clean thermal-receipt-style PDF
- * Suitable for transaction receipts and invoice downloads
+ * Export receipt data as a thermal-receipt-style PDF using jsPDF (no DOM rendering, no html2canvas)
+ * Accepts transaction data object directly — fast and doesn't freeze the UI.
+ * @param {Object} data - Transaction object with items, totals, etc.
+ * @param {Object} options
+ * @param {string} options.filename - Output filename (default: 'receipt.pdf')
+ * @param {string} options.storeName - Store name for header (default: 'BikinPOS')
  */
-export const exportReceiptPdf = async (receiptElement, options = {}) => {
-    const { filename = 'receipt.pdf', onStart, onComplete } = options;
+export const exportReceiptPdf = (data, options = {}) => {
+    const {
+        filename = 'receipt.pdf',
+        storeName = 'BikinPOS',
+    } = options;
 
-    onStart?.();
+    const fmtCurrency = (v) => `Rp ${Number(v || 0).toLocaleString('id-ID')}`;
+    const fmtDate = (d) => new Date(d).toLocaleDateString('id-ID', {
+        day: '2-digit', month: 'long', year: 'numeric',
+    });
+    const fmtTime = (d) => new Date(d).toLocaleTimeString('id-ID', {
+        hour: '2-digit', minute: '2-digit',
+    });
 
     try {
-        const el = typeof receiptElement === 'string' ? document.querySelector(receiptElement) : receiptElement;
-        if (!el) throw new Error('Receipt element not found');
+        // Use standard A4 format (same as working exportTableToPdf/exportReportToPdf)
+        // to avoid triggering jsPDF v4's CSS color parser on custom formats
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = doc.internal.pageSize.getWidth();
+        const leftCol = 14;   // left column label position
+        const rightCol = pageW - 14; // right column value position
+        let y = 15;
 
-        const clone = el.cloneNode(true);
-        
-        const wrapper = document.createElement('div');
-        wrapper.style.cssText = `
-            position: fixed;
-            left: -9999px;
-            top: 0;
-            width: 80mm;
-            background: #fff;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #000;
-            padding: 10px 8px;
-            z-index: -1;
-        `;
-
-        // Convert all text colors to black for thermal-style print
-        const textEls = clone.querySelectorAll('*');
-        for (const el of textEls) {
-            el.style.color = '#000';
-            el.style.backgroundColor = '';
-            // Remove dark: classes
-            if (el.className && typeof el.className === 'string' && el.className.includes('dark:')) {
-                el.className = el.className.replace(/dark:\S+/g, '').replace(/\s+/g, ' ').trim();
-            }
-        }
-
-        wrapper.appendChild(clone);
-        document.body.appendChild(wrapper);
-
-        const opt = {
-            margin: 0,
-            filename,
-            image: { type: 'jpeg', quality: 0.95 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false,
-                width: 80 * 3.78, // 80mm in pixels
-            },
-            jsPDF: {
-                unit: 'mm',
-                format: [80, 297], // 80mm width, auto height
-                orientation: 'portrait',
-            },
+        // Helper: manually center text without using { align: 'center' } option
+        const centerText = (text, yy, fontSize) => {
+            const textW = (doc.getStringUnitWidth(text) * fontSize) / doc.internal.scaleFactor;
+            doc.text(text, (pageW - textW) / 2, yy);
+        };
+        const divider = (yy) => {
+            doc.setDrawColor(180, 180, 180);
+            doc.line(14, yy, pageW - 14, yy);
+        };
+        const thinDivider = (yy) => {
+            doc.setDrawColor(210, 210, 210);
+            doc.line(16, yy, pageW - 16, yy);
         };
 
-        await html2pdf().set(opt).from(wrapper).save(filename);
+        // ── Header ──
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+        centerText(storeName, y, 16);
+        y += 6;
 
-        document.body.removeChild(wrapper);
-        onComplete?.(true);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        centerText('Point of Sale System', y, 7);
+        y += 4;
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+        centerText(data.invoice_number || 'RECEIPT', y, 9);
+        y += 3;
+
+        divider(y);
+        y += 5;
+
+        // ── Transaction Info ──
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(60, 60, 60);
+        const infoLines = [
+            `Tanggal : ${fmtDate(data.created_at)}`,
+            `Waktu   : ${fmtTime(data.created_at)}`,
+            `Kasir   : ${data.user?.name || 'Walk-in'}`,
+            `Pembayaran : ${data.payment_method || '-'}`,
+        ];
+        if (data.customer_name) {
+            infoLines.push(`Pelanggan : ${data.customer_name}`);
+        }
+        infoLines.forEach((line) => {
+            doc.text(line, leftCol, y);
+            y += 3.5;
+        });
+
+        divider(y);
+        y += 4.5;
+
+        // ── Items Header ──
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text('Item', leftCol, y);
+        doc.text('Qty', 80, y);
+        doc.text('Harga', 105, y);
+        doc.text('Subtotal', rightCol, y, { align: 'right' });
+        y += 2.5;
+        thinDivider(y);
+        y += 3.5;
+
+        // ── Items ──
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        const items = data.items || [];
+        if (items.length === 0) {
+            doc.setTextColor(150, 150, 150);
+            doc.text('(No items)', leftCol + 4, y);
+            y += 5;
+            doc.setTextColor(0, 0, 0);
+        } else {
+            items.forEach((item) => {
+                const name = item.product?.name || 'Unknown';
+                const qty = item.quantity;
+                const price = Number(item.selling_price);
+                const subtotal = Number(item.subtotal);
+
+                const displayName = name.length > 40 ? name.slice(0, 38) + '..' : name;
+                doc.text(displayName, leftCol, y);
+                y += 3.5;
+                doc.text(`${qty}`, 80, y);
+                doc.text(`Rp ${price.toLocaleString('id-ID')}`, 105, y);
+                doc.text(`Rp ${subtotal.toLocaleString('id-ID')}`, rightCol, y, { align: 'right' });
+                y += 5;
+
+                if (y > 260) {
+                    doc.addPage();
+                    y = 15;
+                }
+            });
+        }
+
+        thinDivider(y);
+        y += 4;
+
+        // ── Totals ──
+        doc.setFontSize(7.5);
+        const totalRows = [
+            { label: 'Subtotal', value: fmtCurrency(data.subtotal) },
+        ];
+        if (Number(data.discount) > 0) {
+            totalRows.push({ label: 'Diskon', value: `-${fmtCurrency(data.discount)}` });
+        }
+        if (Number(data.tax) > 0) {
+            totalRows.push({ label: 'Pajak', value: fmtCurrency(data.tax) });
+        }
+
+        totalRows.forEach((row) => {
+            doc.setFont('helvetica', 'normal');
+            doc.text(row.label, leftCol, y);
+            doc.text(row.value, rightCol, y, { align: 'right' });
+            y += 4;
+        });
+
+        // Total (bold, larger)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        divider(y - 0.5);
+        y += 2;
+        doc.text('TOTAL', leftCol, y);
+        doc.text(fmtCurrency(data.total), rightCol, y, { align: 'right' });
+        y += 7;
+
+        // ── Footer ──
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(120, 120, 120);
+        divider(y);
+        y += 3.5;
+        const thanks = 'Terima kasih sudah berbelanja!';
+        centerText(thanks, y, 7);
+        y += 3;
+        centerText('www.bikinpos.com', y, 7);
+        y += 3;
+        centerText(`Dicetak: ${new Date().toLocaleString('id-ID')}`, y, 7);
+
+        doc.save(filename);
         return true;
     } catch (error) {
         console.error('Receipt PDF export failed:', error);
-        const existing = document.querySelector('[style*="left: -9999px"]');
-        if (existing) document.body.removeChild(existing);
-        onComplete?.(false);
         throw error;
     }
 };
