@@ -88,6 +88,10 @@ const settings = {
     general: [{ key: 'app_name', value: 'BikinPOS Enterprise', group: 'general' }, { key: 'currency', value: 'IDR', group: 'general' }, { key: 'tax_rate', value: '11', group: 'general' }],
     business: [{ key: 'company_name', value: 'PT BikinPOS Teknologi Indonesia', group: 'business' }, { key: 'company_email', value: 'hello@bikinpos.com', group: 'business' }],
     receipt: [{ key: 'receipt_footer', value: 'Terima kasih!', group: 'receipt' }],
+    pdf: [
+        { key: 'pdf_header_text', value: 'PT BikinPOS Teknologi Indonesia | Jl. Thamrin No. 1, Jakarta Pusat', group: 'pdf' },
+        { key: 'pdf_footer_text', value: 'Terima kasih sudah berbelanja! — www.bikinpos.com', group: 'pdf' },
+    ],
     notifications: [{ key: 'low_stock_alert', value: 'true', group: 'notifications' }],
 };
 
