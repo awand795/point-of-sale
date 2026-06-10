@@ -5,6 +5,7 @@ import PageHeader from "../components/shared/PageHeader";
 import { LoadingSpinner } from "../components/shared/EmptyState";
 import { useReports } from "../hooks/useReports";
 import { useToast } from "../hooks/useToast";
+import { useSettings } from "../hooks/useSettings";
 import { exportReportToPdf } from "../utils/exportPdf";
 
 const AnimatedCounter = ({ value, prefix = "", duration = 1200 }) => {
@@ -234,6 +235,7 @@ const Reports = () => {
   const { t, locale } = useLanguage();
   const { reports, loading, error, filterByDate } = useReports();
   const { showToast } = useToast();
+  const { settings } = useSettings();
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [chartPeriod, setChartPeriod] = useState("monthly");
   const [exporting, setExporting] = useState(false);
@@ -261,11 +263,18 @@ const Reports = () => {
     setExporting(true);
     try {
       // Use data-driven export (no DOM rendering / html2canvas)
+      const pdfGroup = settings?.pdf || [];
+      const getSetting = (key, def) => pdfGroup.find(s => s.key === key)?.value || def;
+      const pdfHeader = getSetting('pdf_header_text', '');
+      const pdfFooter = getSetting('pdf_footer_text', '');
+
       exportReportToPdf(reports, {
         filename: `BikinPOS_Report_${new Date().toISOString().split('T')[0]}.pdf`,
         title: t("reports.title"),
         subtitle: t("reports.subtitle"),
         locale,
+        pdfHeader,
+        pdfFooter,
       });
       showToast('success', locale === 'id' ? 'PDF berhasil diunduh' : 'PDF downloaded successfully');
     } catch (e) {

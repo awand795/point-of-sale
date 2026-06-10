@@ -4,6 +4,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { useTransactions } from '../hooks/useTransactions';
+import { useSettings } from '../hooks/useSettings';
 import { exportTableToPdf, exportReceiptPdf } from '../utils/exportPdf';
 import PageHeader from '../components/shared/PageHeader';
 import { LoadingSpinner } from '../components/shared/EmptyState';
@@ -29,6 +30,7 @@ const Transactions = () => {
     } = useTransactions();
     const { isDemo } = useAuth();
     const { showToast } = useToast();
+    const { settings } = useSettings();
 
     const [dateFilter, setDateFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
@@ -85,11 +87,19 @@ const Transactions = () => {
                 status: t.status,
             }));
 
+            // Look up PDF header/footer from settings (with fallback to empty defaults)
+            const pdfGroup = settings?.pdf || [];
+            const getSetting = (key, def) => pdfGroup.find(s => s.key === key)?.value || def;
+            const pdfHeader = getSetting('pdf_header_text', '');
+            const pdfFooter = getSetting('pdf_footer_text', '');
+
             exportTableToPdf(rows, {
                 filename: `BikinPOS_Transactions_${new Date().toISOString().split('T')[0]}.pdf`,
                 title: t('transactions.title'),
                 subtitle: t('transactions.subtitle'),
                 landscape: true,
+                pdfHeader,
+                pdfFooter,
                 columns: [
                     { header: locale === 'id' ? 'Invoice' : 'Invoice', dataKey: 'invoice_number' },
                     { header: locale === 'id' ? 'Tanggal' : 'Date', dataKey: 'date' },
@@ -110,8 +120,13 @@ const Transactions = () => {
     const handleDownloadReceipt = () => {
         setDownloading(true);
         try {
+            const pdfGroup = settings?.pdf || [];
+            const getSetting = (key, def) => pdfGroup.find(s => s.key === key)?.value || def;
+
             exportReceiptPdf(showDetail, {
                 filename: `${showDetail?.invoice_number || 'receipt'}.pdf`,
+                pdfHeader: getSetting('pdf_header_text', ''),
+                pdfFooter: getSetting('pdf_footer_text', ''),
             });
             showToast('success', locale === 'id' ? 'PDF berhasil diunduh' : 'PDF downloaded successfully');
         } catch (e) {

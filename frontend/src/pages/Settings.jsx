@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Settings2, Building, Receipt, Bell, Shield } from 'lucide-react';
+import { Save, Settings2, Building, Receipt, Bell, Shield, FileText } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import PageHeader from "../components/shared/PageHeader";
 import { LoadingSpinner } from "../components/shared/EmptyState";
@@ -21,6 +21,7 @@ const Settings = () => {
         { id: 'general', label: 'General', icon: Settings2 },
         { id: 'business', label: 'Business', icon: Building },
         { id: 'receipt', label: 'Receipt', icon: Receipt },
+        { id: 'pdf', label: 'PDF Export', icon: FileText },
         { id: 'notifications', label: 'Notifications', icon: Bell },
     ];
 
@@ -67,12 +68,14 @@ const Settings = () => {
     const generalFields = ['app_name', 'app_description', 'currency', 'tax_rate', 'language'];
     const businessFields = ['company_name', 'company_address', 'company_phone', 'company_email', 'tax_id'];
     const receiptFields = ['receipt_footer', 'receipt_header', 'show_logo'];
+    const pdfFields = ['pdf_header_text', 'pdf_footer_text'];
     const notificationFields = ['low_stock_alert', 'daily_report', 'email_notifications'];
 
     const fieldGroups = {
         general: generalFields,
         business: businessFields,
         receipt: receiptFields,
+        pdf: pdfFields,
         notifications: notificationFields,
     };
 

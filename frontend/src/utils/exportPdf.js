@@ -19,6 +19,8 @@ export const exportTableToPdf = (data, options = {}) => {
         subtitle = '',
         landscape = false,
         columns = [],
+        pdfHeader = '',
+        pdfFooter = '',
     } = options;
 
     try {
@@ -30,30 +32,49 @@ export const exportTableToPdf = (data, options = {}) => {
 
         const pageW = doc.internal.pageSize.getWidth();
         const margin = 14;
+        const headerHeight = pdfHeader ? 12 : 0;
+        let startY = 20 + headerHeight;
+
+        // ---- PDF Header (from settings) ----
+        if (pdfHeader) {
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 100, 100);
+            const headerLines = doc.splitTextToSize(pdfHeader, pageW - margin * 2);
+            doc.text(headerLines, margin, startY - 8);
+            doc.setDrawColor(200, 200, 200);
+            doc.line(margin, startY - 3, pageW - margin, startY - 3);
+        }
 
         // ---- Title ----
         if (title) {
             doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
             doc.setTextColor(30, 41, 59);
-            doc.text(title, margin, 22);
+            doc.text(title, margin, startY + 2);
 
             if (subtitle) {
                 doc.setFontSize(9);
+                doc.setFont('helvetica', 'normal');
                 doc.setTextColor(148, 163, 184);
-                doc.text(subtitle, margin, 30);
+                doc.text(subtitle, margin, startY + 10);
             }
 
             doc.setDrawColor(226, 232, 240);
-            doc.line(margin, 35, pageW - margin, 35);
+            const lineY = subtitle ? startY + 15 : startY + 7;
+            doc.line(margin, lineY, pageW - margin, lineY);
+            startY = lineY + 7;
+        } else {
+            startY += 2;
         }
 
         // ---- Table ----
-        const startY = title ? 42 : 20;
+        const tableStartY = startY;
 
         doc.autoTable({
             columns,
             body: data,
-            startY,
+            startY: tableStartY,
             styles: {
                 fontSize: 7.5,
                 cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
@@ -72,7 +93,7 @@ export const exportTableToPdf = (data, options = {}) => {
             alternateRowStyles: {
                 fillColor: [248, 250, 252],
             },
-            margin: { top: 20, bottom: 25, left: margin, right: margin },
+            margin: { top: headerHeight + 20, bottom: 25, left: margin, right: margin },
         });
 
         // Write footer on each page
@@ -84,11 +105,15 @@ export const exportTableToPdf = (data, options = {}) => {
         for (let i = 1; i <= totalPages; i++) {
             doc.setPage(i);
             doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
             doc.setTextColor(148, 163, 184);
+            const footerY = doc.internal.pageSize.getHeight() - 10;
+            if (pdfFooter) {
+                doc.text(pdfFooter, pageW / 2, footerY - 3, { align: 'center' });
+            }
             doc.text(
-                `BikinPOS — Point of Sale System · ${genDate} · Page ${i} of ${totalPages}`,
-                pageW / 2,
-                doc.internal.pageSize.getHeight() - 10,
+                `Page ${i} of ${totalPages} · ${genDate}`,
+                pageW / 2, footerY,
                 { align: 'center' },
             );
         }
@@ -111,6 +136,8 @@ export const exportReportToPdf = (reports, options = {}) => {
         title = 'Laporan',
         subtitle = '',
         locale = 'id',
+        pdfHeader = '',
+        pdfFooter = '',
     } = options;
 
     const fmtCurrency = (v) => `Rp ${Number(v || 0).toLocaleString('id-ID')}`;
@@ -121,15 +148,29 @@ export const exportReportToPdf = (reports, options = {}) => {
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         const pageW = doc.internal.pageSize.getWidth();
         const margin = 14;
-        let y = 20;
+        const headerHeight = pdfHeader ? 12 : 0;
+        let y = 20 + headerHeight;
+
+        // ---- PDF Header (from settings) ----
+        if (pdfHeader) {
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 100, 100);
+            const headerLines = doc.splitTextToSize(pdfHeader, pageW - margin * 2);
+            doc.text(headerLines, margin, y - 8);
+            doc.setDrawColor(200, 200, 200);
+            doc.line(margin, y - 3, pageW - margin, y - 3);
+        }
 
         // ---- Title ----
         doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
         doc.setTextColor(30, 41, 59);
         doc.text(title, margin, y);
         y += 7;
         if (subtitle) {
             doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
             doc.setTextColor(148, 163, 184);
             doc.text(subtitle, margin, y);
             y += 5;
@@ -141,9 +182,9 @@ export const exportReportToPdf = (reports, options = {}) => {
         // ---- Summary Section ----
         doc.setFontSize(11);
         doc.setTextColor(30, 41, 59);
-        doc.setFont(undefined, 'bold');
+        doc.setFont('helvetica', 'bold');
         doc.text(t('Ringkasan', 'Summary'), margin, y);
-        doc.setFont(undefined, 'normal');
+        doc.setFont('helvetica', 'normal');
         y += 6;
 
         const summaryData = [
@@ -171,14 +212,13 @@ export const exportReportToPdf = (reports, options = {}) => {
         // ---- Top Products ----
         const products = reports?.top_products || [];
         if (products.length > 0) {
-            // Check if we need a new page
-            if (y > 240) { doc.addPage(); y = 20; }
+            if (y > 240) { doc.addPage(); y = 20 + (pdfHeader ? 14 : 0); }
 
             doc.setFontSize(11);
             doc.setTextColor(30, 41, 59);
-            doc.setFont(undefined, 'bold');
+            doc.setFont('helvetica', 'bold');
             doc.text(t('Produk Terlaris', 'Top Products'), margin, y);
-            doc.setFont(undefined, 'normal');
+            doc.setFont('helvetica', 'normal');
             y += 6;
 
             doc.autoTable({
@@ -218,13 +258,13 @@ export const exportReportToPdf = (reports, options = {}) => {
         // ---- Category Breakdown ----
         const categories = reports?.category_breakdown || [];
         if (categories.length > 0) {
-            if (y > 240) { doc.addPage(); y = 20; }
+            if (y > 240) { doc.addPage(); y = 20 + (pdfHeader ? 14 : 0); }
 
             doc.setFontSize(11);
             doc.setTextColor(30, 41, 59);
-            doc.setFont(undefined, 'bold');
+            doc.setFont('helvetica', 'bold');
             doc.text(t('Kategori', 'Category Breakdown'), margin, y);
-            doc.setFont(undefined, 'normal');
+            doc.setFont('helvetica', 'normal');
             y += 6;
 
             doc.autoTable({
@@ -267,11 +307,15 @@ export const exportReportToPdf = (reports, options = {}) => {
         for (let i = 1; i <= totalPages; i++) {
             doc.setPage(i);
             doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
             doc.setTextColor(148, 163, 184);
+            const footerY = doc.internal.pageSize.getHeight() - 10;
+            if (pdfFooter) {
+                doc.text(pdfFooter, pageW / 2, footerY - 3, { align: 'center' });
+            }
             doc.text(
-                `BikinPOS — Point of Sale System · ${genDate} · Page ${i} of ${totalPages}`,
-                pageW / 2,
-                doc.internal.pageSize.getHeight() - 10,
+                `Page ${i} of ${totalPages} · ${genDate}`,
+                pageW / 2, footerY,
                 { align: 'center' },
             );
         }
@@ -451,6 +495,8 @@ export const exportReceiptPdf = (data, options = {}) => {
     const {
         filename = 'receipt.pdf',
         storeName = 'BikinPOS',
+        pdfHeader = '',
+        pdfFooter = '',
     } = options;
 
     const fmtCurrency = (v) => `Rp ${Number(v || 0).toLocaleString('id-ID')}`;
@@ -484,18 +530,22 @@ export const exportReceiptPdf = (data, options = {}) => {
             doc.line(16, yy, pageW - 16, yy);
         };
 
+        // ── PDF Header (from settings) ──
+        if (pdfHeader) {
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 100, 100);
+            const headerLines = doc.splitTextToSize(pdfHeader, pageW - 28);
+            doc.text(headerLines, pageW / 2, y, { align: 'center' });
+            y += headerLines.length * 3 + 3;
+        }
+
         // ── Header ──
         doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 0, 0);
         centerText(storeName, y, 16);
         y += 6;
-
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100, 100, 100);
-        centerText('Point of Sale System', y, 7);
-        y += 4;
 
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
@@ -610,11 +660,16 @@ export const exportReceiptPdf = (data, options = {}) => {
         doc.setTextColor(120, 120, 120);
         divider(y);
         y += 3.5;
-        const thanks = 'Terima kasih sudah berbelanja!';
-        centerText(thanks, y, 7);
-        y += 3;
-        centerText('www.bikinpos.com', y, 7);
-        y += 3;
+        if (pdfFooter) {
+            const footerLines = doc.splitTextToSize(pdfFooter, pageW - 28);
+            doc.text(footerLines, pageW / 2, y, { align: 'center' });
+            y += footerLines.length * 3 + 2;
+        } else {
+            centerText('Terima kasih sudah berbelanja!', y, 7);
+            y += 3;
+            centerText('www.bikinpos.com', y, 7);
+            y += 3;
+        }
         centerText(`Dicetak: ${new Date().toLocaleString('id-ID')}`, y, 7);
 
         doc.save(filename);
