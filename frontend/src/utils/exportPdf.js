@@ -1,4 +1,119 @@
 import html2pdf from 'html2pdf.js';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+
+/** Helper: yield to the event loop so the UI can breathe */
+const yieldToUI = () => new Promise(r => setTimeout(r, 0));
+
+/**
+ * Export a data array as a PDF table using jsPDF + jspdf-autotable (no DOM rendering)
+ * @param {Object[]} data - Array of row objects
+ * @param {Object} options
+ * @param {string} options.filename
+ * @param {string} options.title
+ * @param {string} options.subtitle
+ * @param {boolean} options.landscape
+ * @param {Function} options.onStart
+ * @param {Function} options.onComplete
+ */
+export const exportTableToPdf = async (data, options = {}) => {
+    const {
+        filename = 'document.pdf',
+        title = '',
+        subtitle = '',
+        landscape = false,
+        columns = [],
+        onStart,
+        onComplete,
+    } = options;
+
+    onStart?.();
+
+    try {
+        await yieldToUI();
+
+        const doc = new jsPDF({
+            orientation: landscape ? 'landscape' : 'portrait',
+            unit: 'mm',
+            format: 'a4',
+        });
+
+        const pageW = doc.internal.pageSize.getWidth();
+        const margin = 14;
+
+        // ---- Title ----
+        if (title) {
+            doc.setFontSize(16);
+            doc.setTextColor(30, 41, 59);
+            doc.text(title, margin, 22, { align: 'left' });
+
+            if (subtitle) {
+                doc.setFontSize(9);
+                doc.setTextColor(148, 163, 184);
+                doc.text(subtitle, margin, 30, { align: 'left' });
+            }
+
+            doc.setDrawColor(226, 232, 240);
+            doc.line(margin, 35, pageW - margin, 35);
+        }
+
+        // ---- Table ----
+        const startY = title ? 42 : 20;
+
+        doc.autoTable({
+            columns,
+            body: data,
+            startY,
+            styles: {
+                fontSize: 7.5,
+                cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
+                textColor: [51, 65, 85],
+                lineColor: [226, 232, 240],
+                lineWidth: 0.1,
+                overflow: 'linebreak',
+            },
+            headStyles: {
+                fillColor: [30, 41, 59],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 7.5,
+                halign: 'center',
+            },
+            alternateRowStyles: {
+                fillColor: [248, 250, 252],
+            },
+            margin: { top: 20, bottom: 25, left: margin, right: margin },
+        });
+
+        // Write footer on each page with actual page numbers
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+            doc.setFontSize(7);
+            doc.setTextColor(148, 163, 184);
+            const genDate = new Date().toLocaleDateString('id-ID', {
+                day: 'numeric', month: 'long', year: 'numeric',
+                hour: '2-digit', minute: '2-digit',
+            });
+            doc.text(
+                `BikinPOS — Point of Sale System · ${genDate} · Page ${i} of ${totalPages}`,
+                pageW / 2,
+                doc.internal.pageSize.getHeight() - 10,
+                { align: 'center' },
+            );
+        }
+
+        doc.save(filename);
+
+        onComplete?.(true);
+        await yieldToUI();
+        return true;
+    } catch (error) {
+        console.error('Table PDF export failed:', error);
+        onComplete?.(false);
+        throw error;
+    }
+};
 
 /**
  * Export a DOM element as a PDF using html2pdf.js
@@ -20,12 +135,15 @@ export const exportToPdf = async (element, options = {}) => {
         subtitle = '',
         landscape = false,
         margin = 10,
-        imageQuality = 'high',
+        imageQuality = 'medium',
         onStart,
         onComplete,
     } = options;
 
     onStart?.();
+
+    // Yield to let the UI update loading state before heavy work
+    await new Promise(r => setTimeout(r, 50));
 
     try {
         // Resolve element

@@ -4,6 +4,7 @@ import { useLanguage } from "../i18n/LanguageContext";
 import PageHeader from "../components/shared/PageHeader";
 import { LoadingSpinner } from "../components/shared/EmptyState";
 import { useReports } from "../hooks/useReports";
+import { useToast } from "../hooks/useToast";
 import { exportToPdf } from "../utils/exportPdf";
 
 const AnimatedCounter = ({ value, prefix = "", duration = 1200 }) => {
@@ -232,6 +233,7 @@ const CategoryBar = ({ name, revenue, percentage, color }) => (
 const Reports = () => {
   const { t, locale } = useLanguage();
   const { reports, loading, error, filterByDate } = useReports();
+  const { showToast } = useToast();
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [chartPeriod, setChartPeriod] = useState("monthly");
   const [exporting, setExporting] = useState(false);
@@ -259,14 +261,19 @@ const Reports = () => {
   const handleExportPdf = async () => {
     setExporting(true);
     try {
+      // Yield to let React update loading state before heavy html2canvas work
+      await new Promise(r => setTimeout(r, 50));
+
       await exportToPdf(reportContentRef.current, {
         filename: `BikinPOS_Report_${new Date().toISOString().split('T')[0]}.pdf`,
         title: t("reports.title"),
         subtitle: t("reports.subtitle"),
         landscape: false,
+        imageQuality: 'medium',
       });
+      showToast('success', locale === 'id' ? 'PDF berhasil diunduh' : 'PDF downloaded successfully');
     } catch {
-      // Error already logged by utility
+      showToast('error', locale === 'id' ? 'Gagal mengunduh PDF' : 'Failed to download PDF');
     }
     setExporting(false);
   };

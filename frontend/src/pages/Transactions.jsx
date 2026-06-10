@@ -1,10 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Eye, X, Search, Receipt, Calendar, Filter, Download, Loader2 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { useTransactions } from '../hooks/useTransactions';
-import { exportToPdf, exportReceiptPdf } from '../utils/exportPdf';
+import { exportTableToPdf, exportReceiptPdf } from '../utils/exportPdf';
 import PageHeader from '../components/shared/PageHeader';
 import { LoadingSpinner } from '../components/shared/EmptyState';
 
@@ -36,7 +36,6 @@ const Transactions = () => {
     const [exporting, setExporting] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const receiptContentRef = useRef(null);
-    const tableWrapperRef = useRef(null);
 
     const handleDateFilter = (e) => {
         e.preventDefault();
@@ -64,16 +63,48 @@ const Transactions = () => {
     const handleExportAll = async () => {
         setExporting(true);
         try {
-            const el = tableWrapperRef.current;
-            if (el) {
-                await exportToPdf(el, {
-                    filename: `BikinPOS_Transactions_${new Date().toISOString().split('T')[0]}.pdf`,
-                    title: t('transactions.title'),
-                    subtitle: t('transactions.subtitle'),
-                    landscape: true,
-                });
+            if (transactions.length === 0) {
+                showToast('info', locale === 'id' ? 'Tidak ada transaksi untuk diekspor' : 'No transactions to export');
+                setExporting(false);
+                return;
             }
-        } catch {}
+
+            const fmtDate = (d) => new Date(d).toLocaleDateString('id-ID', {
+                day: '2-digit', month: 'short', year: 'numeric',
+            });
+            const fmtTime = (d) => new Date(d).toLocaleTimeString('id-ID', {
+                hour: '2-digit', minute: '2-digit',
+            });
+            const fmtCurrency = (v) => `Rp ${Number(v).toLocaleString('id-ID')}`;
+
+            const rows = transactions.map(t => ({
+                invoice_number: t.invoice_number,
+                date: `${fmtDate(t.created_at)} ${fmtTime(t.created_at)}`,
+                cashier: t.user?.name || 'Walk-in',
+                total_fmt: fmtCurrency(t.total),
+                payment_method: t.payment_method || '-',
+                status: t.status,
+            }));
+
+            await exportTableToPdf(rows, {
+                filename: `BikinPOS_Transactions_${new Date().toISOString().split('T')[0]}.pdf`,
+                title: t('transactions.title'),
+                subtitle: t('transactions.subtitle'),
+                landscape: true,
+                columns: [
+                    { header: locale === 'id' ? 'Invoice' : 'Invoice', dataKey: 'invoice_number' },
+                    { header: locale === 'id' ? 'Tanggal' : 'Date', dataKey: 'date' },
+                    { header: locale === 'id' ? 'Kasir' : 'Cashier', dataKey: 'cashier' },
+                    { header: locale === 'id' ? 'Total' : 'Amount', dataKey: 'total_fmt' },
+                    { header: locale === 'id' ? 'Metode' : 'Method', dataKey: 'payment_method' },
+                    { header: locale === 'id' ? 'Status' : 'Status', dataKey: 'status' },
+                ],
+            });
+            showToast('success', locale === 'id' ? 'PDF berhasil diunduh' : 'PDF downloaded successfully');
+        } catch (e) {
+            console.error('Export failed:', e);
+            showToast('error', locale === 'id' ? 'Gagal mengunduh PDF' : 'Failed to download PDF');
+        }
         setExporting(false);
     };
 
@@ -156,7 +187,7 @@ const Transactions = () => {
             )}
 
             {/* Table */}
-            <div className="bg-surface dark:bg-surface-raised rounded-xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden" ref={tableWrapperRef}>
+            <div className="bg-surface dark:bg-surface-raised rounded-xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-left">
                         <thead>
