@@ -211,6 +211,12 @@ const translations = {
       noDataDesc: 'Mulai bertransaksi untuk melihat laporan',
       last12Months: '12 bulan terakhir',
       last5Years: '5 tahun terakhir',
+      compare: 'Bandingkan',
+      compareDesc: 'Bandingkan periode saat ini vs periode sebelumnya',
+      currentPeriod: 'Periode Ini',
+      previousPeriod: 'Periode Sebelumnya',
+      growth: 'Pertumbuhan',
+      decline: 'Penurunan',
     },
     // POS
     pos: {
@@ -661,6 +667,12 @@ const translations = {
       noDataDesc: 'Start transacting to see reports',
       last12Months: 'Last 12 months',
       last5Years: 'Last 5 years',
+      compare: 'Compare',
+      compareDesc: 'Compare current period vs previous period',
+      currentPeriod: 'Current Period',
+      previousPeriod: 'Previous Period',
+      growth: 'Growth',
+      decline: 'Decline',
     },
     sidebar: {
       main: 'Main',

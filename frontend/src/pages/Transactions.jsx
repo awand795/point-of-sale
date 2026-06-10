@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Eye, X, Search, Receipt, Calendar, Filter, Download, ArrowUpRight } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Eye, X, Search, Receipt, Calendar, Filter, Download, ArrowUpRight, Loader2 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { useTransactions } from '../hooks/useTransactions';
+import { exportToPdf, exportReceiptPdf } from '../utils/exportPdf';
 
 const statusStyles = {
     completed: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800',
@@ -13,7 +14,7 @@ const statusStyles = {
 };
 
 const Transactions = () => {
-    const { t } = useLanguage();
+    const { t, locale } = useLanguage();
     const {
         transactions,
         loading,
@@ -30,6 +31,10 @@ const Transactions = () => {
     const [dateFilter, setDateFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [showDetail, setShowDetail] = useState(null);
+    const [exporting, setExporting] = useState(false);
+    const [downloading, setDownloading] = useState(false);
+    const receiptContentRef = useRef(null);
+    const tableWrapperRef = useRef(null);
 
     const handleDateFilter = (e) => {
         e.preventDefault();
@@ -54,6 +59,32 @@ const Transactions = () => {
         }
     };
 
+    const handleExportAll = async () => {
+        setExporting(true);
+        try {
+            const el = tableWrapperRef.current;
+            if (el) {
+                await exportToPdf(el, {
+                    filename: `BikinPOS_Transactions_${new Date().toISOString().split('T')[0]}.pdf`,
+                    title: t('transactions.title'),
+                    subtitle: t('transactions.subtitle'),
+                    landscape: true,
+                });
+            }
+        } catch {}
+        setExporting(false);
+    };
+
+    const handleDownloadReceipt = async () => {
+        setDownloading(true);
+        try {
+            await exportReceiptPdf(receiptContentRef.current, {
+                filename: `${showDetail?.invoice_number || 'receipt'}.pdf`,
+            });
+        } catch {}
+        setDownloading(false);
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -69,9 +100,13 @@ const Transactions = () => {
                     <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t('transactions.title')}</h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('transactions.subtitle')}</p>
                 </div>
-                <button className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm">
-                    <Download size={16} />
-                    {t('transactions.exportReports')}
+                <button
+                    onClick={handleExportAll}
+                    disabled={exporting}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                    {exporting ? (locale === 'id' ? 'Mengexport...' : 'Exporting...') : t('transactions.exportReports')}
                 </button>
             </div>
 
@@ -124,7 +159,7 @@ const Transactions = () => {
                 </div>
             )}
 
-            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl shadow-slate-200/40 dark:shadow-none border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl shadow-slate-200/40 dark:shadow-none border border-slate-100 dark:border-slate-700/50 overflow-hidden" ref={tableWrapperRef}>
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-left">
                         <thead>
@@ -253,7 +288,7 @@ const Transactions = () => {
                             </button>
                         </div>
 
-                        <div className="p-10 dark:text-white">
+                        <div className="p-10 dark:text-white" ref={receiptContentRef}>
                             <div className="grid grid-cols-2 gap-8 mb-10">
                                 <div className="space-y-4">
                                     <div>
@@ -329,10 +364,12 @@ const Transactions = () => {
                                     {t('transactions.dismiss')}
                                 </button>
                                 <button
-                                    className="flex-1 py-4 text-xs font-black uppercase tracking-widest text-white bg-slate-900 dark:bg-primary-600 rounded-2xl hover:bg-primary-600 shadow-xl shadow-slate-200 dark:shadow-none transition-all flex items-center justify-center gap-2"
+                                    onClick={handleDownloadReceipt}
+                                    disabled={downloading}
+                                    className="flex-1 py-4 text-xs font-black uppercase tracking-widest text-white bg-slate-900 dark:bg-primary-600 rounded-2xl hover:bg-primary-600 shadow-xl shadow-slate-200 dark:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <Download size={14} />
-                                    {t('transactions.downloadPDF')}
+                                    {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                    {downloading ? (locale === 'id' ? 'Mengunduh...' : 'Downloading...') : t('transactions.downloadPDF')}
                                 </button>
                             </div>
                         </div>

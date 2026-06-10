@@ -34,6 +34,11 @@ export const ThemeProvider = ({ children }) => {
         localStorage.setItem('bikinpos-theme', isDark ? 'dark' : 'light');
     }, [isDark]);
 
+    // Allow external code to set the theme directly (e.g., from server sync)
+    const setTheme = useCallback((dark) => {
+        setIsDark(dark);
+    }, []);
+
     const toggleTheme = useCallback((clientX, clientY) => {
         if (transitioningRef.current) return;
         transitioningRef.current = true;
@@ -78,7 +83,7 @@ export const ThemeProvider = ({ children }) => {
     }, [setClickPosition]);
 
     return (
-        <ThemeContext.Provider value={{ isDark, toggleTheme, animating }}>
+        <ThemeContext.Provider value={{ isDark, toggleTheme, setTheme, animating }}>
             {children}
         </ThemeContext.Provider>
     );

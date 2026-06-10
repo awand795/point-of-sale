@@ -6,4 +6,5 @@ export const authApi = {
     logout: () => api.post('/logout'),
     me: () => api.get('/me'),
     seedDemo: () => api.post('/seed-demo'),
+    updateTheme: (theme) => api.put('/me/theme', { theme }),
 };

@@ -6,6 +6,7 @@ import { ThemeProvider } from "./hooks/useTheme";
 import { useAuth } from "./hooks/useAuth";
 import { ToastProvider } from "./hooks/useToast";
 import Layout from "./components/layout/Layout";
+import ThemeSync from "./components/ThemeSync";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import About from "./pages/About";
@@ -48,6 +49,7 @@ function App() {
         <ThemeProvider>
         <ToastProvider>
         <Router>
+          <ThemeSync />
           <Suspense fallback={
             <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
               <div className="flex flex-col items-center gap-4">

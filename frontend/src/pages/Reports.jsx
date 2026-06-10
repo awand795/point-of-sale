@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { BarChart3, TrendingUp, DollarSign, ShoppingBag, Package, Calendar, Download, ArrowUpRight, ArrowDownRight, PieChart, Sparkles } from "lucide-react";
+import { BarChart3, TrendingUp, DollarSign, ShoppingBag, Package, Calendar, Download, ArrowUpRight, ArrowDownRight, PieChart, Sparkles, Loader2 } from "lucide-react";
 import { useLanguage } from "../i18n/LanguageContext";
 import { LoadingSpinner } from "../components/shared/EmptyState";
 import { useReports } from "../hooks/useReports";
+import { exportToPdf } from "../utils/exportPdf";
 
 const AnimatedCounter = ({ value, prefix = "", duration = 1200 }) => {
   const [display, setDisplay] = useState(0);
@@ -54,14 +55,32 @@ const StatCard = ({ title, value, icon, gradient, change, isCurrency, delay = 0 
   );
 };
 
-const RevenueChart = ({ data = [], period }) => {
+const RevenueChart = ({ data = [], period, compareMode = false, toggleCompare }) => {
   const { t } = useLanguage();
   const [hovered, setHovered] = useState(null);
   const [ready, setReady] = useState(false);
-  useEffect(() => { setReady(false); const t2 = setTimeout(() => setReady(true), 50); return () => clearTimeout(t2); }, [data]);
-  const mx = Math.max(...data.map((d) => d.revenue), 1);
+  useEffect(() => { setReady(false); const t2 = setTimeout(() => setReady(true), 50); return () => clearTimeout(t2); }, [data, compareMode]);
+
+  // Build comparison data: each item gets a `prev` revenue value
+  const chartItems = data.map((item, i) => ({
+    ...item,
+    prev: compareMode && i > 0 ? data[i - 1].revenue : null,
+    change: compareMode && i > 0 && data[i - 1].revenue > 0
+      ? ((item.revenue - data[i - 1].revenue) / data[i - 1].revenue) * 100
+      : null,
+  }));
+
+  const allValues = compareMode
+    ? chartItems.flatMap(d => [d.revenue, d.prev].filter(v => v !== null))
+    : data.map(d => d.revenue);
+  const mx = Math.max(...allValues, 1);
   const total = data.reduce((s, d) => s + (d.revenue || 0), 0);
+  const overallChange = compareMode && chartItems.length > 1
+    ? chartItems.reduce((sum, item) => sum + (item.change ?? 0), 0) / chartItems.filter(i => i.change !== null).length
+    : null;
+
   const fmt = (v) => v >= 1000000 ? `Rp ${(v / 1000000).toFixed(1)}jt` : v >= 1000 ? `Rp ${(v / 1000).toFixed(0)}rb` : `Rp ${v}`;
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg shadow-slate-200/40 dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 overflow-hidden hover:shadow-xl transition-shadow">
       <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700">
@@ -71,15 +90,59 @@ const RevenueChart = ({ data = [], period }) => {
               <BarChart3 size={18} className="text-primary-600 dark:text-primary-400" />
             </div>
             <div>
-              <h2 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{period === "monthly" ? t("reports.monthlyRevenue") : t("reports.yearlyRevenue")}</h2>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{period === "monthly" ? t("reports.last12Months") : t("reports.last5Years")}</p>
+              <div className="flex items-center gap-3">
+                <h2 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{period === "monthly" ? t("reports.monthlyRevenue") : t("reports.yearlyRevenue")}</h2>
+                {/* Compare toggle */}
+                <button
+                  onClick={toggleCompare}
+                  className={`px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-wider border transition-all ${
+                    compareMode
+                      ? 'bg-primary-600 text-white border-primary-600 shadow-sm'
+                      : 'bg-transparent text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-600 hover:border-primary-300 dark:hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400'
+                  }`}
+                >
+                  <BarChart3 size={10} className="inline mr-1 -mt-0.5" />
+                  {t("reports.compare")}
+                </button>
+              </div>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+                {compareMode ? t("reports.compareDesc") : (period === "monthly" ? t("reports.last12Months") : t("reports.last5Years"))}
+              </p>
             </div>
           </div>
           <div className="text-right">
+            {/* Overall change badge */}
+            {compareMode && overallChange !== null && (
+              <div className={`flex items-center justify-end gap-1 mb-1 ${overallChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                <span className="text-[8px] font-black uppercase tracking-wider">{overallChange >= 0 ? t('reports.growth') : t('reports.decline')}</span>
+                <span className={`flex items-center gap-0.5 text-[10px] font-black px-1.5 py-0.5 rounded-full ${overallChange >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/40' : 'bg-red-50 dark:bg-red-900/40'}`}>
+                  {overallChange >= 0 ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
+                  {Math.abs(overallChange).toFixed(1)}%
+                </span>
+              </div>
+            )}
             <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("dashboard.revenueTotal")}</p>
             <p className="text-lg font-black text-slate-900 dark:text-white tabular-nums">Rp {total.toLocaleString("id-ID")}</p>
           </div>
         </div>
+        {/* Legend */}
+        {compareMode && (
+          <div className="flex items-center gap-4 mt-3">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-sm bg-primary-400" />
+              <span className="text-[9px] font-medium text-slate-500 dark:text-slate-400">{t("reports.currentPeriod")}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-sm bg-slate-300 dark:bg-slate-500" />
+              <span className="text-[9px] font-medium text-slate-500 dark:text-slate-400">{t("reports.previousPeriod")}</span>
+            </div>
+            {overallChange !== null && (
+              <div className={`text-[9px] font-bold ${overallChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                {overallChange >= 0 ? '↑' : '↓'} {Math.abs(overallChange).toFixed(1)}%
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <div className="p-6 pt-8">
         <div className="relative">
@@ -88,20 +151,57 @@ const RevenueChart = ({ data = [], period }) => {
               <span className="absolute -top-2.5 left-0 text-[8px] font-medium text-slate-300 dark:text-slate-600 tabular-nums">{r > 0 ? fmt(mx * r) : ""}</span>
             </div>
           ))}
-          <div className="flex items-end h-[200px] gap-2 relative ml-[60px]">
-            {data.map((item, i) => {
-              const h = mx > 0 ? (item.revenue / mx) * 100 : 0;
+          <div className="flex items-end h-[200px] gap-[3px] relative ml-[60px]">
+            {chartItems.map((item, i) => {
+              const hCurr = mx > 0 ? (item.revenue / mx) * 100 : 0;
+              const hPrev = compareMode && item.prev !== null ? (item.prev / mx) * 100 : 0;
               const act = hovered === i;
               return (
-                <div key={i} className="flex-1 relative group" style={{ zIndex: act ? 10 : 1 }}>
-                  <div className={`w-full rounded-sm bg-gradient-to-t ${act ? "from-primary-500 to-primary-300" : "from-primary-400 to-primary-200"} transition-all duration-700 ease-out cursor-pointer ${act ? "opacity-100 shadow-lg shadow-primary-200/50 dark:shadow-primary-900/50" : "opacity-80 hover:opacity-100"}`}
-                    style={{ height: ready ? `${Math.max(h, 1)}%` : "0%", transitionDelay: `${i * 20}ms` }}
-                    onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(null)}
-                  />
+                <div key={i} className="flex-1 flex items-end gap-[2px] min-w-0" style={{ zIndex: act ? 10 : 1 }}>
+                  {/* Previous period bar */}
+                  {compareMode && item.prev !== null && (
+                    <div className="flex-1 group/prev relative"
+                      onMouseEnter={() => setHovered(i)}
+                      onMouseLeave={() => setHovered(null)}
+                    >
+                      <div
+                        className={`w-full rounded-sm bg-slate-300 dark:bg-slate-500 transition-all duration-700 ease-out ${act ? 'opacity-100' : 'opacity-60 hover:opacity-90'}`}
+                        style={{ height: ready ? `${Math.max(hPrev, 1)}%` : "0%", transitionDelay: `${i * 20}ms` }}
+                      />
+                    </div>
+                  )}
+                  {/* Current period bar */}
+                  <div className="flex-1 group/curr relative"
+                    onMouseEnter={() => setHovered(i)}
+                    onMouseLeave={() => setHovered(null)}
+                  >
+                    <div
+                      className={`w-full rounded-sm bg-gradient-to-t ${act ? 'from-primary-500 to-primary-300' : 'from-primary-400 to-primary-200'} transition-all duration-700 ease-out cursor-pointer ${act ? 'opacity-100 shadow-lg shadow-primary-200/50 dark:shadow-primary-900/50' : 'opacity-80 hover:opacity-100'}`}
+                      style={{ height: ready ? `${Math.max(hCurr, 1)}%` : "0%", transitionDelay: `${(i * 20) + 50}ms` }}
+                    />
+                  </div>
+                  {/* Tooltip */}
                   {act && (
-                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-700 text-white rounded-xl px-3 py-2 shadow-xl shadow-slate-900/30 min-w-[130px] z-20 animate-fadeIn">
-                      <p className="text-[9px] font-medium text-slate-400 dark:text-slate-300 mb-0.5 whitespace-nowrap">{item.month || item.year}</p>
-                      <p className="text-xs font-black tabular-nums">Rp {item.revenue.toLocaleString("id-ID")}</p>
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-700 text-white rounded-xl px-3 py-2 shadow-xl shadow-slate-900/30 min-w-[150px] z-20 animate-fadeIn whitespace-nowrap">
+                      <p className="text-[9px] font-medium text-slate-400 dark:text-slate-300 mb-1">{item.month || item.year}</p>
+                      <div className="flex items-center justify-between gap-3 text-[10px]">
+                        <span className="text-primary-300">{t('reports.currentPeriod')}</span>
+                        <span className="font-black">Rp {item.revenue.toLocaleString("id-ID")}</span>
+                      </div>
+                      {compareMode && item.prev !== null && (
+                        <>
+                          <div className="flex items-center justify-between gap-3 text-[10px] mt-0.5">
+                            <span className="text-slate-400">{t('reports.previousPeriod')}</span>
+                            <span className="font-medium">Rp {item.prev.toLocaleString("id-ID")}</span>
+                          </div>
+                          {item.change !== null && (
+                            <div className={`flex items-center justify-end gap-1 mt-1 text-[9px] font-bold ${item.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {item.change >= 0 ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
+                              {Math.abs(item.change).toFixed(1)}%
+                            </div>
+                          )}
+                        </>
+                      )}
                       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-700 rotate-45" />
                     </div>
                   )}
@@ -143,6 +243,9 @@ const Reports = () => {
   const { reports, loading, error, filterByDate } = useReports();
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [chartPeriod, setChartPeriod] = useState("monthly");
+  const [exporting, setExporting] = useState(false);
+  const [compareMode, setCompareMode] = useState(false);
+  const reportContentRef = useRef(null);
 
   const handleFilter = () => { if (dateRange.start && dateRange.end) filterByDate(dateRange.start, dateRange.end); };
 
@@ -161,6 +264,21 @@ const Reports = () => {
   const topProducts = reports?.top_products || [];
   const categoryBreakdown = reports?.category_breakdown || [];
   const categoryColors = ["bg-violet-500", "bg-emerald-500", "bg-blue-500", "bg-amber-500", "bg-slate-400"];
+
+  const handleExportPdf = async () => {
+    setExporting(true);
+    try {
+      await exportToPdf(reportContentRef.current, {
+        filename: `BikinPOS_Report_${new Date().toISOString().split('T')[0]}.pdf`,
+        title: t("reports.title"),
+        subtitle: t("reports.subtitle"),
+        landscape: false,
+      });
+    } catch {
+      // Error already logged by utility
+    }
+    setExporting(false);
+  };
 
   return (
     <div className="space-y-8">
@@ -185,10 +303,18 @@ const Reports = () => {
             <input type="date" value={dateRange.end} onChange={(e) => setDateRange((d) => ({ ...d, end: e.target.value }))} className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-transparent rounded-xl text-[10px] font-bold focus:bg-white dark:focus:bg-slate-600 focus:border-primary-200 dark:focus:border-primary-500 outline-none transition-all dark:text-slate-200" />
           </div>
           <button onClick={handleFilter} className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-2xl text-[10px] font-bold hover:bg-primary-600 dark:hover:bg-primary-500 transition-all shadow-sm active:scale-[0.97]"><Calendar size={14} /> {t("reports.filterDate")}</button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[10px] font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm active:scale-[0.97]"><Download size={14} /> {t("reports.exportPdf")}</button>
+          <button
+            onClick={handleExportPdf}
+            disabled={exporting}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[10px] font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            {exporting ? (locale === "id" ? "Mengekspor..." : "Exporting...") : t("reports.exportPdf")}
+          </button>
         </div>
       </div>
 
+      <div ref={reportContentRef} className="space-y-8">
       {error && (
         <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium flex items-center gap-2">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />{error}
@@ -202,7 +328,7 @@ const Reports = () => {
       )}
 
       {chartData.length > 0 ? (
-        <RevenueChart data={chartData} period={chartPeriod} />
+        <RevenueChart data={chartData} period={chartPeriod} compareMode={compareMode} toggleCompare={() => setCompareMode(p => !p)} />
       ) : (
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700 p-12">
           <div className="flex flex-col items-center justify-center">
@@ -269,6 +395,7 @@ const Reports = () => {
             )}
           </div>
         </div>
+      </div>
       </div>
 
       <style>{`

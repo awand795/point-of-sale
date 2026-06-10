@@ -55,6 +55,7 @@ export const useAuth = () => {
                 is_active: true,
                 last_login_at: new Date().toISOString(),
                 roles: [{ id: 1, name: 'admin', guard_name: 'web' }],
+                theme: null,
             };
             localStorage.setItem("token", "demo-token-bikinpos");
             localStorage.setItem("user", JSON.stringify(demoUserData));
