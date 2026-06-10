@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { lazy, Suspense } from "react";
 import { LanguageProvider } from "./i18n/LanguageContext";
+import { ThemeProvider } from "./hooks/useTheme";
 import { useAuth } from "./hooks/useAuth";
 import { ToastProvider } from "./hooks/useToast";
 import Layout from "./components/layout/Layout";
@@ -8,8 +10,6 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import About from "./pages/About";
 import Pricing from "./pages/Pricing";
-import Dashboard from "./pages/dashboard";
-import POS from "./pages/POS";
 import Products from "./pages/Products";
 import Categories from "./pages/Categories";
 import Transactions from "./pages/Transactions";
@@ -19,22 +19,25 @@ import Purchases from "./pages/Purchases";
 import Discounts from "./pages/Discounts";
 import Stores from "./pages/Stores";
 import Settings from "./pages/Settings";
-import Reports from "./pages/Reports";
 import Users from "./pages/Users";
+
+const Dashboard = lazy(() => import("./pages/dashboard"));
+const POS = lazy(() => import("./pages/POS"));
+const Reports = lazy(() => import("./pages/Reports"));
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary-600 border-t-transparent"></div>
       </div>
     );
   }
-  
+
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
@@ -42,14 +45,23 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+        <ThemeProvider>
         <ToastProvider>
         <Router>
+          <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+              <div className="flex flex-col items-center gap-4">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary-600 border-t-transparent"></div>
+                <p className="text-xs font-medium text-slate-400">Loading...</p>
+              </div>
+            </div>
+          }>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/about" element={<About />} />
             <Route path="/pricing" element={<Pricing />} />
-            
+
             <Route element={
               <ProtectedRoute>
                 <Layout />
@@ -72,8 +84,10 @@ function App() {
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
+          </Suspense>
         </Router>
         </ToastProvider>
+        </ThemeProvider>
       </LanguageProvider>
     </QueryClientProvider>
   );

@@ -45,22 +45,22 @@ const POS = () => {
             <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-4">
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
                             {t('pos.title')}
                             {isDemo && (
-                                <span className="px-2.5 py-0.5 bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-widest rounded-lg border border-amber-200">
+                                <span className="px-2.5 py-0.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-amber-200 dark:border-amber-700">
                                     DEMO
                                 </span>
                             )}
                         </h1>
-                        <p className="text-sm text-slate-500 font-medium mt-0.5">{t('pos.subtitle')}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">{t('pos.subtitle')}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-6">
-                    <div className="hidden sm:flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-slate-200">
+                    <div className="hidden sm:flex items-center gap-3 bg-white dark:bg-slate-800 px-5 py-2.5 rounded-2xl shadow-sm dark:shadow-slate-900/30 border border-slate-200 dark:border-slate-700 transition-colors">
                         <div className="text-right">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('pos.registerStatus')}</p>
-                            <p className="text-xs font-bold text-emerald-600 flex items-center gap-1.5 justify-end">
+                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('pos.registerStatus')}</p>
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 justify-end">
                                 <span className="relative flex h-2 w-2">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -68,18 +68,18 @@ const POS = () => {
                                 {t('pos.activeOnline')}
                             </p>
                         </div>
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-100">
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-100 dark:shadow-emerald-900/50">
                             <Wifi size={18} className="text-white" />
                         </div>
                     </div>
                     {/* Mobile cart toggle */}
                     <button
                         onClick={() => setCartOpen(!cartOpen)}
-                        className="xl:hidden relative w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-all"
+                        className="xl:hidden relative w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl shadow-sm dark:shadow-slate-900/30 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 hover:border-primary-200 dark:hover:border-primary-700 transition-all"
                     >
                         <ShoppingCart size={20} />
                         {cart.itemCount > 0 && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary-600 text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-lg shadow-primary-200">
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary-600 text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-lg shadow-primary-200 dark:shadow-primary-900/50">
                                 {cart.itemCount}
                             </span>
                         )}
@@ -107,14 +107,14 @@ const POS = () => {
                 <div className="xl:hidden fixed inset-0 z-50 flex flex-col pointer-events-none" style={{ touchAction: 'none' }}>
                     {/* Backdrop */}
                     <div
-                        className="flex-1 bg-black/30 backdrop-blur-sm pointer-events-auto"
+                        className="flex-1 bg-black/30 dark:bg-black/50 backdrop-blur-sm pointer-events-auto"
                         onClick={() => setCartOpen(false)}
                     />
 
                     {/* Cart panel */}
                     <div
                         ref={panelRef}
-                        className={`h-[70vh] pointer-events-auto flex flex-col bg-white rounded-t-3xl shadow-2xl shadow-black/20 ${dragging ? '' : 'animate-slideUp'}`}
+                        className={`h-[70vh] pointer-events-auto flex flex-col bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl shadow-black/20 dark:shadow-black/40 ${dragging ? '' : 'animate-slideUp'}`}
                         style={{
                             transform: dragging ? `translateY(${dragY}px)` : undefined,
                             transition: dragging ? 'none' : 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
@@ -122,26 +122,26 @@ const POS = () => {
                     >
                         {/* Drag handle + close */}
                         <div
-                            className="shrink-0 flex items-center justify-between px-5 pt-3 pb-3 border-b border-slate-100"
+                            className="shrink-0 flex items-center justify-between px-5 pt-3 pb-3 border-b border-slate-100 dark:border-slate-800"
                             onTouchStart={handleTouchStart}
                             onTouchMove={handleTouchMove}
                             onTouchEnd={handleTouchEnd}
                         >
                             <div className="flex items-center gap-3">
                                 <div className="flex flex-col items-center gap-1.5">
-                                    <div className="w-10 h-1 bg-slate-300 rounded-full" />
-                                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{t('pos.currentOrder')}</div>
+                                    <div className="w-10 h-1 bg-slate-300 dark:bg-slate-600 rounded-full" />
+                                    <div className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('pos.currentOrder')}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 {cart.itemCount > 0 && (
-                                    <span className="text-xs font-bold text-slate-500 tabular-nums">
+                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums">
                                         {cart.itemCount} items
                                     </span>
                                 )}
                                 <button
                                     onClick={() => setCartOpen(false)}
-                                    className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all active:scale-90"
+                                    className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300 transition-all active:scale-90"
                                 >
                                     <ChevronDown size={18} />
                                 </button>
@@ -156,11 +156,11 @@ const POS = () => {
                 </div>
             )}
 
-            {/* Floating Cart Button (mobile, when cart is closed) - fallback */}
+            {/* Floating Cart Button (mobile, when cart is closed) */}
             {!cartOpen && cart.itemCount > 0 && (
                 <button
                     onClick={() => setCartOpen(true)}
-                    className="xl:hidden fixed bottom-6 right-6 z-40 bg-gradient-to-br from-primary-600 to-violet-600 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-primary-200 flex items-center gap-3 active:scale-95 transition-transform"
+                    className="xl:hidden fixed bottom-6 right-6 z-40 bg-gradient-to-br from-primary-600 to-violet-600 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-primary-200 dark:shadow-primary-900/50 flex items-center gap-3 active:scale-95 transition-transform"
                     style={{ animation: 'fadeInUp 0.4s ease-out' }}
                 >
                     <ShoppingCart size={20} />

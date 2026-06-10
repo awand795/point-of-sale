@@ -97,7 +97,55 @@ const users = [
     { id: 3, name: 'Budi Kasir', email: 'cashier@example.com', phone: '087812345678', is_active: true, last_login_at: now.toISOString(), roles: [{ id: 2, name: 'cashier' }] },
 ].map(u => ({ ...u, created_at: now.toISOString() }));
 
-const reports = { total_revenue: 160500, total_orders: 1, total_items: 5, avg_order_value: 160500 };
+const generateMonthlySales = () => {
+    const months = [];
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+        const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const base = 120000 + Math.random() * 180000;
+        const peak = m.getMonth() === 11 || m.getMonth() === 0 ? 1.4 : m.getMonth() >= 5 && m.getMonth() <= 7 ? 1.2 : 1;
+        months.push({
+            month: m.toLocaleString('en-US', { month: 'short' }),
+            year: m.getFullYear(),
+            revenue: Math.round(base * peak),
+            orders: Math.round((base * peak) / 45000),
+        });
+    }
+    return months;
+};
+
+const reports = {
+    total_revenue: 189250000,
+    total_orders: 1423,
+    total_items: 5280,
+    avg_order_value: 133000,
+    total_revenue_change: 12.5,
+    total_orders_change: 8.3,
+    total_items_change: 15.2,
+    avg_order_value_change: 3.8,
+    monthly_sales: generateMonthlySales(),
+    yearly_sales: [
+        { year: 2022, revenue: 1250000000, orders: 9820 },
+        { year: 2023, revenue: 1580000000, orders: 12450 },
+        { year: 2024, revenue: 1920000000, orders: 15100 },
+        { year: 2025, revenue: 2350000000, orders: 18300 },
+        { year: 2026, revenue: 1420000000, orders: 11000 },
+    ],
+    top_products: [
+        { name: 'Wireless Mouse', total_sold: 284, revenue: 21300000, category: 'Electronics' },
+        { name: 'Mineral Water 600ml', total_sold: 256, revenue: 896000, category: 'Food & Beverage' },
+        { name: 'Teh Botol 450ml', total_sold: 198, revenue: 990000, category: 'Food & Beverage' },
+        { name: 'Kaos Polos Hitam', total_sold: 167, revenue: 10855000, category: 'Clothing' },
+        { name: 'USB Keyboard', total_sold: 145, revenue: 21750000, category: 'Electronics' },
+    ],
+    category_breakdown: [
+        { name: 'Electronics', revenue: 78500000, percentage: 38 },
+        { name: 'Food & Beverage', revenue: 45200000, percentage: 22 },
+        { name: 'Clothing', revenue: 38500000, percentage: 18 },
+        { name: 'Home & Garden', revenue: 28500000, percentage: 14 },
+        { name: 'Others', revenue: 16500000, percentage: 8 },
+    ],
+};
 
 const dashboardStats = {
     stats: { today_sales: 160500, today_transactions: 1, today_items_sold: 5, low_stock_products: 0, total_products: products.length },

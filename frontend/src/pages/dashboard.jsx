@@ -75,12 +75,12 @@ const StatCard = ({ title, value, icon, gradient, trend, trendLabel, sparklineDa
     }, [delay]);
 
     const isPositive = trend && trend >= 0;
-    const trendColor = isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50';
+    const trendColor = isPositive ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/40 dark:text-emerald-400' : 'text-red-600 bg-red-50 dark:bg-red-900/40 dark:text-red-400';
     const TrendIcon = isPositive ? ArrowUpRight : ArrowDownRight;
 
     return (
         <div
-            className={`bg-white rounded-3xl p-6 shadow-sm border border-slate-100/80 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden ${
+            className={`bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden ${
                 visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
         >
@@ -89,7 +89,7 @@ const StatCard = ({ title, value, icon, gradient, trend, trendLabel, sparklineDa
 
             <div className="relative">
                 <div className="flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 ${gradient} rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200/50 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                    <div className={`w-12 h-12 ${gradient} rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
                         <div className="text-white">{icon}</div>
                     </div>
                     {sparklineData && (
@@ -98,8 +98,8 @@ const StatCard = ({ title, value, icon, gradient, trend, trendLabel, sparklineDa
                         </div>
                     )}
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</p>
-                <p className="text-2xl font-black text-slate-900 tracking-tight mt-1.5 tabular-nums">
+                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{title}</p>
+                <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1.5 tabular-nums">
                     {typeof value === 'number'
                         ? <AnimatedCounter value={value} prefix={isCurrency ? 'Rp ' : ''} />
                         : value
@@ -111,7 +111,7 @@ const StatCard = ({ title, value, icon, gradient, trend, trendLabel, sparklineDa
                             <TrendIcon size={10} />
                             {Math.abs(trend)}%
                         </span>
-                        <span className="text-[9px] text-slate-400 font-medium">{trendLabel}</span>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">{trendLabel}</span>
                     </div>
                 )}
             </div>
@@ -129,15 +129,15 @@ const PeriodFilter = ({ active, onChange }) => {
     ];
 
     return (
-        <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
+        <div className="flex items-center gap-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 shadow-sm dark:shadow-slate-900/30">
             {periods.map((p) => (
                 <button
                     key={p.key}
                     onClick={() => onChange(p.key)}
                     className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] font-bold transition-all duration-200 ${
                         active === p.key
-                            ? 'bg-slate-900 text-white shadow-md shadow-slate-200'
-                            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                            ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md'
+                            : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                 >
                     {p.icon}
@@ -151,10 +151,10 @@ const PeriodFilter = ({ active, onChange }) => {
 // ─── Transaction Status Badge ───
 const StatusBadge = ({ status }) => {
     const config = {
-        paid: { class: 'bg-emerald-50 text-emerald-600 border-emerald-200/50', dot: 'bg-emerald-500', label: 'Paid' },
-        completed: { class: 'bg-emerald-50 text-emerald-600 border-emerald-200/50', dot: 'bg-emerald-500', label: 'Completed' },
-        pending: { class: 'bg-amber-50 text-amber-600 border-amber-200/50', dot: 'bg-amber-500', label: 'Pending' },
-        cancelled: { class: 'bg-red-50 text-red-600 border-red-200/50', dot: 'bg-red-500', label: 'Cancelled' },
+        paid: { class: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-700/50', dot: 'bg-emerald-500', label: 'Paid' },
+        completed: { class: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-700/50', dot: 'bg-emerald-500', label: 'Completed' },
+        pending: { class: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border-amber-200/50 dark:border-amber-700/50', dot: 'bg-amber-500', label: 'Pending' },
+        cancelled: { class: 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200/50 dark:border-red-700/50', dot: 'bg-red-500', label: 'Cancelled' },
     };
     const c = config[status] || config.pending;
 
@@ -171,10 +171,10 @@ const StatusBadge = ({ status }) => {
 
 // ─── Rank Medal ───
 const RankMedal = ({ rank }) => {
-    if (rank === 1) return <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-300 to-yellow-500 flex items-center justify-center text-white text-xs font-black shadow-md shadow-amber-200">1</div>;
-    if (rank === 2) return <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-xs font-black shadow-md shadow-slate-200">2</div>;
-    if (rank === 3) return <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-400 to-amber-600 flex items-center justify-center text-white text-xs font-black shadow-md shadow-orange-200">3</div>;
-    return <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold">{rank}</div>;
+    if (rank === 1) return <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-300 to-yellow-500 flex items-center justify-center text-white text-xs font-black shadow-md shadow-amber-200 dark:shadow-amber-900">1</div>;
+    if (rank === 2) return <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-xs font-black shadow-md shadow-slate-200 dark:shadow-slate-700">2</div>;
+    if (rank === 3) return <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-400 to-amber-600 flex items-center justify-center text-white text-xs font-black shadow-md shadow-orange-200 dark:shadow-orange-900">3</div>;
+    return <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-500 text-xs font-bold">{rank}</div>;
 };
 
 // ─── Revenue Chart ───
@@ -202,7 +202,6 @@ const RevenueChart = ({ hourlySales = [], period }) => {
             const dayFull = locale === 'id'
                 ? ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
                 : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            // Generate data with weekend dip
             return dayNames.map((name, i) => {
                 const multiplier = i >= 5 ? 0.6 : [1, 0.85, 0.95, 1.1, 1.2, 0.7, 0.5][i];
                 return {
@@ -213,11 +212,9 @@ const RevenueChart = ({ hourlySales = [], period }) => {
                 };
             });
         } else {
-            // month: 30 days
             const avg = hourlySales.length ? Math.round(hourlySales.reduce((a, b) => a + b, 0) / hourlySales.length) * 6 : 90;
             return Array.from({ length: 30 }, (_, i) => {
                 const day = i + 1;
-                // Weekend effect
                 const dow = (new Date(2026, 5, day).getDay());
                 const multiplier = dow === 0 || dow === 6 ? 0.55 : 1;
                 return {
@@ -232,8 +229,6 @@ const RevenueChart = ({ hourlySales = [], period }) => {
 
     const maxValue = Math.max(...chartData.map(d => d.value), 1);
     const totalRevenue = chartData.reduce((sum, d) => sum + d.value, 0);
-
-    // Mock previous period for comparison
     const prevTotal = useMemo(() => {
         const base = totalRevenue;
         const variance = 0.85 + Math.random() * 0.3;
@@ -262,33 +257,32 @@ const RevenueChart = ({ hourlySales = [], period }) => {
     };
 
     return (
-        <div className="bg-white rounded-3xl shadow-lg shadow-slate-200/40 border border-slate-100/80 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg shadow-slate-200/40 dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 overflow-hidden hover:shadow-xl transition-shadow duration-300">
             {/* Header */}
-            <div className="px-6 py-5 border-b border-slate-100">
+            <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl flex items-center justify-center">
-                            <TrendingUp size={18} className="text-emerald-600" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/40 dark:to-teal-900/40 rounded-xl flex items-center justify-center">
+                            <TrendingUp size={18} className="text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <div>
-                            <h2 className="text-sm font-black text-slate-900 tracking-tight">{t('dashboard.revenueChart')}</h2>
-                            <p className="text-[10px] text-slate-400 font-medium mt-0.5">{t('dashboard.revenueChartDesc')}</p>
+                            <h2 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{t('dashboard.revenueChart')}</h2>
+                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{t('dashboard.revenueChartDesc')}</p>
                         </div>
                     </div>
                     <div className="text-right">
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t('dashboard.revenueTotal')}</p>
-                        <p className="text-lg font-black text-slate-900 tabular-nums">Rp {totalRevenue.toLocaleString('id-ID')}</p>
+                        <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('dashboard.revenueTotal')}</p>
+                        <p className="text-lg font-black text-slate-900 dark:text-white tabular-nums">Rp {totalRevenue.toLocaleString('id-ID')}</p>
                     </div>
                 </div>
-                {/* Comparison badge */}
                 <div className="flex items-center gap-2 mt-2.5">
                     <span className={`flex items-center gap-0.5 text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                        isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'
+                        isPositive ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/40 dark:text-emerald-400' : 'text-red-600 bg-red-50 dark:bg-red-900/40 dark:text-red-400'
                     }`}>
                         {isPositive ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
                         {Math.abs(changePercent).toFixed(1)}%
                     </span>
-                    <span className="text-[9px] text-slate-400 font-medium">
+                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
                         {period === 'today' ? t('dashboard.revenueVsYesterday') :
                          period === 'week' ? t('dashboard.revenueVsLastWeek') :
                          t('dashboard.revenueVsLastWeek')}
@@ -298,22 +292,19 @@ const RevenueChart = ({ hourlySales = [], period }) => {
 
             {/* Chart body */}
             <div className="p-6 pt-8">
-                {/* Y-axis labels + bars */}
                 <div className="relative">
-                    {/* Y-axis grid lines */}
                     {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
                         <div
                             key={ratio}
-                            className="absolute left-0 right-0 border-t border-dashed border-slate-100"
+                            className="absolute left-0 right-0 border-t border-dashed border-slate-100 dark:border-slate-700"
                             style={{ bottom: `${ratio * 180}px` }}
                         >
-                            <span className="absolute -top-2.5 left-0 text-[8px] font-medium text-slate-300 tabular-nums">
+                            <span className="absolute -top-2.5 left-0 text-[8px] font-medium text-slate-300 dark:text-slate-600 tabular-nums">
                                 {ratio > 0 ? `Rp ${Math.round(maxValue * ratio).toLocaleString('id-ID')}` : ''}
                             </span>
                         </div>
                     ))}
 
-                    {/* Bars container */}
                     <div className="flex items-end h-[180px] gap-[3px] relative ml-[60px]">
                         {chartData.map((item, i) => {
                             const heightPct = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
@@ -325,10 +316,9 @@ const RevenueChart = ({ hourlySales = [], period }) => {
                                     className="flex-1 relative group"
                                     style={{ zIndex: isActive ? 10 : 1 }}
                                 >
-                                    {/* Bar */}
                                     <div
                                         className={`w-full rounded-sm bg-gradient-to-t ${getBarColor(item.value)} transition-all duration-700 ease-out cursor-pointer ${
-                                            isActive ? 'opacity-100 shadow-lg shadow-primary-200/50 scale-y-[1.02]' : 'opacity-80 hover:opacity-100'
+                                            isActive ? 'opacity-100 shadow-lg shadow-primary-200/50 dark:shadow-primary-900/50 scale-y-[1.02]' : 'opacity-80 hover:opacity-100'
                                         }`}
                                         style={{
                                             height: chartReady ? `${Math.max(heightPct, 1)}%` : '0%',
@@ -338,12 +328,11 @@ const RevenueChart = ({ hourlySales = [], period }) => {
                                         onMouseLeave={() => setHoveredIndex(null)}
                                     />
 
-                                    {/* Tooltip */}
                                     {isActive && (
-                                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white rounded-xl px-3 py-2 shadow-xl shadow-slate-900/30 min-w-[120px] z-20 animate-fadeIn">
-                                            <p className="text-[9px] font-medium text-slate-400 mb-0.5 whitespace-nowrap">{item.tooltip}</p>
+                                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-700 text-white rounded-xl px-3 py-2 shadow-xl shadow-slate-900/30 min-w-[120px] z-20 animate-fadeIn">
+                                            <p className="text-[9px] font-medium text-slate-400 dark:text-slate-300 mb-0.5 whitespace-nowrap">{item.tooltip}</p>
                                             <p className="text-xs font-black tabular-nums">Rp {item.value.toLocaleString('id-ID')}</p>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45" />
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-700 rotate-45" />
                                         </div>
                                     )}
                                 </div>
@@ -352,7 +341,6 @@ const RevenueChart = ({ hourlySales = [], period }) => {
                     </div>
                 </div>
 
-                {/* X-axis labels */}
                 <div className="relative h-4 mt-2 ml-[60px]">
                     {chartData.map((item, i) => {
                         const showLabel = period === 'today' ? i % 3 === 0 : period === 'week' || i % 5 === 1;
@@ -361,7 +349,7 @@ const RevenueChart = ({ hourlySales = [], period }) => {
                         return (
                             <div
                                 key={i}
-                                className="absolute text-[8px] font-medium text-slate-400 tabular-nums text-center -translate-x-1/2"
+                                className="absolute text-[8px] font-medium text-slate-400 dark:text-slate-500 tabular-nums text-center -translate-x-1/2"
                                 style={{ left: `${leftPct}%` }}
                             >
                                 {item.shortLabel || item.label}
@@ -407,12 +395,12 @@ const Dashboard = () => {
         fetchDashboard();
     }, []);
 
-    // Auto-refresh every 30s
     useEffect(() => {
         if (!autoRefresh) return;
         const interval = setInterval(() => fetchDashboard(true), 30000);
         return () => clearInterval(interval);
-    }, [autoRefresh, fetchDashboard]);            // Generate sparkline data from today's hourly sales if available, otherwise mock
+    }, [autoRefresh, fetchDashboard]);
+
     const sparklineData = dashboard?.stats?.hourly_sales || [4, 7, 3, 9, 5, 11, 8, 14, 10, 16, 12, 18];
 
     if (loading) {
@@ -423,8 +411,8 @@ const Dashboard = () => {
         return (
             <div className="space-y-8">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('dashboard.title')}</h1>
-                    <p className="text-sm text-slate-500 font-medium mt-1">{t('dashboard.subtitle')}</p>
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t('dashboard.title')}</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{t('dashboard.subtitle')}</p>
                 </div>
                 <EmptyState
                     icon={BarChart3}
@@ -483,17 +471,17 @@ const Dashboard = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-200/50">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-200/50 dark:shadow-primary-900/50">
                         <BarChart3 size={28} className="text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
                             {t('dashboard.title')}
-                            <span className="px-2 py-0.5 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 text-[8px] font-black uppercase tracking-widest rounded-lg border border-amber-200">
+                            <span className="px-2 py-0.5 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/40 dark:to-yellow-900/40 text-amber-700 dark:text-amber-400 text-[8px] font-black uppercase tracking-widest rounded-lg border border-amber-200 dark:border-amber-700">
                                 <Sparkles size={10} className="inline mr-1" />Live
                             </span>
                         </h1>
-                        <p className="text-sm text-slate-500 font-medium mt-0.5">{t('dashboard.subtitle')}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">{t('dashboard.subtitle')}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -501,7 +489,7 @@ const Dashboard = () => {
                     <button
                         onClick={() => fetchDashboard(true)}
                         disabled={refreshing}
-                        className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-primary-600 hover:border-primary-200 hover:bg-primary-50/50 transition-all disabled:opacity-50"
+                        className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:border-primary-200 dark:hover:border-primary-700 hover:bg-primary-50/50 dark:hover:bg-primary-900/20 transition-all disabled:opacity-50"
                         title={locale === 'id' ? 'Muat Ulang' : 'Refresh'}
                     >
                         <RefreshCw size={15} className={`${refreshing ? 'animate-spin' : ''}`} />
@@ -510,8 +498,8 @@ const Dashboard = () => {
                         onClick={() => setAutoRefresh(!autoRefresh)}
                         className={`p-2.5 rounded-xl border transition-all ${
                             autoRefresh
-                                ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
+                                ? 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400'
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
                         }`}
                         title={autoRefresh ? (locale === 'id' ? 'Auto-refresh aktif' : 'Auto-refresh on') : (locale === 'id' ? 'Auto-refresh mati' : 'Auto-refresh off')}
                     >
@@ -522,13 +510,13 @@ const Dashboard = () => {
 
             {/* Auto-refresh indicator */}
             {lastUpdated && autoRefresh && (
-                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
+                <div className="flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                     <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                     </span>
                     {locale === 'id' ? 'Auto-refresh setiap 30 detik' : 'Auto-refresh every 30s'}
-                    <span className="text-slate-300">·</span>
+                    <span className="text-slate-300 dark:text-slate-600">·</span>
                     {locale === 'id' ? 'Terakhir diperbarui' : 'Last updated'}: {lastUpdated.toLocaleTimeString(locale === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </div>
             )}
@@ -546,18 +534,18 @@ const Dashboard = () => {
             {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Recent Transactions */}
-                <div className="lg:col-span-2 bg-white rounded-3xl shadow-lg shadow-slate-200/40 border border-slate-100/80 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-3xl shadow-lg shadow-slate-200/40 dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                    <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center">
-                                <CreditCard size={18} className="text-primary-600" />
+                            <div className="w-10 h-10 bg-primary-50 dark:bg-primary-900/30 rounded-xl flex items-center justify-center">
+                                <CreditCard size={18} className="text-primary-600 dark:text-primary-400" />
                             </div>
                             <div>
-                                <h2 className="text-sm font-black text-slate-900 tracking-tight">{t('dashboard.recentActivity')}</h2>
-                                <p className="text-[10px] text-slate-400 font-medium mt-0.5">{t('dashboard.recentDesc')}</p>
+                                <h2 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{t('dashboard.recentActivity')}</h2>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{t('dashboard.recentDesc')}</p>
                             </div>
                         </div>
-                        <button className="flex items-center gap-1 text-[10px] font-bold text-primary-600 hover:text-primary-700 px-3 py-1.5 rounded-lg hover:bg-primary-50 transition-all">
+                        <button className="flex items-center gap-1 text-[10px] font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 px-3 py-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all">
                             {t('dashboard.viewAllReports')}
                             <ChevronRight size={12} />
                         </button>
@@ -565,17 +553,17 @@ const Dashboard = () => {
                     <div className="p-1">
                         {recentTransactions.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-14">
-                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border-2 border-dashed border-slate-200">
-                                    <BarChart3 size={28} className="text-slate-200" />
+                                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center mb-4 border-2 border-dashed border-slate-200 dark:border-slate-600">
+                                    <BarChart3 size={28} className="text-slate-200 dark:text-slate-600" />
                                 </div>
-                                <p className="text-sm font-bold text-slate-400">{locale === 'id' ? 'Belum Ada Transaksi' : 'No Transactions Yet'}</p>
-                                <p className="text-[11px] text-slate-300 mt-1">{locale === 'id' ? 'Mulai bertransaksi untuk melihat aktivitas di sini' : 'Start transacting to see activity here'}</p>
+                                <p className="text-sm font-bold text-slate-400 dark:text-slate-500">{locale === 'id' ? 'Belum Ada Transaksi' : 'No Transactions Yet'}</p>
+                                <p className="text-[11px] text-slate-300 dark:text-slate-600 mt-1">{locale === 'id' ? 'Mulai bertransaksi untuk melihat aktivitas di sini' : 'Start transacting to see activity here'}</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
-                                        <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                        <tr className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                                             <th className="px-5 py-3.5">{t('dashboard.invoice')}</th>
                                             <th className="px-5 py-3.5">{t('dashboard.customerUser')}</th>
                                             <th className="px-5 py-3.5 text-right">{t('dashboard.amount')}</th>
@@ -583,21 +571,21 @@ const Dashboard = () => {
                                             <th className="px-5 py-3.5" />
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-50">
+                                    <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                                         {recentTransactions.slice(0, 6).map((tx, idx) => (
                                             <tr
                                                 key={tx.id}
-                                                className="hover:bg-slate-50/80 transition-colors group"
+                                                className="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition-colors group"
                                                 style={{ animation: `slideIn 0.3s ease-out ${idx * 40}ms both` }}
                                             >
                                                 <td className="px-5 py-3.5">
                                                     <div className="flex items-center gap-2.5">
-                                                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center text-[8px] font-bold text-slate-400 shadow-sm">
+                                                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center text-[8px] font-bold text-slate-400 dark:text-slate-400 shadow-sm">
                                                             #{String(tx.id || idx + 1).slice(-3)}
                                                         </div>
                                                         <div>
-                                                            <p className="text-xs font-bold text-slate-800">{tx.invoice_number || `#${tx.id}`}</p>
-                                                            <p className="text-[9px] text-slate-400 font-medium mt-0.5">
+                                                            <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{tx.invoice_number || `#${tx.id}`}</p>
+                                                            <p className="text-[9px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
                                                                 {tx.created_at ? new Date(tx.created_at).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short' }) : ''}
                                                                 {' · '}
                                                                 {tx.created_at ? new Date(tx.created_at).toLocaleTimeString(locale === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : ''}
@@ -607,20 +595,20 @@ const Dashboard = () => {
                                                 </td>
                                                 <td className="px-5 py-3.5">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary-50 to-violet-50 flex items-center justify-center text-[8px] font-bold text-primary-600">
+                                                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary-50 to-violet-50 dark:from-primary-900/40 dark:to-violet-900/40 flex items-center justify-center text-[8px] font-bold text-primary-600 dark:text-primary-400">
                                                             {(tx.user?.name || 'W').charAt(0).toUpperCase()}
                                                         </div>
-                                                        <p className="text-xs font-semibold text-slate-700">{tx.user?.name || 'Walk-in'}</p>
+                                                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tx.user?.name || 'Walk-in'}</p>
                                                     </div>
                                                 </td>
                                                 <td className="px-5 py-3.5 text-right">
-                                                    <p className="text-xs font-black text-slate-900 tabular-nums">Rp {Number(tx.total).toLocaleString('id-ID')}</p>
+                                                    <p className="text-xs font-black text-slate-900 dark:text-slate-100 tabular-nums">Rp {Number(tx.total).toLocaleString('id-ID')}</p>
                                                 </td>
                                                 <td className="px-5 py-3.5 text-center">
                                                     <StatusBadge status={tx.status} />
                                                 </td>
                                                 <td className="px-5 py-3.5 text-right">
-                                                    <button className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-slate-100 text-slate-300 hover:text-slate-500 transition-all">
+                                                    <button className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 transition-all">
                                                         <ChevronRight size={14} />
                                                     </button>
                                                 </td>
@@ -632,8 +620,8 @@ const Dashboard = () => {
                         )}
                     </div>
                     {recentTransactions.length > 6 && (
-                        <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/30 text-center">
-                            <button className="text-[10px] font-bold text-primary-600 hover:text-primary-700 transition-colors">
+                        <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-700/20 text-center">
+                            <button className="text-[10px] font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
                                 {locale === 'id' ? `Lihat semua ${recentTransactions.length} transaksi` : `View all ${recentTransactions.length} transactions`}
                             </button>
                         </div>
@@ -641,26 +629,26 @@ const Dashboard = () => {
                 </div>
 
                 {/* Top Products */}
-                <div className="bg-white rounded-3xl shadow-lg shadow-slate-200/40 border border-slate-100/80 overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300">
-                    <div className="px-6 py-5 border-b border-slate-100">
+                <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg shadow-slate-200/40 dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300">
+                    <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
-                                <TrendingUp size={18} className="text-amber-600" />
+                            <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
+                                <TrendingUp size={18} className="text-amber-600 dark:text-amber-400" />
                             </div>
                             <div>
-                                <h2 className="text-sm font-black text-slate-900 tracking-tight">{t('dashboard.bestsellers')}</h2>
-                                <p className="text-[10px] text-slate-400 font-medium mt-0.5">{t('dashboard.bestsellersDesc')}</p>
+                                <h2 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{t('dashboard.bestsellers')}</h2>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{t('dashboard.bestsellersDesc')}</p>
                             </div>
                         </div>
                     </div>
                     <div className="flex-1 p-5">
                         {topProducts.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-10">
-                                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-3 border-2 border-dashed border-slate-200">
-                                    <Package size={24} className="text-slate-200" />
+                                <div className="w-14 h-14 bg-slate-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center mb-3 border-2 border-dashed border-slate-200 dark:border-slate-600">
+                                    <Package size={24} className="text-slate-200 dark:text-slate-600" />
                                 </div>
-                                <p className="text-sm font-bold text-slate-400">{locale === 'id' ? 'Belum Ada Produk Terjual' : 'No Products Sold'}</p>
-                                <p className="text-[11px] text-slate-300 mt-1 text-center">{locale === 'id' ? 'Data penjualan akan muncul di sini' : 'Sales data will appear here'}</p>
+                                <p className="text-sm font-bold text-slate-400 dark:text-slate-500">{locale === 'id' ? 'Belum Ada Produk Terjual' : 'No Products Sold'}</p>
+                                <p className="text-[11px] text-slate-300 dark:text-slate-600 mt-1 text-center">{locale === 'id' ? 'Data penjualan akan muncul di sini' : 'Sales data will appear here'}</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
@@ -670,18 +658,18 @@ const Dashboard = () => {
                                     return (
                                         <div
                                             key={index}
-                                            className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/50 border border-transparent hover:border-slate-100 hover:bg-white transition-all group"
+                                            className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/50 dark:bg-slate-700/40 border border-transparent hover:border-slate-100 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-700 transition-all group"
                                             style={{ animation: `slideIn 0.3s ease-out ${index * 60}ms both` }}
                                         >
                                             <RankMedal rank={index + 1} />
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <p className="text-xs font-bold text-slate-800 truncate group-hover:text-primary-600 transition-colors">
+                                                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                                         {item.product?.name || item.name || `Product ${index + 1}`}
                                                     </p>
-                                                    <p className="text-[10px] font-black text-slate-400 tabular-nums shrink-0">{item.total_sold}</p>
+                                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 tabular-nums shrink-0">{item.total_sold}</p>
                                                 </div>
-                                                <div className="mt-1.5 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                <div className="mt-1.5 h-2 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
                                                     <div
                                                         className={`h-full rounded-full transition-all duration-700 ${
                                                             index === 0 ? 'bg-gradient-to-r from-amber-400 to-yellow-500' :
@@ -697,7 +685,7 @@ const Dashboard = () => {
                                     );
                                 })}
                                 {topProducts.length > 5 && (
-                                    <button className="w-full text-center text-[9px] font-bold text-primary-600 hover:text-primary-700 py-2 transition-colors">
+                                    <button className="w-full text-center text-[9px] font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 py-2 transition-colors">
                                         {locale === 'id' ? `Lihat semua ${topProducts.length} produk` : `View all ${topProducts.length} products`}
                                     </button>
                                 )}
@@ -710,40 +698,40 @@ const Dashboard = () => {
             {/* Bottom Stats Bar */}
             {dashboard?.stats && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-100/60 flex items-center gap-3">
-                        <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0">
-                            <DollarSign size={16} className="text-emerald-600" />
+                    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-100/60 dark:border-slate-700/60 flex items-center gap-3">
+                        <div className="w-9 h-9 bg-emerald-50 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center shrink-0">
+                            <DollarSign size={16} className="text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <div>
-                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{locale === 'id' ? 'Pendapatan Hari Ini' : 'Today Revenue'}</p>
-                            <p className="text-sm font-black text-slate-900 tabular-nums">Rp {Number(dashboard.stats.today_sales || 0).toLocaleString('id-ID')}</p>
+                            <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{locale === 'id' ? 'Pendapatan Hari Ini' : 'Today Revenue'}</p>
+                            <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">Rp {Number(dashboard.stats.today_sales || 0).toLocaleString('id-ID')}</p>
                         </div>
                     </div>
-                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-100/60 flex items-center gap-3">
-                        <div className="w-9 h-9 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
-                            <ShoppingBag size={16} className="text-primary-600" />
+                    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-100/60 dark:border-slate-700/60 flex items-center gap-3">
+                        <div className="w-9 h-9 bg-primary-50 dark:bg-primary-900/40 rounded-xl flex items-center justify-center shrink-0">
+                            <ShoppingBag size={16} className="text-primary-600 dark:text-primary-400" />
                         </div>
                         <div>
-                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{locale === 'id' ? 'Transaksi Hari Ini' : 'Today Transactions'}</p>
-                            <p className="text-sm font-black text-slate-900 tabular-nums">{dashboard.stats.today_transactions || 0}</p>
+                            <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{locale === 'id' ? 'Transaksi Hari Ini' : 'Today Transactions'}</p>
+                            <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">{dashboard.stats.today_transactions || 0}</p>
                         </div>
                     </div>
-                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-100/60 flex items-center gap-3">
-                        <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center shrink-0">
-                            <Package size={16} className="text-violet-600" />
+                    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-100/60 dark:border-slate-700/60 flex items-center gap-3">
+                        <div className="w-9 h-9 bg-violet-50 dark:bg-violet-900/40 rounded-xl flex items-center justify-center shrink-0">
+                            <Package size={16} className="text-violet-600 dark:text-violet-400" />
                         </div>
                         <div>
-                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{locale === 'id' ? 'Barang Terjual' : 'Items Sold'}</p>
-                            <p className="text-sm font-black text-slate-900 tabular-nums">{dashboard.stats.today_items_sold || 0}</p>
+                            <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{locale === 'id' ? 'Barang Terjual' : 'Items Sold'}</p>
+                            <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">{dashboard.stats.today_items_sold || 0}</p>
                         </div>
                     </div>
-                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-100/60 flex items-center gap-3">
-                        <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center shrink-0">
-                            <AlertTriangle size={16} className="text-amber-600" />
+                    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-100/60 dark:border-slate-700/60 flex items-center gap-3">
+                        <div className="w-9 h-9 bg-amber-50 dark:bg-amber-900/40 rounded-xl flex items-center justify-center shrink-0">
+                            <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400" />
                         </div>
                         <div>
-                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{locale === 'id' ? 'Peringatan Stok' : 'Stock Alerts'}</p>
-                            <p className="text-sm font-black text-slate-900 tabular-nums">{dashboard.stats.low_stock_products || 0}</p>
+                            <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{locale === 'id' ? 'Peringatan Stok' : 'Stock Alerts'}</p>
+                            <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">{dashboard.stats.low_stock_products || 0}</p>
                         </div>
                     </div>
                 </div>

@@ -33,56 +33,56 @@ const ProductGrid = ({ onAddToCart }) => {
     };
 
     const ProductSkeleton = () => (
-        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse">
-            <div className="aspect-[4/3] bg-slate-100" />
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden animate-pulse">
+            <div className="aspect-[4/3] bg-slate-100 dark:bg-slate-700" />
             <div className="p-4 space-y-3">
-                <div className="h-4 bg-slate-100 rounded-lg w-3/4" />
+                <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded-lg w-3/4" />
                 <div className="flex justify-between">
-                    <div className="h-5 bg-slate-100 rounded-lg w-1/3" />
-                    <div className="h-4 bg-slate-100 rounded-lg w-1/4" />
+                    <div className="h-5 bg-slate-100 dark:bg-slate-700 rounded-lg w-1/3" />
+                    <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded-lg w-1/4" />
                 </div>
-                <div className="h-10 bg-slate-100 rounded-xl w-full" />
+                <div className="h-10 bg-slate-100 dark:bg-slate-700 rounded-xl w-full" />
             </div>
         </div>
     );
 
     return (
-        <div className="h-full flex flex-col bg-white/40 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-slate-200/50 shadow-lg p-3 sm:p-5">
+        <div className="h-full flex flex-col bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg dark:shadow-slate-900/30 p-3 sm:p-5 transition-colors duration-300">
             {/* Search & Filter Bar */}
             <div className="shrink-0 space-y-3 sm:space-y-4 mb-3 sm:mb-4">
                 <div className="flex items-center gap-3">
                     <form onSubmit={handleSearch} className="flex-1">
                         <div className="relative group">
-                            <Search size={15} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors duration-300" />
+                            <Search size={15} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 dark:group-focus-within:text-primary-400 transition-colors duration-300" />
                             <input
                                 type="text"
                                 placeholder={t('pos.searchProducts')}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-9 sm:pl-11 pr-9 sm:pr-10 py-2.5 sm:py-3 bg-white border border-slate-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all duration-300 placeholder:text-slate-400 shadow-sm hover:border-slate-300"
+                                className="w-full pl-9 sm:pl-11 pr-9 sm:pr-10 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary-50 dark:focus:ring-primary-900/30 focus:border-primary-400 dark:focus:border-primary-500 transition-all duration-300 placeholder:text-slate-400 dark:placeholder-slate-500 shadow-sm dark:shadow-slate-900/30 hover:border-slate-300 dark:hover:border-slate-600 dark:text-slate-200"
                             />
                             {searchTerm && (
                                 <button
                                     type="button"
                                     onClick={() => { setSearchTerm(''); searchProducts(''); }}
-                                    className="absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors bg-slate-50 hover:bg-slate-100 rounded-lg p-1"
+                                    className="absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-300 transition-colors bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg p-1"
                                 >
                                     <X size={14} />
                                 </button>
                             )}
                         </div>
                     </form>
-                    <div className="hidden sm:flex items-center gap-1 bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
+                    <div className="hidden sm:flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 shadow-sm dark:shadow-slate-900/30">
                         <button
                             onClick={() => setViewMode('grid')}
-                            className={`p-2.5 rounded-xl transition-all duration-200 ${viewMode === 'grid' ? 'bg-slate-900 text-white shadow-md shadow-slate-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                            className={`p-2.5 rounded-xl transition-all duration-200 ${viewMode === 'grid' ? 'bg-slate-900 dark:bg-slate-700 text-white shadow-md' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                             title="Grid view"
                         >
                             <Grid3X3 size={16} />
                         </button>
                         <button
                             onClick={() => setViewMode('list')}
-                            className={`p-2.5 rounded-xl transition-all duration-200 ${viewMode === 'list' ? 'bg-slate-900 text-white shadow-md shadow-slate-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                            className={`p-2.5 rounded-xl transition-all duration-200 ${viewMode === 'list' ? 'bg-slate-900 dark:bg-slate-700 text-white shadow-md' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                             title="List view"
                         >
                             <List size={16} />
@@ -96,8 +96,8 @@ const ProductGrid = ({ onAddToCart }) => {
                         onClick={() => handleCategoryClick(null)}
                         className={`shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 ${
                             activeCategory === null
-                                ? 'bg-gradient-to-r from-primary-600 to-violet-600 text-white shadow-lg shadow-primary-200/40 scale-[1.02]'
-                                : 'bg-white text-slate-500 border border-slate-200 hover:border-primary-300 hover:text-primary-600 hover:bg-primary-50/50 shadow-sm'
+                                ? 'bg-gradient-to-r from-primary-600 to-violet-600 text-white shadow-lg shadow-primary-200/40 dark:shadow-primary-900/40 scale-[1.02]'
+                                : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50/50 dark:hover:bg-primary-900/20 shadow-sm'
                         }`}
                     >
                         <Tag size={13} />
@@ -109,8 +109,8 @@ const ProductGrid = ({ onAddToCart }) => {
                             onClick={() => handleCategoryClick(cat.id)}
                             className={`shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 ${
                                 activeCategory === cat.id
-                                    ? 'bg-gradient-to-r from-primary-600 to-violet-600 text-white shadow-lg shadow-primary-200/40 scale-[1.02]'
-                                    : 'bg-white text-slate-500 border border-slate-200 hover:border-primary-300 hover:text-primary-600 hover:bg-primary-50/50 shadow-sm'
+                                    ? 'bg-gradient-to-r from-primary-600 to-violet-600 text-white shadow-lg shadow-primary-200/40 dark:shadow-primary-900/40 scale-[1.02]'
+                                    : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50/50 dark:hover:bg-primary-900/20 shadow-sm'
                             }`}
                         >
                             {cat.name}
@@ -131,17 +131,17 @@ const ProductGrid = ({ onAddToCart }) => {
             ) : (
                 <div className={`flex-1 overflow-y-auto pr-1 scrollbar-thin-prod ${viewMode === 'grid' ? '' : ''}`}>
                     {products.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full text-slate-300">
+                        <div className="flex flex-col items-center justify-center h-full text-slate-300 dark:text-slate-600">
                             <div className="relative">
-                                <div className="w-20 h-20 sm:w-28 sm:h-28 bg-slate-50 rounded-2xl sm:rounded-3xl flex items-center justify-center border-2 border-dashed border-slate-200">
-                                    <Package size={40} className="text-slate-200" />
+                                <div className="w-20 h-20 sm:w-28 sm:h-28 bg-slate-50 dark:bg-slate-700 rounded-2xl sm:rounded-3xl flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-600">
+                                    <Package size={40} className="text-slate-200 dark:text-slate-600" />
                                 </div>
-                                <span className="absolute -top-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                                    <AlertTriangle size={14} className="text-amber-500" />
+                                <span className="absolute -top-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-amber-100 dark:bg-amber-900/50 rounded-full flex items-center justify-center">
+                                    <AlertTriangle size={14} className="text-amber-500 dark:text-amber-400" />
                                 </span>
                             </div>
-                            <p className="text-base sm:text-lg font-bold text-slate-400 mt-5 sm:mt-6">{t('pos.noProducts')}</p>
-                            <p className="text-xs sm:text-sm text-slate-300 mt-1 sm:mt-1.5 text-center px-6 sm:px-8 leading-relaxed">{t('pos.noProductsDesc')}</p>
+                            <p className="text-base sm:text-lg font-bold text-slate-400 dark:text-slate-500 mt-5 sm:mt-6">{t('pos.noProducts')}</p>
+                            <p className="text-xs sm:text-sm text-slate-300 dark:text-slate-600 mt-1 sm:mt-1.5 text-center px-6 sm:px-8 leading-relaxed">{t('pos.noProductsDesc')}</p>
                         </div>
                     ) : viewMode === 'grid' ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 auto-rows-max">
@@ -153,18 +153,18 @@ const ProductGrid = ({ onAddToCart }) => {
                                     <div
                                         key={product.id}
                                         onClick={(e) => !isOutOfStock && handleAddToCart(e, product)}
-                                        className={`group relative bg-white rounded-2xl border border-slate-100/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer flex flex-col ${
-                                            isOutOfStock ? 'opacity-50 grayscale' : 'hover:-translate-y-1 hover:border-slate-200'
+                                        className={`group relative bg-white dark:bg-slate-800 rounded-2xl border border-slate-100/80 dark:border-slate-700/60 shadow-sm dark:shadow-slate-900/30 hover:shadow-xl dark:hover:shadow-slate-900/50 transition-all duration-300 overflow-hidden cursor-pointer flex flex-col ${
+                                            isOutOfStock ? 'opacity-50 grayscale' : 'hover:-translate-y-1 hover:border-slate-200 dark:hover:border-slate-600'
                                         } ${
-                                            isAnimating ? 'ring-2 ring-primary-400 ring-offset-2 scale-[0.97]' : ''
+                                            isAnimating ? 'ring-2 ring-primary-400 ring-offset-2 dark:ring-offset-slate-900 scale-[0.97]' : ''
                                         }`}
                                     >
                                         {/* Image */}
-                                        <div className="aspect-[4/3] bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden relative">
+                                        <div className="aspect-[4/3] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 overflow-hidden relative">
                                             {product.image ? (
                                                 <>
                                                     {!imageLoaded[product.id] && (
-                                                        <div className="absolute inset-0 bg-slate-100 animate-pulse" />
+                                                        <div className="absolute inset-0 bg-slate-100 dark:bg-slate-700 animate-pulse" />
                                                     )}
                                                     <img
                                                         src={product.image}
@@ -177,7 +177,7 @@ const ProductGrid = ({ onAddToCart }) => {
                                                 </>
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center">
-                                                    <Package size={40} className="text-slate-200" />
+                                                    <Package size={40} className="text-slate-200 dark:text-slate-500" />
                                                 </div>
                                             )}
 
@@ -190,10 +190,10 @@ const ProductGrid = ({ onAddToCart }) => {
                                             <div className="absolute top-2.5 left-2.5">
                                                 <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm ${
                                                     isOutOfStock
-                                                        ? 'bg-red-50/90 text-red-600 border border-red-200/50'
+                                                        ? 'bg-red-50/90 dark:bg-red-900/60 text-red-600 dark:text-red-400 border border-red-200/50 dark:border-red-700'
                                                         : product.stock < 10
-                                                        ? 'bg-amber-50/90 text-amber-700 border border-amber-200/50'
-                                                        : 'bg-emerald-50/90 text-emerald-700 border border-emerald-200/50'
+                                                        ? 'bg-amber-50/90 dark:bg-amber-900/60 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-700'
+                                                        : 'bg-emerald-50/90 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-700'
                                                 }`}>
                                                     {isOutOfStock ? (
                                                         <X size={10} />
@@ -213,30 +213,28 @@ const ProductGrid = ({ onAddToCart }) => {
 
                                             {/* Category badge */}
                                             <div className="absolute top-2.5 right-2.5">
-                                                <span className="bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg text-[7px] font-bold text-slate-500 shadow-sm border border-white/50">
+                                                <span className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-2 py-1 rounded-lg text-[7px] font-bold text-slate-500 dark:text-slate-400 shadow-sm border border-white/50 dark:border-slate-700">
                                                     {product.category?.name || (locale === 'id' ? 'Tanpa Kategori' : 'Uncategorized')}
                                                 </span>
                                             </div>
-
-
                                         </div>
 
                                         {/* Info */}
                                         <div className="p-2.5 sm:p-3.5 flex flex-col flex-1">
-                                            <h3 className="text-[11px] sm:text-xs font-bold text-slate-800 line-clamp-1 group-hover:text-primary-600 transition-colors duration-200">
+                                            <h3 className="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">
                                                 {product.name}
                                             </h3>
                                             <div className="mt-auto pt-1.5 sm:pt-2.5 flex items-end justify-between gap-1.5 sm:gap-2">
                                                 <div>
-                                                    <p className="text-[8px] sm:text-[9px] text-slate-400 font-medium uppercase tracking-wider">{t('pos.price')}</p>
-                                                    <p className="text-xs sm:text-sm font-black text-slate-900 tabular-nums">
+                                                    <p className="text-[8px] sm:text-[9px] text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">{t('pos.price')}</p>
+                                                    <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white tabular-nums">
                                                         Rp {Number(product.selling_price).toLocaleString('id-ID')}
                                                     </p>
                                                 </div>
                                                 <div className="text-right shrink-0">
-                                                    <p className="text-[8px] sm:text-[9px] text-slate-400 font-medium uppercase tracking-wider">{t('pos.stock')}</p>
+                                                    <p className="text-[8px] sm:text-[9px] text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">{t('pos.stock')}</p>
                                                     <p className={`text-[10px] sm:text-[11px] font-bold tabular-nums ${
-                                                        isOutOfStock ? 'text-red-500' : product.stock < 10 ? 'text-amber-600' : 'text-slate-600'
+                                                        isOutOfStock ? 'text-red-500 dark:text-red-400' : product.stock < 10 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'
                                                     }`}>
                                                         {product.stock} {product.unit || 'pcs'}
                                                     </p>
@@ -247,7 +245,7 @@ const ProductGrid = ({ onAddToCart }) => {
                                             {!isOutOfStock && (
                                                 <button
                                                     onClick={(e) => handleAddToCart(e, product)}
-                                                    className="w-full mt-2 sm:mt-3 flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 bg-slate-900 text-white text-[9px] sm:text-[10px] font-bold rounded-xl hover:bg-primary-600 transition-all shadow-sm active:scale-[0.97] hover:shadow-lg hover:shadow-primary-200/30 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-all duration-200"
+                                                    className="w-full mt-2 sm:mt-3 flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 bg-slate-900 dark:bg-slate-700 text-white text-[9px] sm:text-[10px] font-bold rounded-xl hover:bg-primary-600 dark:hover:bg-primary-500 transition-all shadow-sm active:scale-[0.97] hover:shadow-lg hover:shadow-primary-200/30 dark:hover:shadow-primary-900/30 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-all duration-200"
                                                 >
                                                     <Plus size={12} />
                                                     {t('pos.addItem')}
@@ -268,27 +266,27 @@ const ProductGrid = ({ onAddToCart }) => {
                                     <div
                                         key={product.id}
                                         onClick={(e) => !isOutOfStock && handleAddToCart(e, product)}
-                                        className={`group flex items-center gap-4 p-3 bg-white rounded-2xl border border-slate-100/80 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer ${
+                                        className={`group flex items-center gap-4 p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100/80 dark:border-slate-700/60 shadow-sm dark:shadow-slate-900/30 hover:shadow-lg dark:hover:shadow-slate-900/50 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer ${
                                             isOutOfStock ? 'opacity-50 grayscale' : ''
                                         }`}
                                     >
-                                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden shrink-0 relative">
+                                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 overflow-hidden shrink-0 relative">
                                             {product.image ? (
                                                 <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center">
-                                                    <Package size={24} className="text-slate-200" />
+                                                    <Package size={24} className="text-slate-200 dark:text-slate-500" />
                                                 </div>
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-sm font-bold text-slate-800 group-hover:text-primary-600 transition-colors">{product.name}</h3>
-                                            <p className="text-[11px] text-slate-400 mt-0.5">{product.category?.name || (locale === 'id' ? 'Tanpa Kategori' : 'Uncategorized')}</p>
+                                            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{product.name}</h3>
+                                            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{product.category?.name || (locale === 'id' ? 'Tanpa Kategori' : 'Uncategorized')}</p>
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <p className="text-sm font-black text-slate-900 tabular-nums">Rp {Number(product.selling_price).toLocaleString('id-ID')}</p>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">Rp {Number(product.selling_price).toLocaleString('id-ID')}</p>
                                             <p className={`text-[10px] font-bold mt-0.5 ${
-                                                isOutOfStock ? 'text-red-500' : product.stock < 10 ? 'text-amber-600' : 'text-slate-400'
+                                                isOutOfStock ? 'text-red-500 dark:text-red-400' : product.stock < 10 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400 dark:text-slate-500'
                                             }`}>
                                                 {product.stock} {product.unit || 'pcs'}
                                             </p>
@@ -296,7 +294,7 @@ const ProductGrid = ({ onAddToCart }) => {
                                         {!isOutOfStock && (
                                             <button
                                                 onClick={(e) => handleAddToCart(e, product)}
-                                                className="px-4 py-2.5 bg-slate-900 text-white text-[10px] font-bold rounded-xl hover:bg-primary-600 transition-all shadow-sm active:scale-[0.97] flex items-center gap-1.5 hover:shadow-lg hover:shadow-primary-200/30 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                                className="px-4 py-2.5 bg-slate-900 dark:bg-slate-700 text-white text-[10px] font-bold rounded-xl hover:bg-primary-600 dark:hover:bg-primary-500 transition-all shadow-sm active:scale-[0.97] flex items-center gap-1.5 hover:shadow-lg hover:shadow-primary-200/30 dark:hover:shadow-primary-900/30 opacity-0 group-hover:opacity-100 transition-all duration-200"
                                             >
                                                 <Plus size={14} />
                                                 {t('pos.addItem')}
@@ -316,12 +314,16 @@ const ProductGrid = ({ onAddToCart }) => {
                 .scrollbar-thin-cat::-webkit-scrollbar-track { background: transparent; }
                 .scrollbar-thin-cat::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
                 .scrollbar-thin-cat::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+                .dark .scrollbar-thin-cat::-webkit-scrollbar-thumb { background: #334155; }
+                .dark .scrollbar-thin-cat::-webkit-scrollbar-thumb:hover { background: #475569; }
                 .scrollbar-thin-cat { scrollbar-width: thin; }
 
                 .scrollbar-thin-prod::-webkit-scrollbar { width: 3px; }
                 .scrollbar-thin-prod::-webkit-scrollbar-track { background: transparent; }
                 .scrollbar-thin-prod::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
                 .scrollbar-thin-prod::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+                .dark .scrollbar-thin-prod::-webkit-scrollbar-thumb { background: #334155; }
+                .dark .scrollbar-thin-prod::-webkit-scrollbar-thumb:hover { background: #475569; }
                 .scrollbar-thin-prod { scrollbar-width: thin; }
             `}</style>
         </div>

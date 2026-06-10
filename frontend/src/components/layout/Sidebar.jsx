@@ -15,15 +15,19 @@ import {
     Tag,
     BarChart3,
     Settings2,
-    Bell
+    Bell,
+    Moon,
+    Sun,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { useTheme } from '../../hooks/useTheme';
 
 const Sidebar = () => {
     const location = useLocation();
     const { logout, isAdmin } = useAuth();
     const { t, toggleLanguage, locale } = useLanguage();
+    const { isDark, toggleTheme } = useTheme();
 
     const mainMenu = [
         { path: '/dashboard', label: t('sidebar.dashboard'), icon: LayoutDashboard },
@@ -97,7 +101,7 @@ const Sidebar = () => {
                 {renderMenuSection(managementMenu, t('sidebar.management'))}
             </nav>
 
-            {/* Language Switcher & Logout */}
+            {/* Language Switcher, Theme Toggle & Logout */}
             <div className="px-4 py-6 space-y-2">
                 <button
                     onClick={toggleLanguage}
@@ -105,6 +109,13 @@ const Sidebar = () => {
                 >
                     <Languages size={18} />
                     {locale === 'id' ? 'English' : 'Indonesia'}
+                </button>
+                <button
+                    onClick={(e) => toggleTheme(e.clientX, e.clientY)}
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-white/5 hover:text-slate-200 transition-all duration-300"
+                >
+                    {isDark ? <Sun key={isDark ? 'dark' : 'light'} size={18} className="theme-icon-enter" /> : <Moon key={isDark ? 'dark' : 'light'} size={18} className="theme-icon-enter" />}
+                    {isDark ? (locale === 'id' ? 'Terang' : 'Light') : (locale === 'id' ? 'Gelap' : 'Dark')}
                 </button>
                 <button
                     onClick={logout}

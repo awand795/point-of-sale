@@ -43,8 +43,8 @@ const Products = () => {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('products.title')}</h1>
-                <p className="text-sm text-slate-500 font-medium">{t('products.subtitle')}</p>
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t('products.title')}</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('products.subtitle')}</p>
             </div>
 
             <form onSubmit={handleSearch} className="flex">
@@ -54,7 +54,7 @@ const Products = () => {
                             placeholder={t('products.search')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                 </div>
                 <button type="submit" className="ml-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition">
@@ -63,20 +63,20 @@ const Products = () => {
             </form>
 
             {error && (
-                <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-xs font-bold">{error}</div>
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400 rounded-2xl text-xs font-bold">{error}</div>
             )}
 
-            <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl shadow-slate-200/40 dark:shadow-none border border-slate-100 dark:border-slate-700/50 overflow-hidden">
                 <table className="min-w-full">
                     <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50/50">
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('products.product')}</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('products.price')}</th>
-                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('products.stock')}</th>
-                            <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('products.actions')}</th>
+                        <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('products.product')}</th>
+                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('products.price')}</th>
+                            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('products.stock')}</th>
+                            <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('products.actions')}</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                         {products.length === 0 ? (
                             <tr>
                                 <td colSpan="4" className="px-8 py-20 text-center">
@@ -85,35 +85,35 @@ const Products = () => {
                             </tr>
                         ) : (
                             products.map((product) => (
-                                <tr key={product.id} className="hover:bg-slate-50/50 transition">
+                                <tr key={product.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center">
-                                            <div className="h-10 w-10 flex-shrink-0 bg-slate-100 rounded-lg overflow-hidden">
+                                            <div className="h-10 w-10 flex-shrink-0 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden">
                                                 {product.image ? (
                                                     <img src={product.image} alt={product.name} className="h-10 w-10 object-cover" />
                                                 ) : (
-                                                    <div className="h-10 w-10 flex items-center justify-center text-slate-300">
+                                                    <div className="h-10 w-10 flex items-center justify-center text-slate-300 dark:text-slate-500">
                                                         <Package size={18} />
                                                     </div>
                                                 )}
                                             </div>
                                             <div className="ml-3">
-                                                <p className="text-sm font-medium text-slate-800">{product.name}</p>
+                                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{product.name}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-8 py-5">
-                                        <p className="text-sm font-semibold text-slate-700">
+                                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                                             Rp {Number(product.selling_price).toLocaleString('id-ID')}
                                         </p>
                                     </td>
                                     <td className="px-8 py-5">
                                         <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
                                             product.stock > 10
-                                                ? 'bg-emerald-50 text-emerald-700'
+                                                ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
                                                 : product.stock > 0
-                                                    ? 'bg-amber-50 text-amber-700'
-                                                    : 'bg-red-50 text-red-700'
+                                                    ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                                                    : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                                         }`}>
                                             {product.stock} {t('products.units')}
                                         </span>
@@ -121,7 +121,7 @@ const Products = () => {
                                     <td className="px-8 py-5 text-right">
                                         <button
                                             onClick={() => handleDelete(product.id)}
-                                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                                            className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
                                         >
                                             <Trash2 size={16} />
                                         </button>
@@ -142,7 +142,7 @@ const Products = () => {
                             className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition ${
                                 pagination.current_page === page
                                     ? 'bg-primary-600 text-white shadow-sm'
-                                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                                    : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600'
                             }`}
                         >
                             {page}
