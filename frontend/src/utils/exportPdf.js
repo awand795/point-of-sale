@@ -91,32 +91,19 @@ export const exportToPdf = async (element, options = {}) => {
         // Style the clone for print
         clone.style.cssText = 'width: 100%; margin: 0; padding: 0;';
         
-        // Force all dark mode classes to light mode for PDF
-        const darkElements = clone.querySelectorAll('[class*="dark:"]');
-        darkElements.forEach(el => {
-            el.className = el.className
-                .replace(/dark:[^\\s]+/g, '')
-                .replace(/dark:[^\\s"]+/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
-        });
-
-        // Fix bg colors for PDF (replace dark backgrounds with light)
-        const allElements = clone.querySelectorAll('*');
-        allElements.forEach(el => {
-            const computed = window.getComputedStyle(el);
-            // Keep white backgrounds
-            if (computed.backgroundColor === 'rgba(0, 0, 0, 0)' || computed.backgroundColor === 'transparent') {
-                // Leave transparent
+        // Remove dark mode classes and fix scrollable containers in a single traversal
+        const allEls = clone.querySelectorAll('*');
+        for (const el of allEls) {
+            // Strip dark: classes
+            if (el.className && typeof el.className === 'string' && el.className.includes('dark:')) {
+                el.className = el.className.replace(/dark:\S+/g, '').replace(/\s+/g, ' ').trim();
             }
-        });
-
-        // Hide scrollable containers overflow
-        const scrollables = clone.querySelectorAll('.overflow-y-auto, .overflow-x-auto, [class*="scrollbar"]');
-        scrollables.forEach(el => {
-            el.style.overflow = 'visible';
-            el.style.maxHeight = 'none';
-        });
+            // Make scrollable containers visible for print
+            if (el.matches('.overflow-y-auto, .overflow-x-auto, [class*="scrollbar"]')) {
+                el.style.overflow = 'visible';
+                el.style.maxHeight = 'none';
+            }
+        }
 
         document.body.appendChild(wrapper);
 
@@ -194,14 +181,14 @@ export const exportReceiptPdf = async (receiptElement, options = {}) => {
 
         // Convert all text colors to black for thermal-style print
         const textEls = clone.querySelectorAll('*');
-        textEls.forEach(el => {
+        for (const el of textEls) {
             el.style.color = '#000';
             el.style.backgroundColor = '';
             // Remove dark: classes
-            if (el.className && typeof el.className === 'string') {
-                el.className = el.className.replace(/dark:[^\\s]+/g, '').replace(/\s+/g, ' ').trim();
+            if (el.className && typeof el.className === 'string' && el.className.includes('dark:')) {
+                el.className = el.className.replace(/dark:\S+/g, '').replace(/\s+/g, ' ').trim();
             }
-        });
+        }
 
         wrapper.appendChild(clone);
         document.body.appendChild(wrapper);
