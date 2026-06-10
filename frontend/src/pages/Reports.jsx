@@ -5,7 +5,7 @@ import PageHeader from "../components/shared/PageHeader";
 import { LoadingSpinner } from "../components/shared/EmptyState";
 import { useReports } from "../hooks/useReports";
 import { useToast } from "../hooks/useToast";
-import { exportToPdf } from "../utils/exportPdf";
+import { exportReportToPdf } from "../utils/exportPdf";
 
 const AnimatedCounter = ({ value, prefix = "", duration = 1200 }) => {
   const [display, setDisplay] = useState(0);
@@ -238,7 +238,6 @@ const Reports = () => {
   const [chartPeriod, setChartPeriod] = useState("monthly");
   const [exporting, setExporting] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
-  const reportContentRef = useRef(null);
 
   const handleFilter = () => { if (dateRange.start && dateRange.end) filterByDate(dateRange.start, dateRange.end); };
 
@@ -258,21 +257,19 @@ const Reports = () => {
   const categoryBreakdown = reports?.category_breakdown || [];
   const categoryColors = ["bg-violet-500", "bg-emerald-500", "bg-blue-500", "bg-amber-500", "bg-slate-400"];
 
-  const handleExportPdf = async () => {
+  const handleExportPdf = () => {
     setExporting(true);
     try {
-      // Yield to let React update loading state before heavy html2canvas work
-      await new Promise(r => setTimeout(r, 50));
-
-      await exportToPdf(reportContentRef.current, {
+      // Use data-driven export (no DOM rendering / html2canvas)
+      exportReportToPdf(reports, {
         filename: `BikinPOS_Report_${new Date().toISOString().split('T')[0]}.pdf`,
         title: t("reports.title"),
         subtitle: t("reports.subtitle"),
-        landscape: false,
-        imageQuality: 'medium',
+        locale,
       });
       showToast('success', locale === 'id' ? 'PDF berhasil diunduh' : 'PDF downloaded successfully');
-    } catch {
+    } catch (e) {
+      console.error('Export failed:', e);
       showToast('error', locale === 'id' ? 'Gagal mengunduh PDF' : 'Failed to download PDF');
     }
     setExporting(false);
@@ -304,7 +301,7 @@ const Reports = () => {
         </button>
       </div>
 
-      <div ref={reportContentRef} className="space-y-6">
+      <div className="space-y-6">
       {error && (
         <div className="px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 flex items-center gap-2">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />{error}

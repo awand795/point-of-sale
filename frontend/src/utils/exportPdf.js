@@ -2,9 +2,6 @@ import html2pdf from 'html2pdf.js';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
-/** Helper: yield to the event loop so the UI can breathe */
-const yieldToUI = () => new Promise(r => setTimeout(r, 0));
-
 /**
  * Export a data array as a PDF table using jsPDF + jspdf-autotable (no DOM rendering)
  * @param {Object[]} data - Array of row objects
@@ -13,25 +10,18 @@ const yieldToUI = () => new Promise(r => setTimeout(r, 0));
  * @param {string} options.title
  * @param {string} options.subtitle
  * @param {boolean} options.landscape
- * @param {Function} options.onStart
- * @param {Function} options.onComplete
+ * @param {Array} options.columns - Array of {header, dataKey} objects
  */
-export const exportTableToPdf = async (data, options = {}) => {
+export const exportTableToPdf = (data, options = {}) => {
     const {
         filename = 'document.pdf',
         title = '',
         subtitle = '',
         landscape = false,
         columns = [],
-        onStart,
-        onComplete,
     } = options;
 
-    onStart?.();
-
     try {
-        await yieldToUI();
-
         const doc = new jsPDF({
             orientation: landscape ? 'landscape' : 'portrait',
             unit: 'mm',
@@ -45,12 +35,12 @@ export const exportTableToPdf = async (data, options = {}) => {
         if (title) {
             doc.setFontSize(16);
             doc.setTextColor(30, 41, 59);
-            doc.text(title, margin, 22, { align: 'left' });
+            doc.text(title, margin, 22);
 
             if (subtitle) {
                 doc.setFontSize(9);
                 doc.setTextColor(148, 163, 184);
-                doc.text(subtitle, margin, 30, { align: 'left' });
+                doc.text(subtitle, margin, 30);
             }
 
             doc.setDrawColor(226, 232, 240);
@@ -85,16 +75,16 @@ export const exportTableToPdf = async (data, options = {}) => {
             margin: { top: 20, bottom: 25, left: margin, right: margin },
         });
 
-        // Write footer on each page with actual page numbers
+        // Write footer on each page
         const totalPages = doc.internal.getNumberOfPages();
+        const genDate = new Date().toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit',
+        });
         for (let i = 1; i <= totalPages; i++) {
             doc.setPage(i);
             doc.setFontSize(7);
             doc.setTextColor(148, 163, 184);
-            const genDate = new Date().toLocaleDateString('id-ID', {
-                day: 'numeric', month: 'long', year: 'numeric',
-                hour: '2-digit', minute: '2-digit',
-            });
             doc.text(
                 `BikinPOS — Point of Sale System · ${genDate} · Page ${i} of ${totalPages}`,
                 pageW / 2,
@@ -104,19 +94,200 @@ export const exportTableToPdf = async (data, options = {}) => {
         }
 
         doc.save(filename);
-
-        onComplete?.(true);
-        await yieldToUI();
         return true;
     } catch (error) {
         console.error('Table PDF export failed:', error);
-        onComplete?.(false);
+        throw error;
+    }
+};
+
+/**
+ * Export report data as a multi-section PDF using jsPDF (no DOM rendering)
+ * Renders summary stats, top products, and category breakdown as clean tables.
+ */
+export const exportReportToPdf = (reports, options = {}) => {
+    const {
+        filename = 'report.pdf',
+        title = 'Laporan',
+        subtitle = '',
+        locale = 'id',
+    } = options;
+
+    const fmtCurrency = (v) => `Rp ${Number(v || 0).toLocaleString('id-ID')}`;
+    const fmtNumber = (v) => Number(v || 0).toLocaleString('id-ID');
+    const t = (id, en) => locale === 'id' ? id : en;
+
+    try {
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = doc.internal.pageSize.getWidth();
+        const margin = 14;
+        let y = 20;
+
+        // ---- Title ----
+        doc.setFontSize(16);
+        doc.setTextColor(30, 41, 59);
+        doc.text(title, margin, y);
+        y += 7;
+        if (subtitle) {
+            doc.setFontSize(9);
+            doc.setTextColor(148, 163, 184);
+            doc.text(subtitle, margin, y);
+            y += 5;
+        }
+        doc.setDrawColor(226, 232, 240);
+        doc.line(margin, y + 2, pageW - margin, y + 2);
+        y += 8;
+
+        // ---- Summary Section ----
+        doc.setFontSize(11);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont(undefined, 'bold');
+        doc.text(t('Ringkasan', 'Summary'), margin, y);
+        doc.setFont(undefined, 'normal');
+        y += 6;
+
+        const summaryData = [
+            [t('Total Pendapatan', 'Total Revenue'), fmtCurrency(reports?.total_revenue)],
+            [t('Total Pesanan', 'Total Orders'), fmtNumber(reports?.total_orders)],
+            [t('Barang Terjual', 'Items Sold'), fmtNumber(reports?.total_items)],
+            [t('Rata-rata Pesanan', 'Avg Order Value'), fmtCurrency(reports?.avg_order_value)],
+        ];
+
+        doc.autoTable({
+            body: summaryData,
+            startY: y,
+            theme: 'plain',
+            styles: { fontSize: 9, cellPadding: { top: 3, right: 6, bottom: 3, left: 6 } },
+            columnStyles: {
+                0: { fontStyle: 'bold', textColor: [51, 65, 85], cellWidth: 80 },
+                1: { textColor: [30, 41, 59], halign: 'right', cellWidth: 50 },
+            },
+            margin: { left: margin, right: margin },
+            tableLineWidth: 0,
+        });
+
+        y = doc.lastAutoTable.finalY + 12;
+
+        // ---- Top Products ----
+        const products = reports?.top_products || [];
+        if (products.length > 0) {
+            // Check if we need a new page
+            if (y > 240) { doc.addPage(); y = 20; }
+
+            doc.setFontSize(11);
+            doc.setTextColor(30, 41, 59);
+            doc.setFont(undefined, 'bold');
+            doc.text(t('Produk Terlaris', 'Top Products'), margin, y);
+            doc.setFont(undefined, 'normal');
+            y += 6;
+
+            doc.autoTable({
+                head: [[
+                    '#',
+                    t('Nama Produk', 'Product Name'),
+                    t('Terjual', 'Sold'),
+                    t('Pendapatan', 'Revenue'),
+                ]],
+                body: products.map((p, i) => [
+                    `${i + 1}`,
+                    p.name || '-',
+                    fmtNumber(p.total_sold),
+                    fmtCurrency(p.revenue),
+                ]),
+                startY: y,
+                headStyles: {
+                    fillColor: [30, 41, 59],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    fontSize: 8,
+                },
+                styles: { fontSize: 8, cellPadding: { top: 2.5, right: 3, bottom: 2.5, left: 3 } },
+                columnStyles: {
+                    0: { cellWidth: 10, halign: 'center' },
+                    1: { cellWidth: 80 },
+                    2: { cellWidth: 25, halign: 'right' },
+                    3: { cellWidth: 40, halign: 'right' },
+                },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                margin: { left: margin, right: margin },
+            });
+
+            y = doc.lastAutoTable.finalY + 12;
+        }
+
+        // ---- Category Breakdown ----
+        const categories = reports?.category_breakdown || [];
+        if (categories.length > 0) {
+            if (y > 240) { doc.addPage(); y = 20; }
+
+            doc.setFontSize(11);
+            doc.setTextColor(30, 41, 59);
+            doc.setFont(undefined, 'bold');
+            doc.text(t('Kategori', 'Category Breakdown'), margin, y);
+            doc.setFont(undefined, 'normal');
+            y += 6;
+
+            doc.autoTable({
+                head: [[
+                    t('Kategori', 'Category'),
+                    t('Pendapatan', 'Revenue'),
+                    t('Persentase', 'Percentage'),
+                ]],
+                body: categories.map(c => [
+                    c.name || '-',
+                    fmtCurrency(c.revenue),
+                    `${c.percentage || 0}%`,
+                ]),
+                startY: y,
+                headStyles: {
+                    fillColor: [30, 41, 59],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    fontSize: 8,
+                },
+                styles: { fontSize: 8, cellPadding: { top: 2.5, right: 3, bottom: 2.5, left: 3 } },
+                columnStyles: {
+                    0: { cellWidth: 90 },
+                    1: { cellWidth: 40, halign: 'right' },
+                    2: { cellWidth: 25, halign: 'right' },
+                },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                margin: { left: margin, right: margin },
+            });
+
+            y = doc.lastAutoTable.finalY + 12;
+        }
+
+        // ---- Footer on each page ----
+        const totalPages = doc.internal.getNumberOfPages();
+        const genDate = new Date().toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit',
+        });
+        for (let i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+            doc.setFontSize(7);
+            doc.setTextColor(148, 163, 184);
+            doc.text(
+                `BikinPOS — Point of Sale System · ${genDate} · Page ${i} of ${totalPages}`,
+                pageW / 2,
+                doc.internal.pageSize.getHeight() - 10,
+                { align: 'center' },
+            );
+        }
+
+        doc.save(filename);
+        return true;
+    } catch (error) {
+        console.error('Report PDF export failed:', error);
         throw error;
     }
 };
 
 /**
  * Export a DOM element as a PDF using html2pdf.js
+ * Note: This uses html2canvas under the hood which can freeze the UI for large content.
+ * Prefer exportTableToPdf or exportReportToPdf for data-driven exports.
  * @param {HTMLElement|string} element - The DOM element or CSS selector to capture
  * @param {Object} options - Export options
  * @param {string} options.filename - Output filename (default: 'document.pdf')

@@ -60,7 +60,7 @@ const Transactions = () => {
         }
     };
 
-    const handleExportAll = async () => {
+    const handleExportAll = () => {
         setExporting(true);
         try {
             if (transactions.length === 0) {
@@ -86,7 +86,7 @@ const Transactions = () => {
                 status: t.status,
             }));
 
-            await exportTableToPdf(rows, {
+            exportTableToPdf(rows, {
                 filename: `BikinPOS_Transactions_${new Date().toISOString().split('T')[0]}.pdf`,
                 title: t('transactions.title'),
                 subtitle: t('transactions.subtitle'),
