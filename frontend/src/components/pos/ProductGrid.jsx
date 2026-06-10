@@ -47,25 +47,25 @@ const ProductGrid = ({ onAddToCart }) => {
     );
 
     return (
-        <div className="h-full flex flex-col bg-white/40 backdrop-blur-sm rounded-3xl border border-slate-200/50 shadow-lg p-5">
+        <div className="h-full flex flex-col bg-white/40 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-slate-200/50 shadow-lg p-3 sm:p-5">
             {/* Search & Filter Bar */}
-            <div className="shrink-0 space-y-4 mb-4">
+            <div className="shrink-0 space-y-3 sm:space-y-4 mb-3 sm:mb-4">
                 <div className="flex items-center gap-3">
                     <form onSubmit={handleSearch} className="flex-1">
                         <div className="relative group">
-                            <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors duration-300" />
+                            <Search size={15} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors duration-300" />
                             <input
                                 type="text"
                                 placeholder={t('pos.searchProducts')}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-11 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all duration-300 placeholder:text-slate-400 shadow-sm hover:border-slate-300"
+                                className="w-full pl-9 sm:pl-11 pr-9 sm:pr-10 py-2.5 sm:py-3 bg-white border border-slate-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-400 transition-all duration-300 placeholder:text-slate-400 shadow-sm hover:border-slate-300"
                             />
                             {searchTerm && (
                                 <button
                                     type="button"
                                     onClick={() => { setSearchTerm(''); searchProducts(''); }}
-                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors bg-slate-50 hover:bg-slate-100 rounded-lg p-1"
+                                    className="absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors bg-slate-50 hover:bg-slate-100 rounded-lg p-1"
                                 >
                                     <X size={14} />
                                 </button>
@@ -122,8 +122,8 @@ const ProductGrid = ({ onAddToCart }) => {
             {/* Products Area */}
             {loading ? (
                 <div className="flex-1 overflow-y-auto pr-1">
-                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {[...Array(8)].map((_, i) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4">
+                        {[...Array(6)].map((_, i) => (
                             <ProductSkeleton key={i} />
                         ))}
                     </div>
@@ -133,18 +133,18 @@ const ProductGrid = ({ onAddToCart }) => {
                     {products.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-slate-300">
                             <div className="relative">
-                                <div className="w-28 h-28 bg-slate-50 rounded-3xl flex items-center justify-center border-2 border-dashed border-slate-200">
-                                    <Package size={52} className="text-slate-200" />
+                                <div className="w-20 h-20 sm:w-28 sm:h-28 bg-slate-50 rounded-2xl sm:rounded-3xl flex items-center justify-center border-2 border-dashed border-slate-200">
+                                    <Package size={40} className="text-slate-200" />
                                 </div>
-                                <span className="absolute -top-2 -right-2 w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                                    <AlertTriangle size={16} className="text-amber-500" />
+                                <span className="absolute -top-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                                    <AlertTriangle size={14} className="text-amber-500" />
                                 </span>
                             </div>
-                            <p className="text-lg font-bold text-slate-400 mt-6">{t('pos.noProducts')}</p>
-                            <p className="text-sm text-slate-300 mt-1.5 text-center px-8 leading-relaxed">{t('pos.noProductsDesc')}</p>
+                            <p className="text-base sm:text-lg font-bold text-slate-400 mt-5 sm:mt-6">{t('pos.noProducts')}</p>
+                            <p className="text-xs sm:text-sm text-slate-300 mt-1 sm:mt-1.5 text-center px-6 sm:px-8 leading-relaxed">{t('pos.noProductsDesc')}</p>
                         </div>
                     ) : viewMode === 'grid' ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 auto-rows-max">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 auto-rows-max">
                             {products.map((product) => {
                                 const isOutOfStock = product.stock <= 0;
                                 const isAnimating = animatingId === product.id;
@@ -222,20 +222,20 @@ const ProductGrid = ({ onAddToCart }) => {
                                         </div>
 
                                         {/* Info */}
-                                        <div className="p-3.5 flex flex-col flex-1">
-                                            <h3 className="text-xs font-bold text-slate-800 line-clamp-1 group-hover:text-primary-600 transition-colors duration-200">
+                                        <div className="p-2.5 sm:p-3.5 flex flex-col flex-1">
+                                            <h3 className="text-[11px] sm:text-xs font-bold text-slate-800 line-clamp-1 group-hover:text-primary-600 transition-colors duration-200">
                                                 {product.name}
                                             </h3>
-                                            <div className="mt-auto pt-2.5 flex items-end justify-between gap-2">
+                                            <div className="mt-auto pt-1.5 sm:pt-2.5 flex items-end justify-between gap-1.5 sm:gap-2">
                                                 <div>
-                                                    <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wider">{t('pos.price')}</p>
-                                                    <p className="text-sm font-black text-slate-900 tabular-nums">
+                                                    <p className="text-[8px] sm:text-[9px] text-slate-400 font-medium uppercase tracking-wider">{t('pos.price')}</p>
+                                                    <p className="text-xs sm:text-sm font-black text-slate-900 tabular-nums">
                                                         Rp {Number(product.selling_price).toLocaleString('id-ID')}
                                                     </p>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wider">{t('pos.stock')}</p>
-                                                    <p className={`text-[11px] font-bold tabular-nums ${
+                                                <div className="text-right shrink-0">
+                                                    <p className="text-[8px] sm:text-[9px] text-slate-400 font-medium uppercase tracking-wider">{t('pos.stock')}</p>
+                                                    <p className={`text-[10px] sm:text-[11px] font-bold tabular-nums ${
                                                         isOutOfStock ? 'text-red-500' : product.stock < 10 ? 'text-amber-600' : 'text-slate-600'
                                                     }`}>
                                                         {product.stock} {product.unit || 'pcs'}
@@ -243,13 +243,13 @@ const ProductGrid = ({ onAddToCart }) => {
                                                 </div>
                                             </div>
 
-                                            {/* Add button */}
+                                            {/* Add button - always visible on mobile, hover on desktop */}
                                             {!isOutOfStock && (
                                                 <button
                                                     onClick={(e) => handleAddToCart(e, product)}
-                                                    className="w-full mt-3 flex items-center justify-center gap-1.5 py-2.5 bg-slate-900 text-white text-[10px] font-bold rounded-xl hover:bg-primary-600 transition-all shadow-sm active:scale-[0.97] hover:shadow-lg hover:shadow-primary-200/30 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200"
+                                                    className="w-full mt-2 sm:mt-3 flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 bg-slate-900 text-white text-[9px] sm:text-[10px] font-bold rounded-xl hover:bg-primary-600 transition-all shadow-sm active:scale-[0.97] hover:shadow-lg hover:shadow-primary-200/30 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-all duration-200"
                                                 >
-                                                    <Plus size={14} />
+                                                    <Plus size={12} />
                                                     {t('pos.addItem')}
                                                 </button>
                                             )}

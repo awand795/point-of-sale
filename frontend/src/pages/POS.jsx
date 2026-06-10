@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import ProductGrid from '../components/pos/ProductGrid';
 import Cart from '../components/pos/Cart';
 import { useCart } from '../hooks/useCart';
@@ -11,6 +11,33 @@ const POS = () => {
     const { isDemo } = useAuth();
     const cart = useCart();
     const [cartOpen, setCartOpen] = useState(true);
+
+    // Swipe to close
+    const [dragY, setDragY] = useState(0);
+    const [dragging, setDragging] = useState(false);
+    const touchStartY = useRef(0);
+    const panelRef = useRef(null);
+    const SWIPE_THRESHOLD = 100;
+
+    const handleTouchStart = (e) => {
+        touchStartY.current = e.touches[0].clientY;
+        setDragging(true);
+    };
+
+    const handleTouchMove = (e) => {
+        if (!dragging) return;
+        const currentY = e.touches[0].clientY;
+        const diff = currentY - touchStartY.current;
+        setDragY(Math.max(0, diff));
+    };
+
+    const handleTouchEnd = () => {
+        setDragging(false);
+        if (dragY > SWIPE_THRESHOLD) {
+            setCartOpen(false);
+        }
+        setDragY(0);
+    };
 
     return (
         <div className="h-[calc(100vh-5rem)] flex flex-col gap-4">
@@ -85,11 +112,26 @@ const POS = () => {
                     />
 
                     {/* Cart panel */}
-                    <div className="h-[70vh] pointer-events-auto flex flex-col bg-white rounded-t-3xl shadow-2xl shadow-black/20 animate-slideUp">
+                    <div
+                        ref={panelRef}
+                        className={`h-[70vh] pointer-events-auto flex flex-col bg-white rounded-t-3xl shadow-2xl shadow-black/20 ${dragging ? '' : 'animate-slideUp'}`}
+                        style={{
+                            transform: dragging ? `translateY(${dragY}px)` : undefined,
+                            transition: dragging ? 'none' : 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
+                        }}
+                    >
                         {/* Drag handle + close */}
-                        <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-slate-100">
+                        <div
+                            className="shrink-0 flex items-center justify-between px-5 pt-3 pb-3 border-b border-slate-100"
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
+                        >
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-1 bg-slate-300 rounded-full mx-auto" />
+                                <div className="flex flex-col items-center gap-1.5">
+                                    <div className="w-10 h-1 bg-slate-300 rounded-full" />
+                                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{t('pos.currentOrder')}</div>
+                                </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 {cart.itemCount > 0 && (

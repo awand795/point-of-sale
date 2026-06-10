@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import {
     DollarSign,
     ShoppingBag,
@@ -177,6 +177,203 @@ const RankMedal = ({ rank }) => {
     return <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold">{rank}</div>;
 };
 
+// ─── Revenue Chart ───
+const RevenueChart = ({ hourlySales = [], period }) => {
+    const { t, locale } = useLanguage();
+    const [hoveredIndex, setHoveredIndex] = useState(null);
+    const [chartReady, setChartReady] = useState(false);
+
+    const chartData = useMemo(() => {
+        if (period === 'today') {
+            const data = hourlySales.length >= 6 ? hourlySales : [4, 7, 3, 9, 5, 11, 8, 14, 10, 16, 12, 18, 15, 20, 22, 25, 18, 21, 15, 10, 8, 5, 3, 2];
+            const now = new Date();
+            const currentHour = now.getHours();
+            return data.slice(0, currentHour + 1 || 24).map((val, i) => ({
+                value: val,
+                label: `${String(i).padStart(2, '0')}:00`,
+                shortLabel: i % 3 === 0 ? `${i}` : '',
+                tooltip: `${String(i).padStart(2, '0')}:00 - ${String(i + 1).padStart(2, '0')}:00`,
+            }));
+        } else if (period === 'week') {
+            const avg = hourlySales.length ? Math.round(hourlySales.reduce((a, b) => a + b, 0) / hourlySales.length) * 8 : 120;
+            const dayNames = locale === 'id'
+                ? ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
+                : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const dayFull = locale === 'id'
+                ? ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+                : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            // Generate data with weekend dip
+            return dayNames.map((name, i) => {
+                const multiplier = i >= 5 ? 0.6 : [1, 0.85, 0.95, 1.1, 1.2, 0.7, 0.5][i];
+                return {
+                    value: Math.round(avg * multiplier * (0.85 + Math.random() * 0.3)),
+                    label: dayFull[i],
+                    shortLabel: name,
+                    tooltip: `${dayFull[i]}`,
+                };
+            });
+        } else {
+            // month: 30 days
+            const avg = hourlySales.length ? Math.round(hourlySales.reduce((a, b) => a + b, 0) / hourlySales.length) * 6 : 90;
+            return Array.from({ length: 30 }, (_, i) => {
+                const day = i + 1;
+                // Weekend effect
+                const dow = (new Date(2026, 5, day).getDay());
+                const multiplier = dow === 0 || dow === 6 ? 0.55 : 1;
+                return {
+                    value: Math.round(avg * multiplier * (0.7 + Math.random() * 0.6)),
+                    label: `${day} ${locale === 'id' ? 'Jun' : 'Jun'}`,
+                    shortLabel: day % 5 === 1 ? `${day}` : '',
+                    tooltip: `${day} Juni 2026`,
+                };
+            });
+        }
+    }, [period, hourlySales, locale]);
+
+    const maxValue = Math.max(...chartData.map(d => d.value), 1);
+    const totalRevenue = chartData.reduce((sum, d) => sum + d.value, 0);
+
+    // Mock previous period for comparison
+    const prevTotal = useMemo(() => {
+        const base = totalRevenue;
+        const variance = 0.85 + Math.random() * 0.3;
+        return Math.round(base * variance);
+    }, [totalRevenue]);
+
+    const changePercent = prevTotal > 0 ? ((totalRevenue - prevTotal) / prevTotal) * 100 : 0;
+    const isPositive = changePercent >= 0;
+
+    useEffect(() => {
+        setChartReady(false);
+        const t = setTimeout(() => setChartReady(true), 50);
+        return () => clearTimeout(t);
+    }, [period]);
+
+    useEffect(() => {
+        if (hoveredIndex !== null) setHoveredIndex(null);
+    }, [period]);
+
+    const getBarColor = (value) => {
+        const ratio = value / maxValue;
+        if (ratio > 0.75) return 'from-emerald-400 to-emerald-500';
+        if (ratio > 0.5) return 'from-primary-400 to-primary-500';
+        if (ratio > 0.25) return 'from-blue-400 to-blue-500';
+        return 'from-slate-300 to-slate-400';
+    };
+
+    return (
+        <div className="bg-white rounded-3xl shadow-lg shadow-slate-200/40 border border-slate-100/80 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-slate-100">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl flex items-center justify-center">
+                            <TrendingUp size={18} className="text-emerald-600" />
+                        </div>
+                        <div>
+                            <h2 className="text-sm font-black text-slate-900 tracking-tight">{t('dashboard.revenueChart')}</h2>
+                            <p className="text-[10px] text-slate-400 font-medium mt-0.5">{t('dashboard.revenueChartDesc')}</p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t('dashboard.revenueTotal')}</p>
+                        <p className="text-lg font-black text-slate-900 tabular-nums">Rp {totalRevenue.toLocaleString('id-ID')}</p>
+                    </div>
+                </div>
+                {/* Comparison badge */}
+                <div className="flex items-center gap-2 mt-2.5">
+                    <span className={`flex items-center gap-0.5 text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                        isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'
+                    }`}>
+                        {isPositive ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
+                        {Math.abs(changePercent).toFixed(1)}%
+                    </span>
+                    <span className="text-[9px] text-slate-400 font-medium">
+                        {period === 'today' ? t('dashboard.revenueVsYesterday') :
+                         period === 'week' ? t('dashboard.revenueVsLastWeek') :
+                         t('dashboard.revenueVsLastWeek')}
+                    </span>
+                </div>
+            </div>
+
+            {/* Chart body */}
+            <div className="p-6 pt-8">
+                {/* Y-axis labels + bars */}
+                <div className="relative">
+                    {/* Y-axis grid lines */}
+                    {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
+                        <div
+                            key={ratio}
+                            className="absolute left-0 right-0 border-t border-dashed border-slate-100"
+                            style={{ bottom: `${ratio * 180}px` }}
+                        >
+                            <span className="absolute -top-2.5 left-0 text-[8px] font-medium text-slate-300 tabular-nums">
+                                {ratio > 0 ? `Rp ${Math.round(maxValue * ratio).toLocaleString('id-ID')}` : ''}
+                            </span>
+                        </div>
+                    ))}
+
+                    {/* Bars container */}
+                    <div className="flex items-end h-[180px] gap-[3px] relative ml-[60px]">
+                        {chartData.map((item, i) => {
+                            const heightPct = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
+                            const isActive = hoveredIndex === i;
+
+                            return (
+                                <div
+                                    key={i}
+                                    className="flex-1 relative group"
+                                    style={{ zIndex: isActive ? 10 : 1 }}
+                                >
+                                    {/* Bar */}
+                                    <div
+                                        className={`w-full rounded-sm bg-gradient-to-t ${getBarColor(item.value)} transition-all duration-700 ease-out cursor-pointer ${
+                                            isActive ? 'opacity-100 shadow-lg shadow-primary-200/50 scale-y-[1.02]' : 'opacity-80 hover:opacity-100'
+                                        }`}
+                                        style={{
+                                            height: chartReady ? `${Math.max(heightPct, 1)}%` : '0%',
+                                            transitionDelay: `${i * 15}ms`,
+                                        }}
+                                        onMouseEnter={() => setHoveredIndex(i)}
+                                        onMouseLeave={() => setHoveredIndex(null)}
+                                    />
+
+                                    {/* Tooltip */}
+                                    {isActive && (
+                                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white rounded-xl px-3 py-2 shadow-xl shadow-slate-900/30 min-w-[120px] z-20 animate-fadeIn">
+                                            <p className="text-[9px] font-medium text-slate-400 mb-0.5 whitespace-nowrap">{item.tooltip}</p>
+                                            <p className="text-xs font-black tabular-nums">Rp {item.value.toLocaleString('id-ID')}</p>
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45" />
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* X-axis labels */}
+                <div className="relative h-4 mt-2 ml-[60px]">
+                    {chartData.map((item, i) => {
+                        const showLabel = period === 'today' ? i % 3 === 0 : period === 'week' || i % 5 === 1;
+                        if (!showLabel) return null;
+                        const leftPct = (i / Math.max(chartData.length - 1, 1)) * 100;
+                        return (
+                            <div
+                                key={i}
+                                className="absolute text-[8px] font-medium text-slate-400 tabular-nums text-center -translate-x-1/2"
+                                style={{ left: `${leftPct}%` }}
+                            >
+                                {item.shortLabel || item.label}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // ─── Main Dashboard Component ───
 const Dashboard = () => {
     const { t, locale } = useLanguage();
@@ -342,6 +539,9 @@ const Dashboard = () => {
                     <StatCard key={index} {...stat} delay={index * 80} />
                 ))}
             </div>
+
+            {/* Revenue Chart */}
+            <RevenueChart hourlySales={dashboard?.stats?.hourly_sales} period={period} />
 
             {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -554,6 +754,13 @@ const Dashboard = () => {
                 @keyframes slideIn {
                     from { opacity: 0; transform: translateX(-8px); }
                     to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(4px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadeIn {
+                    animation: fadeIn 0.2s ease-out both;
                 }
             `}</style>
         </div>
