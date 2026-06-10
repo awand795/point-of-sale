@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Minus, Plus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Wallet, Printer, Receipt } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Minus, Plus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Wallet, Printer, Receipt, Search, UserCircle, ChevronDown } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { transactionApi } from "../../api/transactions";
+import { useCustomers } from "../../hooks/useCustomers";
 
 const Cart = ({ cart }) => {
     const { t, locale } = useLanguage();
@@ -14,6 +15,29 @@ const Cart = ({ cart }) => {
     const [processing, setProcessing] = useState(false);
     const [note, setNote] = useState('');
     const [receiptData, setReceiptData] = useState(null);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
+    const [customerSearch, setCustomerSearch] = useState('');
+    const customerDropdownRef = useRef(null);
+    const { customers, loading: customersLoading } = useCustomers({ per_page: 50 });
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (customerDropdownRef.current && !customerDropdownRef.current.contains(e.target)) {
+                setCustomerDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const filteredCustomers = customers.filter(c =>
+        !customerSearch ||
+        c.name?.toLowerCase().includes(customerSearch.toLowerCase()) ||
+        c.phone?.includes(customerSearch) ||
+        c.email?.toLowerCase().includes(customerSearch.toLowerCase())
+    );
 
     const total = calculateTotal(discount, tax);
     const change = paidAmount - total;
@@ -44,7 +68,8 @@ const Cart = ({ cart }) => {
                 tax,
                 paid_amount: paidAmount,
                 payment_method: paymentMethod,
-                notes: note
+                notes: note,
+                customer_id: selectedCustomer?.id || null,
             });
 
             // Save receipt data
@@ -63,6 +88,8 @@ const Cart = ({ cart }) => {
                 paidAmount,
                 change,
                 paymentMethod,
+                note: note,
+                customer: selectedCustomer,
             });
         } catch (err) {
             alert(err.response?.data?.message || 'Failed to create transaction');
@@ -76,6 +103,8 @@ const Cart = ({ cart }) => {
         setDiscount(0);
         setTax(0);
         setNote('');
+        setSelectedCustomer(null);
+        setCustomerSearch('');
         setReceiptData(null);
     };
 
@@ -144,6 +173,8 @@ const Cart = ({ cart }) => {
                         <span>${receiptData.date.toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                     <div style="margin-top: 4px;">Kasir: Walk-in Customer</div>
+                    ${receiptData.customer ? `<div style="margin-top: 4px;">Pelanggan: ${receiptData.customer.name}</div>` : ''}
+                    ${receiptData.note ? `<div style="margin-top: 4px; font-style: italic;">${locale === 'id' ? 'Catatan' : 'Notes'}: ${receiptData.note}</div>` : ''}
                 </div>
                 <div class="divider"></div>
                 <table>
@@ -250,6 +281,9 @@ const Cart = ({ cart }) => {
                             <div>
                                 <p className="font-bold text-slate-700">{receiptData.invoice}</p>
                                 <p className="text-slate-400 mt-0.5">{t('pos.receiptCashier')}: Walk-in</p>
+                                {receiptData.customer && (
+                                    <p className="text-slate-500 mt-0.5 font-medium">{receiptData.customer.name}</p>
+                                )}
                             </div>
                             <div className="text-right text-slate-400">
                                 <p>{receiptData.date.toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', {
@@ -260,6 +294,14 @@ const Cart = ({ cart }) => {
                                 })}</p>
                             </div>
                         </div>
+
+                        {/* Notes */}
+                        {receiptData.note && (
+                            <div className="px-3 py-2.5 bg-slate-50/80 rounded-xl border border-slate-100">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t('pos.noteLabel')}</p>
+                                <p className="text-xs font-medium text-slate-600 leading-relaxed">{receiptData.note}</p>
+                            </div>
+                        )}
 
                         {/* Divider */}
                         <div className="border-t border-dashed border-slate-200" />
@@ -372,8 +414,86 @@ const Cart = ({ cart }) => {
                         </div>
                         <div>
                             <h2 className="font-bold text-sm">{t('pos.currentOrder')}</h2>
-                            <p className="text-[9px] text-slate-400 font-medium uppercase tracking-widest">
-                                {t('pos.customer')}: <span className="text-white">Walk-in</span>
+                            <p className="text-[9px] text-slate-400 font-medium uppercase tracking-widest flex items-center gap-1">
+                                {t('pos.customer')}:
+                                <span className="relative" ref={customerDropdownRef}>
+                                    <button
+                                        onClick={() => setCustomerDropdownOpen(!customerDropdownOpen)}
+                                        className="inline-flex items-center gap-1 text-white hover:text-primary-300 transition-colors"
+                                    >
+                                        <UserCircle size={12} />
+                                        <span>{selectedCustomer?.name || 'Walk-in'}</span>
+                                        <ChevronDown size={10} className={`transition-transform duration-200 ${customerDropdownOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {customerDropdownOpen && (
+                                        <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-50 animate-fadeIn">
+                                            {/* Search */}
+                                            <div className="p-2 border-b border-slate-100">
+                                                <div className="relative">
+                                                    <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                                    <input
+                                                        type="text"
+                                                        value={customerSearch}
+                                                        onChange={(e) => setCustomerSearch(e.target.value)}
+                                                        placeholder={t('pos.customerSearch')}
+                                                        className="w-full pl-7 pr-2 py-1.5 text-[10px] bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-50 focus:border-primary-400"
+                                                        autoFocus
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Customers list */}
+                                            <div className="max-h-48 overflow-y-auto">
+                                                {customersLoading ? (
+                                                    <div className="px-3 py-4 text-center">
+                                                        <div className="w-4 h-4 border-2 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto" />
+                                                    </div>
+                                                ) : filteredCustomers.length === 0 ? (
+                                                    <div className="px-3 py-4 text-center text-[10px] text-slate-400">
+                                                        {t('pos.customerNoResults')}
+                                                    </div>
+                                                ) : (
+                                                    filteredCustomers.map((c) => (
+                                                        <button
+                                                            key={c.id}
+                                                            onClick={() => {
+                                                                setSelectedCustomer(c);
+                                                                setCustomerDropdownOpen(false);
+                                                                setCustomerSearch('');
+                                                            }}
+                                                            className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-xs transition-colors hover:bg-primary-50/50 ${
+                                                                selectedCustomer?.id === c.id ? 'bg-primary-50 text-primary-700 font-bold' : 'text-slate-700'
+                                                            }`}
+                                                        >
+                                                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-500 shrink-0">
+                                                                {c.name?.charAt(0)?.toUpperCase() || '?'}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-medium truncate">{c.name}</p>
+                                                                {c.phone && <p className="text-[9px] text-slate-400 truncate">{c.phone}</p>}
+                                                            </div>
+                                                        </button>
+                                                    ))
+                                                )}
+                                            </div>
+
+                                            {/* Clear selection */}
+                                            {selectedCustomer && (
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedCustomer(null);
+                                                        setCustomerDropdownOpen(false);
+                                                        setCustomerSearch('');
+                                                    }}
+                                                    className="w-full px-3 py-2 text-[9px] font-bold text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors uppercase tracking-wider border-t border-slate-100"
+                                                >
+                                                    {t('pos.customerRemove')}
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </span>
                             </p>
                         </div>
                     </div>
@@ -474,6 +594,24 @@ const Cart = ({ cart }) => {
                         <span className="text-lg font-black text-white tracking-tight tabular-nums">Rp {total.toLocaleString('id-ID')}</span>
                     </div>
                 </div>
+
+                {/* Notes */}
+                {items.length > 0 && (
+                    <div>
+                        <textarea
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            disabled={processing}
+                            placeholder={t('pos.notesPlaceholder')}
+                            rows={1}
+                            className="w-full disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed px-3 py-2 text-[10px] font-medium text-slate-600 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-50 focus:border-primary-400 transition-all placeholder:text-slate-300 resize-none overflow-hidden"
+                            onInput={(e) => {
+                                e.target.style.height = 'auto';
+                                e.target.style.height = Math.min(e.target.scrollHeight, 64) + 'px';
+                            }}
+                        />
+                    </div>
+                )}
 
                 {/* Payment Method */}
                 <div className="flex items-center gap-1.5">

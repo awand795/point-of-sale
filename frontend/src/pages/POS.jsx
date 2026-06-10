@@ -4,7 +4,7 @@ import Cart from '../components/pos/Cart';
 import { useCart } from '../hooks/useCart';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
-import { ShoppingCart, Store, Wifi } from 'lucide-react';
+import { ShoppingCart, Store, Wifi, X as XIcon, ChevronDown } from 'lucide-react';
 
 const POS = () => {
     const { t } = useLanguage();
@@ -45,6 +45,7 @@ const POS = () => {
                             <Wifi size={18} className="text-white" />
                         </div>
                     </div>
+                    {/* Mobile cart toggle */}
                     <button
                         onClick={() => setCartOpen(!cartOpen)}
                         className="xl:hidden relative w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-all"
@@ -59,8 +60,8 @@ const POS = () => {
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 flex-1 min-h-0">
+            {/* Desktop Layout (xl+) */}
+            <div className="hidden xl:grid xl:grid-cols-12 gap-6 flex-1 min-h-0">
                 <div className={`${cartOpen ? 'xl:col-span-8' : 'xl:col-span-12'} flex flex-col min-h-0 transition-all duration-300`}>
                     <ProductGrid onAddToCart={cart.addToCart} />
                 </div>
@@ -69,17 +70,74 @@ const POS = () => {
                 </div>
             </div>
 
-            {/* Floating Cart Button (mobile) */}
+            {/* Mobile Layout (< xl) */}
+            <div className="xl:hidden flex-1 min-h-0">
+                <ProductGrid onAddToCart={cart.addToCart} />
+            </div>
+
+            {/* Mobile Cart Bottom Sheet (< xl) */}
+            {cartOpen && (
+                <div className="xl:hidden fixed inset-0 z-50 flex flex-col pointer-events-none" style={{ touchAction: 'none' }}>
+                    {/* Backdrop */}
+                    <div
+                        className="flex-1 bg-black/30 backdrop-blur-sm pointer-events-auto"
+                        onClick={() => setCartOpen(false)}
+                    />
+
+                    {/* Cart panel */}
+                    <div className="h-[70vh] pointer-events-auto flex flex-col bg-white rounded-t-3xl shadow-2xl shadow-black/20 animate-slideUp">
+                        {/* Drag handle + close */}
+                        <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-slate-100">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-1 bg-slate-300 rounded-full mx-auto" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {cart.itemCount > 0 && (
+                                    <span className="text-xs font-bold text-slate-500 tabular-nums">
+                                        {cart.itemCount} items
+                                    </span>
+                                )}
+                                <button
+                                    onClick={() => setCartOpen(false)}
+                                    className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all active:scale-90"
+                                >
+                                    <ChevronDown size={18} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Cart content */}
+                        <div className="flex-1 min-h-0">
+                            <Cart cart={cart} />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Floating Cart Button (mobile, when cart is closed) - fallback */}
             {!cartOpen && cart.itemCount > 0 && (
                 <button
                     onClick={() => setCartOpen(true)}
-                    className="fixed bottom-6 right-6 xl:hidden z-50 bg-gradient-to-br from-primary-600 to-violet-600 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-primary-200 flex items-center gap-3 active:scale-95 transition-transform"
+                    className="xl:hidden fixed bottom-6 right-6 z-40 bg-gradient-to-br from-primary-600 to-violet-600 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-primary-200 flex items-center gap-3 active:scale-95 transition-transform"
                     style={{ animation: 'fadeInUp 0.4s ease-out' }}
                 >
                     <ShoppingCart size={20} />
                     <span className="font-bold text-sm">{cart.itemCount} items — Rp {cart.subtotal.toLocaleString('id-ID')}</span>
                 </button>
             )}
+
+            {/* Animations */}
+            <style>{`
+                @keyframes slideUp {
+                    from { transform: translateY(100%); }
+                    to { transform: translateY(0); }
+                }
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-slideUp { animation: slideUp 0.35s ease-out forwards; }
+            `}</style>
         </div>
     );
 };
