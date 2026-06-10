@@ -1,3 +1,5 @@
+import html2pdf from 'html2pdf.js';
+
 /**
  * Export a DOM element as a PDF using html2pdf.js
  * @param {HTMLElement|string} element - The DOM element or CSS selector to capture
