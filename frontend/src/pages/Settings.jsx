@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Save, Settings2, Building, Receipt, Bell, Shield } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import PageHeader from "../components/shared/PageHeader";
 import { LoadingSpinner } from "../components/shared/EmptyState";
 import { useSettings } from '../hooks/useSettings';
 import { useToast } from '../hooks/useToast';
@@ -77,7 +78,7 @@ const Settings = () => {
 
     return (
         <div className="space-y-6">
-            <div><h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t('sidebar.settings')}</h1><p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Configure your application settings</p></div>
+            <PageHeader title={t('sidebar.settings')} subtitle="Configure your application settings" />
 
             <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-xl w-fit">
                 {tabs.map(tab => {
@@ -113,7 +114,7 @@ const Settings = () => {
                     {success && <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5"><Shield size={14} />Settings saved successfully</p>}
                     {error && <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
                     {!success && !error && <div />}
-                    <button onClick={handleSave} disabled={saving || isDemo} className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 disabled:opacity-50 transition shadow-sm"><Save size={16} /> {saving ? 'Saving...' : 'Save Settings'}</button>
+                    <button onClick={handleSave} disabled={saving || isDemo} className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-xl hover:bg-primary-600 disabled:opacity-50 transition shadow-sm"><Save size={16} /> {saving ? 'Saving...' : 'Save Settings'}</button>
                 </div>
             </div>
         </div>

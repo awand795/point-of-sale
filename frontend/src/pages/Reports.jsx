@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { BarChart3, TrendingUp, DollarSign, ShoppingBag, Package, Calendar, Download, ArrowUpRight, ArrowDownRight, PieChart, Sparkles, Loader2 } from "lucide-react";
+import { BarChart3, TrendingUp, DollarSign, ShoppingBag, Package, Calendar, Download, ArrowUpRight, ArrowDownRight, PieChart, Loader2 } from "lucide-react";
 import { useLanguage } from "../i18n/LanguageContext";
+import PageHeader from "../components/shared/PageHeader";
 import { LoadingSpinner } from "../components/shared/EmptyState";
 import { useReports } from "../hooks/useReports";
 import { exportToPdf } from "../utils/exportPdf";
@@ -10,7 +11,7 @@ const AnimatedCounter = ({ value, prefix = "", duration = 1200 }) => {
   const rafRef = useRef(null);
   useEffect(() => {
     if (value === 0) { setDisplay(0); return; }
-    const start = display;
+    const start = display || 0;
     const t0 = performance.now();
     const anim = (now) => {
       const p = Math.min((now - t0) / duration, 1);
@@ -24,33 +25,30 @@ const AnimatedCounter = ({ value, prefix = "", duration = 1200 }) => {
   return <>{prefix}{display.toLocaleString("id-ID")}</>;
 };
 
-const StatCard = ({ title, value, icon, gradient, change, isCurrency, delay = 0 }) => {
+const StatCard = ({ title, value, icon, bgColor, iconColor, change, isCurrency, delay = 0 }) => {
   const { t } = useLanguage();
   const [vis, setVis] = useState(false);
   useEffect(() => { const t = setTimeout(() => setVis(true), delay); return () => clearTimeout(t); }, [delay]);
   const pos = change >= 0;
   return (
-    <div className={`bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden ${vis ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-      <div className={`absolute -top-12 -right-12 w-32 h-32 ${gradient} opacity-[0.08] rounded-full blur-2xl transition-all group-hover:opacity-[0.15] group-hover:scale-125`} />
-      <div className="relative">
-        <div className={`w-12 h-12 ${gradient} rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 group-hover:scale-110 group-hover:rotate-3 transition-all`}>
-          <div className="text-white">{icon}</div>
-        </div>
-        <div className="mt-4">
-          <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{title}</p>
-          <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1 tabular-nums">
-            {typeof value === "number" ? <AnimatedCounter value={value} prefix={isCurrency ? "Rp " : ""} /> : value}
-          </p>
-        </div>
-        {change !== undefined && (
-          <div className="flex items-center gap-1.5 mt-2.5">
-            <span className={`flex items-center gap-0.5 text-[9px] font-bold px-2 py-0.5 rounded-full ${pos ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/40 dark:text-emerald-400" : "text-red-600 bg-red-50 dark:bg-red-900/40 dark:text-red-400"}`}>
-              {pos ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}{Math.abs(change)}%
-            </span>
-            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">{t("reports.vsLastMonth")}</span>
-          </div>
-        )}
+    <div className={`bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 hover:shadow-md transition-all duration-300 ${vis ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+      <div className={`w-10 h-10 ${bgColor} rounded-xl flex items-center justify-center`}>
+        <div className={iconColor}>{icon}</div>
       </div>
+      <div className="mt-3">
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{title}</p>
+        <p className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight mt-1 tabular-nums">
+          {typeof value === "number" ? <AnimatedCounter value={value} prefix={isCurrency ? "Rp " : ""} /> : value}
+        </p>
+      </div>
+      {change !== undefined && (
+        <div className="flex items-center gap-1.5 mt-2.5">
+          <span className={`flex items-center gap-0.5 text-[9px] font-bold px-2 py-0.5 rounded-full ${pos ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/40 dark:text-emerald-400" : "text-red-600 bg-red-50 dark:bg-red-900/40 dark:text-red-400"}`}>
+            {pos ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}{Math.abs(change)}%
+          </span>
+          <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">{t("reports.vsLastMonth")}</span>
+        </div>
+      )}
     </div>
   );
 };
@@ -61,7 +59,6 @@ const RevenueChart = ({ data = [], period, compareMode = false, toggleCompare })
   const [ready, setReady] = useState(false);
   useEffect(() => { setReady(false); const t2 = setTimeout(() => setReady(true), 50); return () => clearTimeout(t2); }, [data, compareMode]);
 
-  // Build comparison data: each item gets a `prev` revenue value
   const chartItems = data.map((item, i) => ({
     ...item,
     prev: compareMode && i > 0 ? data[i - 1].revenue : null,
@@ -82,22 +79,21 @@ const RevenueChart = ({ data = [], period, compareMode = false, toggleCompare })
   const fmt = (v) => v >= 1000000 ? `Rp ${(v / 1000000).toFixed(1)}jt` : v >= 1000 ? `Rp ${(v / 1000).toFixed(0)}rb` : `Rp ${v}`;
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg shadow-slate-200/40 dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 overflow-hidden hover:shadow-xl transition-shadow">
-      <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100/80 dark:border-slate-700/60 overflow-hidden">
+      <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-50 to-violet-50 dark:from-primary-900/40 dark:to-violet-900/40 rounded-xl flex items-center justify-center">
-              <BarChart3 size={18} className="text-primary-600 dark:text-primary-400" />
+            <div className="w-9 h-9 bg-slate-50 dark:bg-white/[0.04] rounded-xl flex items-center justify-center">
+              <BarChart3 size={16} className="text-slate-500" />
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{period === "monthly" ? t("reports.monthlyRevenue") : t("reports.yearlyRevenue")}</h2>
-                {/* Compare toggle */}
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">{period === "monthly" ? t("reports.monthlyRevenue") : t("reports.yearlyRevenue")}</h2>
                 <button
                   onClick={toggleCompare}
                   className={`px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-wider border transition-all ${
                     compareMode
-                      ? 'bg-primary-600 text-white border-primary-600 shadow-sm'
+                      ? 'bg-primary-500 text-white border-primary-500 shadow-sm'
                       : 'bg-transparent text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-600 hover:border-primary-300 dark:hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400'
                   }`}
                 >
@@ -111,7 +107,6 @@ const RevenueChart = ({ data = [], period, compareMode = false, toggleCompare })
             </div>
           </div>
           <div className="text-right">
-            {/* Overall change badge */}
             {compareMode && overallChange !== null && (
               <div className={`flex items-center justify-end gap-1 mb-1 ${overallChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                 <span className="text-[8px] font-black uppercase tracking-wider">{overallChange >= 0 ? t('reports.growth') : t('reports.decline')}</span>
@@ -125,7 +120,6 @@ const RevenueChart = ({ data = [], period, compareMode = false, toggleCompare })
             <p className="text-lg font-black text-slate-900 dark:text-white tabular-nums">Rp {total.toLocaleString("id-ID")}</p>
           </div>
         </div>
-        {/* Legend */}
         {compareMode && (
           <div className="flex items-center gap-4 mt-3">
             <div className="flex items-center gap-1.5">
@@ -144,7 +138,7 @@ const RevenueChart = ({ data = [], period, compareMode = false, toggleCompare })
           </div>
         )}
       </div>
-      <div className="p-6 pt-8">
+      <div className="p-5 pt-7">
         <div className="relative">
           {[0, 0.25, 0.5, 0.75, 1].map((r) => (
             <div key={r} className="absolute left-0 right-0 border-t border-dashed border-slate-100 dark:border-slate-700" style={{ bottom: `${r * 200}px` }}>
@@ -158,7 +152,6 @@ const RevenueChart = ({ data = [], period, compareMode = false, toggleCompare })
               const act = hovered === i;
               return (
                 <div key={i} className="flex-1 flex items-end gap-[2px] min-w-0" style={{ zIndex: act ? 10 : 1 }}>
-                  {/* Previous period bar */}
                   {compareMode && item.prev !== null && (
                     <div className="flex-1 group/prev relative"
                       onMouseEnter={() => setHovered(i)}
@@ -170,17 +163,15 @@ const RevenueChart = ({ data = [], period, compareMode = false, toggleCompare })
                       />
                     </div>
                   )}
-                  {/* Current period bar */}
                   <div className="flex-1 group/curr relative"
                     onMouseEnter={() => setHovered(i)}
                     onMouseLeave={() => setHovered(null)}
                   >
                     <div
-                      className={`w-full rounded-sm bg-gradient-to-t ${act ? 'from-primary-500 to-primary-300' : 'from-primary-400 to-primary-200'} transition-all duration-700 ease-out cursor-pointer ${act ? 'opacity-100 shadow-lg shadow-primary-200/50 dark:shadow-primary-900/50' : 'opacity-80 hover:opacity-100'}`}
+                      className={`w-full rounded-sm bg-primary-400 transition-all duration-700 ease-out cursor-pointer ${act ? 'opacity-100 shadow-lg shadow-primary-200/50 dark:shadow-primary-900/50' : 'opacity-80 hover:opacity-100'}`}
                       style={{ height: ready ? `${Math.max(hCurr, 1)}%` : "0%", transitionDelay: `${(i * 20) + 50}ms` }}
                     />
                   </div>
-                  {/* Tooltip */}
                   {act && (
                     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-700 text-white rounded-xl px-3 py-2 shadow-xl shadow-slate-900/30 min-w-[150px] z-20 animate-fadeIn whitespace-nowrap">
                       <p className="text-[9px] font-medium text-slate-400 dark:text-slate-300 mb-1">{item.month || item.year}</p>
@@ -252,10 +243,10 @@ const Reports = () => {
   if (loading) return <LoadingSpinner text={locale === "id" ? "Memuat laporan..." : "Loading reports..."} />;
 
   const stats = reports ? [
-    { title: t("reports.totalRevenue"), value: reports.total_revenue || 0, icon: <DollarSign size={22} />, gradient: "from-emerald-500 to-teal-600", change: reports.total_revenue_change ?? 12.5, isCurrency: true },
-    { title: t("reports.totalOrders"), value: reports.total_orders || 0, icon: <ShoppingBag size={22} />, gradient: "from-primary-500 to-violet-600", change: reports.total_orders_change ?? 8.3 },
-    { title: t("reports.itemsSold"), value: reports.total_items || 0, icon: <Package size={22} />, gradient: "from-blue-500 to-indigo-600", change: reports.total_items_change ?? 15.2 },
-    { title: t("reports.avgOrderValue"), value: reports.avg_order_value || 0, icon: <TrendingUp size={22} />, gradient: "from-amber-500 to-orange-600", change: reports.avg_order_value_change ?? 3.8, isCurrency: true },
+    { title: t("reports.totalRevenue"), value: reports.total_revenue || 0, icon: <DollarSign size={18} />, bgColor: "bg-emerald-50 dark:bg-emerald-900/20", iconColor: "text-emerald-600 dark:text-emerald-400", change: reports.total_revenue_change ?? 12.5, isCurrency: true },
+    { title: t("reports.totalOrders"), value: reports.total_orders || 0, icon: <ShoppingBag size={18} />, bgColor: "bg-primary-50 dark:bg-primary-900/20", iconColor: "text-primary-600 dark:text-primary-400", change: reports.total_orders_change ?? 8.3 },
+    { title: t("reports.itemsSold"), value: reports.total_items || 0, icon: <Package size={18} />, bgColor: "bg-blue-50 dark:bg-blue-900/20", iconColor: "text-blue-600 dark:text-blue-400", change: reports.total_items_change ?? 15.2 },
+    { title: t("reports.avgOrderValue"), value: reports.avg_order_value || 0, icon: <TrendingUp size={18} />, bgColor: "bg-amber-50 dark:bg-amber-900/20", iconColor: "text-amber-600 dark:text-amber-400", change: reports.avg_order_value_change ?? 3.8, isCurrency: true },
   ] : [];
 
   const monthlyData = reports?.monthly_sales || [];
@@ -281,48 +272,40 @@ const Reports = () => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-            {t("reports.title")}
-            <span className="px-2 py-0.5 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/40 dark:to-yellow-900/40 text-amber-700 dark:text-amber-400 text-[8px] font-black uppercase tracking-widest rounded-lg border border-amber-200 dark:border-amber-700">
-              <Sparkles size={10} className="inline mr-1" />Analytics
-            </span>
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">{t("reports.subtitle")}</p>
+    <div className="space-y-6">
+      <PageHeader title={t("reports.title")} subtitle={t("reports.subtitle")} />
+
+      {/* Controls row */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 bg-surface dark:bg-surface-raised p-1 rounded-lg border border-slate-200/60 dark:border-white/[0.06]">
+          <button onClick={() => setChartPeriod("monthly")} className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all duration-200 ${chartPeriod === "monthly" ? "bg-primary-500 text-white shadow-sm" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"}`}>{t("reports.monthlyLabel")}</button>
+          <button onClick={() => setChartPeriod("yearly")} className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all duration-200 ${chartPeriod === "yearly" ? "bg-primary-500 text-white shadow-sm" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"}`}>{t("reports.yearlyLabel")}</button>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <button onClick={() => setChartPeriod("monthly")} className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all duration-200 ${chartPeriod === "monthly" ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"}`}>{t("reports.monthlyLabel")}</button>
-            <button onClick={() => setChartPeriod("yearly")} className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all duration-200 ${chartPeriod === "yearly" ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"}`}>{t("reports.yearlyLabel")}</button>
-          </div>
-          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <input type="date" value={dateRange.start} onChange={(e) => setDateRange((d) => ({ ...d, start: e.target.value }))} className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-transparent rounded-xl text-[10px] font-bold focus:bg-white dark:focus:bg-slate-600 focus:border-primary-200 dark:focus:border-primary-500 outline-none transition-all dark:text-slate-200" />
-            <span className="text-xs text-slate-400">—</span>
-            <input type="date" value={dateRange.end} onChange={(e) => setDateRange((d) => ({ ...d, end: e.target.value }))} className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-transparent rounded-xl text-[10px] font-bold focus:bg-white dark:focus:bg-slate-600 focus:border-primary-200 dark:focus:border-primary-500 outline-none transition-all dark:text-slate-200" />
-          </div>
-          <button onClick={handleFilter} className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-2xl text-[10px] font-bold hover:bg-primary-600 dark:hover:bg-primary-500 transition-all shadow-sm active:scale-[0.97]"><Calendar size={14} /> {t("reports.filterDate")}</button>
-          <button
-            onClick={handleExportPdf}
-            disabled={exporting}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[10px] font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-            {exporting ? (locale === "id" ? "Mengekspor..." : "Exporting...") : t("reports.exportPdf")}
-          </button>
+        <div className="flex items-center gap-2 bg-surface dark:bg-surface-raised p-1 rounded-lg border border-slate-200/60 dark:border-white/[0.06]">
+          <input type="date" value={dateRange.start} onChange={(e) => setDateRange((d) => ({ ...d, start: e.target.value }))} className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-700 border border-transparent rounded-md text-[10px] font-bold focus:bg-white dark:focus:bg-slate-600 focus:border-primary-200 dark:focus:border-primary-500 outline-none transition-all dark:text-slate-200" />
+          <span className="text-xs text-slate-400">—</span>
+          <input type="date" value={dateRange.end} onChange={(e) => setDateRange((d) => ({ ...d, end: e.target.value }))} className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-700 border border-transparent rounded-md text-[10px] font-bold focus:bg-white dark:focus:bg-slate-600 focus:border-primary-200 dark:focus:border-primary-500 outline-none transition-all dark:text-slate-200" />
         </div>
+        <button onClick={handleFilter} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-500 text-white text-[10px] font-bold rounded-lg hover:bg-primary-600 transition-all shadow-sm active:scale-[0.97]"><Calendar size={12} /> {t("reports.filterDate")}</button>
+        <button
+          onClick={handleExportPdf}
+          disabled={exporting}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-[10px] font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {exporting ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+          {exporting ? (locale === "id" ? "Mengekspor..." : "Exporting...") : t("reports.exportPdf")}
+        </button>
       </div>
 
-      <div ref={reportContentRef} className="space-y-8">
+      <div ref={reportContentRef} className="space-y-6">
       {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium flex items-center gap-2">
+        <div className="px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 flex items-center gap-2">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />{error}
         </div>
       )}
 
       {stats.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, i) => <StatCard key={i} {...stat} delay={i * 80} />)}
         </div>
       )}
@@ -330,9 +313,9 @@ const Reports = () => {
       {chartData.length > 0 ? (
         <RevenueChart data={chartData} period={chartPeriod} compareMode={compareMode} toggleCompare={() => setCompareMode(p => !p)} />
       ) : (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700 p-12">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 p-12">
           <div className="flex flex-col items-center justify-center">
-            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-700 rounded-3xl flex items-center justify-center mb-4 border-2 border-dashed border-slate-200 dark:border-slate-600">
+            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-700 rounded-xl flex items-center justify-center mb-4 border-2 border-dashed border-slate-200 dark:border-slate-600">
               <BarChart3 size={40} className="text-slate-300 dark:text-slate-600" />
             </div>
             <p className="text-base font-bold text-slate-400 dark:text-slate-500">{t("reports.noData")}</p>
@@ -342,11 +325,11 @@ const Reports = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg shadow-slate-200/40 dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 overflow-hidden hover:shadow-xl transition-shadow">
-          <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100/80 dark:border-slate-700/60 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/30 rounded-xl flex items-center justify-center"><TrendingUp size={18} className="text-amber-600 dark:text-amber-400" /></div>
-              <div><h2 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{t("reports.topProducts")}</h2><p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{t("reports.topProductsDesc")}</p></div>
+              <div className="w-9 h-9 bg-amber-50 dark:bg-amber-900/30 rounded-xl flex items-center justify-center"><TrendingUp size={16} className="text-amber-600 dark:text-amber-400" /></div>
+              <div><h2 className="text-sm font-semibold text-slate-900 dark:text-white">{t("reports.topProducts")}</h2><p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{t("reports.topProductsDesc")}</p></div>
             </div>
           </div>
           <div className="p-5">
@@ -357,9 +340,16 @@ const Reports = () => {
                 {topProducts.map((item, index) => {
                   const maxSold = Math.max(...topProducts.map((p) => p.total_sold), 1);
                   const pct = (item.total_sold / maxSold) * 100;
+                  const rankColors = [
+                    "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
+                    "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300",
+                    "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400",
+                    "bg-slate-50 dark:bg-slate-800 text-slate-400",
+                  ];
+                  const rankColor = rankColors[Math.min(index, 3)];
                   return (
                     <div key={index} className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50/50 dark:bg-slate-700/30 border border-transparent hover:border-slate-100 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-700 transition-all group" style={{ animation: `slideIn 0.3s ease-out ${index * 60}ms both` }}>
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-black shadow-md shrink-0 ${index === 0 ? "bg-gradient-to-br from-amber-400 to-yellow-500" : index === 1 ? "bg-gradient-to-br from-slate-300 to-slate-400" : index === 2 ? "bg-gradient-to-br from-orange-400 to-amber-500" : "bg-gradient-to-br from-primary-400 to-primary-500"}`}>{index + 1}</div>
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${rankColor}`}>{index + 1}</div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{item.name}</p>
@@ -367,7 +357,9 @@ const Reports = () => {
                         </div>
                         <div className="flex items-center justify-between mt-1">
                           <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden mr-3">
-                            <div className={`h-full rounded-full transition-all duration-700 ${index === 0 ? "bg-gradient-to-r from-amber-400 to-yellow-500" : index === 1 ? "bg-gradient-to-r from-slate-300 to-slate-400" : index === 2 ? "bg-gradient-to-r from-orange-400 to-amber-500" : "bg-gradient-to-r from-primary-400 to-primary-500"}`} style={{ width: `${pct}%` }} />
+                            <div className={`h-full rounded-full transition-all duration-700 ${
+                              index === 0 ? "bg-amber-400" : index === 1 ? "bg-slate-400" : index === 2 ? "bg-orange-400" : "bg-primary-400"
+                            }`} style={{ width: `${pct}%` }} />
                           </div>
                           <p className="text-[8px] font-medium text-slate-400 dark:text-slate-500 tabular-nums shrink-0">Rp {item.revenue.toLocaleString("id-ID")}</p>
                         </div>
@@ -380,11 +372,11 @@ const Reports = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg shadow-slate-200/40 dark:shadow-slate-900/50 border border-slate-100/80 dark:border-slate-700/60 overflow-hidden hover:shadow-xl transition-shadow">
-          <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100/80 dark:border-slate-700/60 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-violet-50 dark:bg-violet-900/30 rounded-xl flex items-center justify-center"><PieChart size={18} className="text-violet-600 dark:text-violet-400" /></div>
-              <div><h2 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{t("reports.categoryBreakdown")}</h2><p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{t("reports.categoryDesc")}</p></div>
+              <div className="w-9 h-9 bg-violet-50 dark:bg-violet-900/30 rounded-xl flex items-center justify-center"><PieChart size={16} className="text-violet-600 dark:text-violet-400" /></div>
+              <div><h2 className="text-sm font-semibold text-slate-900 dark:text-white">{t("reports.categoryBreakdown")}</h2><p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{t("reports.categoryDesc")}</p></div>
             </div>
           </div>
           <div className="p-5">
