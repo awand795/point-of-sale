@@ -1,16 +1,22 @@
 /* ════════════════════════════════════════════════════════════
-   BikinPOS — Design Tokens ("Precision Commerce")
+   BikinPOS — Design Tokens (\"Precision Commerce\" v2)
    ════════════════════════════════════════════════════════════ */
 
-/* ─── Brand Palette ─── */
 @theme {
+  /* ─── Brand Palette ─── */
   --color-brand: #0D5C63;
   --color-brand-light: #10929E;
   --color-brand-subtle: #E8F4F5;
+
+  /* Accent — amber (original) */
   --color-accent: #F5A623;
   --color-accent-subtle: #FEF5E4;
 
-  /* Primary scale (maps to brand teal, replaces old purple) */
+  /* Secondary accent — coral (warm CTA, hero highlights) */
+  --color-accent-coral: #FF6B35;
+  --color-accent-coral-subtle: #FFF0EB;
+
+  /* Primary scale (teal) */
   --color-primary-50: #E8F4F5;
   --color-primary-100: #C5E6E9;
   --color-primary-200: #9BD4D9;
@@ -43,12 +49,20 @@
   --color-border: rgba(0, 0, 0, 0.08);
   --color-border-strong: rgba(0, 0, 0, 0.16);
 
-  /* Typography — Geist via npm */
+  /* ═══ Typography Scale ═══ */
   --font-display: 'Geist', 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
 
-  /* Spacing scale */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-display: 56px;
+
+  /* ═══ Spacing Scale ═══ */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -58,17 +72,28 @@
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
+  --space-16: 64px;
 
-  /* Border radius — never exceed 16px for cards */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  /* ═══ Border Radius ═══ */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
 
-  /* Shadows — no colored shadows */
+  /* ═══ Shadows ═══ */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --shadow-hover: 0 12px 40px rgba(13, 92, 99, 0.15);
+
+  /* ═══ Motion Tokens ═══ */
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+  --duration-slow: 350ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* ─── Dark Mode Surface Overrides ─── */
@@ -89,6 +114,9 @@
   --color-primary-700: #C5E6E9;
   --color-primary-800: #E8F4F5;
   --color-primary-900: #F0F9FA;
+
+  /* Dark-mode shadow overrides — more pronounced depth */
+  --shadow-hover: 0 12px 40px rgba(13, 92, 99, 0.25);
 }
 
 /* ─── Sidebar Colour (static, not theme-dependent) ─── */
