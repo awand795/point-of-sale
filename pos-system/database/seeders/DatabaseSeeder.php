@@ -259,8 +259,8 @@ class DatabaseSeeder extends Seeder
 
         // === Stores ===
         $stores = [
-            ['name' => 'LuxePOS Pusat', 'code' => 'PST', 'address' => 'Jl. Thamrin No. 1, Jakarta Pusat', 'phone' => '021-5550101', 'email' => 'pusat@luxepos.com'],
-            ['name' => 'LuxePOS Cabang Bandung', 'code' => 'BDG', 'address' => 'Jl. Braga No. 25, Bandung', 'phone' => '022-5550202', 'email' => 'bandung@luxepos.com'],
+            ['name' => 'BikinPOS Pusat', 'code' => 'PST', 'address' => 'Jl. Thamrin No. 1, Jakarta Pusat', 'phone' => '021-5550101', 'email' => 'pusat@bikinpos.com'],
+            ['name' => 'BikinPOS Cabang Bandung', 'code' => 'BDG', 'address' => 'Jl. Braga No. 25, Bandung', 'phone' => '022-5550202', 'email' => 'bandung@bikinpos.com'],
         ];
         foreach ($stores as $s) {
             Store::firstOrCreate(['code' => $s['code']], $s);
@@ -268,17 +268,17 @@ class DatabaseSeeder extends Seeder
 
         // === Settings ===
         $settingData = [
-            ['key' => 'app_name', 'value' => 'LuxePOS Enterprise', 'group' => 'general'],
+            ['key' => 'app_name', 'value' => 'BikinPOS Enterprise', 'group' => 'general'],
             ['key' => 'app_description', 'value' => 'Premium Point of Sale System for Modern Retail', 'group' => 'general'],
             ['key' => 'currency', 'value' => 'IDR', 'group' => 'general'],
             ['key' => 'tax_rate', 'value' => '11', 'group' => 'general'],
-            ['key' => 'company_name', 'value' => 'PT LuxePOS Teknologi Indonesia', 'group' => 'business'],
+            ['key' => 'company_name', 'value' => 'PT BikinPOS Teknologi Indonesia', 'group' => 'business'],
             ['key' => 'company_address', 'value' => 'Jl. Thamrin No. 1, Jakarta Pusat', 'group' => 'business'],
             ['key' => 'company_phone', 'value' => '021-5550101', 'group' => 'business'],
-            ['key' => 'company_email', 'value' => 'hello@luxepos.com', 'group' => 'business'],
+            ['key' => 'company_email', 'value' => 'hello@bikinpos.com', 'group' => 'business'],
             ['key' => 'tax_id', 'value' => '12.345.678.9-012.345', 'group' => 'business'],
-            ['key' => 'receipt_footer', 'value' => 'Terima kasih telah berbelanja di LuxePOS!', 'group' => 'receipt'],
-            ['key' => 'receipt_header', 'value' => 'LuxePOS Enterprise — Premium Retail Solution', 'group' => 'receipt'],
+            ['key' => 'receipt_footer', 'value' => 'Terima kasih telah berbelanja di BikinPOS!', 'group' => 'receipt'],
+            ['key' => 'receipt_header', 'value' => 'BikinPOS Enterprise — Premium Retail Solution', 'group' => 'receipt'],
             ['key' => 'show_logo', 'value' => 'true', 'group' => 'receipt'],
             ['key' => 'low_stock_alert', 'value' => 'true', 'group' => 'notifications'],
             ['key' => 'daily_report', 'value' => 'true', 'group' => 'notifications'],
@@ -290,7 +290,7 @@ class DatabaseSeeder extends Seeder
 
         // === User Alerts ===
         $alerts = [
-            ['user_id' => $admin->id, 'type' => 'info', 'title' => 'Selamat Datang!', 'message' => 'Selamat datang di LuxePOS Enterprise. Mulai kelola bisnis Anda dengan lebih mudah!', 'is_read' => false],
+            ['user_id' => $admin->id, 'type' => 'info', 'title' => 'Selamat Datang!', 'message' => 'Selamat datang di BikinPOS Enterprise. Mulai kelola bisnis Anda dengan lebih mudah!', 'is_read' => false],
             ['user_id' => $admin->id, 'type' => 'success', 'title' => 'Sistem Siap Digunakan', 'message' => 'Semua fitur telah aktif. Anda dapat mulai melakukan transaksi POS sekarang.', 'is_read' => false],
             ['user_id' => $demoUser->id, 'type' => 'info', 'title' => 'Welcome to Demo Mode!', 'message' => 'You are in demo mode. All data shown is dummy data for demonstration purposes.', 'is_read' => false],
             ['user_id' => $cashier->id, 'type' => 'info', 'title' => 'Shift Dimulai', 'message' => 'Selamat bertugas! Pastikan untuk memeriksa stok produk sebelum memulai transaksi.', 'is_read' => false],

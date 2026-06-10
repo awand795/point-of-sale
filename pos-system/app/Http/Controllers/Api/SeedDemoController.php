@@ -57,7 +57,7 @@ class SeedDemoController extends Controller
                 'user_id' => $user->id,
                 'type' => 'success',
                 'title' => '🎉 Demo Data Siap!',
-                'message' => 'Data demo telah berhasil dimuat. Anda bisa menjelajahi semua fitur LuxePOS dengan data contoh yang sudah disediakan.',
+                'message' => 'Data demo telah berhasil dimuat. Anda bisa menjelajahi semua fitur BikinPOS dengan data contoh yang sudah disediakan.',
                 'is_read' => false,
             ]);
 
@@ -164,8 +164,8 @@ class SeedDemoController extends Controller
     private function seedStores()
     {
         $stores = [
-            ['name' => 'LuxePOS Pusat', 'code' => 'PST', 'address' => 'Jl. Thamrin No. 1, Jakarta Pusat', 'phone' => '021-5550101', 'email' => 'pusat@luxepos.com'],
-            ['name' => 'LuxePOS Cabang Bandung', 'code' => 'BDG', 'address' => 'Jl. Braga No. 25, Bandung', 'phone' => '022-5550202', 'email' => 'bandung@luxepos.com'],
+            ['name' => 'BikinPOS Pusat', 'code' => 'PST', 'address' => 'Jl. Thamrin No. 1, Jakarta Pusat', 'phone' => '021-5550101', 'email' => 'pusat@bikinpos.com'],
+            ['name' => 'BikinPOS Cabang Bandung', 'code' => 'BDG', 'address' => 'Jl. Braga No. 25, Bandung', 'phone' => '022-5550202', 'email' => 'bandung@bikinpos.com'],
         ];
         foreach ($stores as $s) { Store::create($s); }
     }
@@ -173,17 +173,17 @@ class SeedDemoController extends Controller
     private function seedSettings()
     {
         $settingData = [
-            ['key' => 'app_name', 'value' => 'LuxePOS Enterprise', 'group' => 'general'],
+            ['key' => 'app_name', 'value' => 'BikinPOS Enterprise', 'group' => 'general'],
             ['key' => 'app_description', 'value' => 'Premium Point of Sale System for Modern Retail', 'group' => 'general'],
             ['key' => 'currency', 'value' => 'IDR', 'group' => 'general'],
             ['key' => 'tax_rate', 'value' => '11', 'group' => 'general'],
-            ['key' => 'company_name', 'value' => 'PT LuxePOS Teknologi Indonesia', 'group' => 'business'],
+            ['key' => 'company_name', 'value' => 'PT BikinPOS Teknologi Indonesia', 'group' => 'business'],
             ['key' => 'company_address', 'value' => 'Jl. Thamrin No. 1, Jakarta Pusat', 'group' => 'business'],
             ['key' => 'company_phone', 'value' => '021-5550101', 'group' => 'business'],
-            ['key' => 'company_email', 'value' => 'hello@luxepos.com', 'group' => 'business'],
+            ['key' => 'company_email', 'value' => 'hello@bikinpos.com', 'group' => 'business'],
             ['key' => 'tax_id', 'value' => '12.345.678.9-012.345', 'group' => 'business'],
-            ['key' => 'receipt_footer', 'value' => 'Terima kasih telah berbelanja di LuxePOS!', 'group' => 'receipt'],
-            ['key' => 'receipt_header', 'value' => 'LuxePOS Enterprise — Premium Retail Solution', 'group' => 'receipt'],
+            ['key' => 'receipt_footer', 'value' => 'Terima kasih telah berbelanja di BikinPOS!', 'group' => 'receipt'],
+            ['key' => 'receipt_header', 'value' => 'BikinPOS Enterprise — Premium Retail Solution', 'group' => 'receipt'],
             ['key' => 'show_logo', 'value' => 'true', 'group' => 'receipt'],
             ['key' => 'low_stock_alert', 'value' => 'true', 'group' => 'notifications'],
             ['key' => 'daily_report', 'value' => 'true', 'group' => 'notifications'],

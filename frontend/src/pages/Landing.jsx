@@ -88,7 +88,7 @@ const FeatureCard = ({ icon, title, desc, gradient, delay }) => (
 // ─── Testimonial ────────────────────────────────────────────
 const Testimonials = ({ t }) => {
     const testimonials = [
-        { name: 'Sarah Chen', role: 'Retail Owner', avatar: 'SC', text: 'LuxePOS transformed our checkout process. Revenue increased 40% in the first month.', rating: 5 },
+        { name: 'Sarah Chen', role: 'Retail Owner', avatar: 'SC', text: 'BikinPOS transformed our checkout process. Revenue increased 40% in the first month.', rating: 5 },
         { name: 'Marcus Rivera', role: 'Restaurant Manager', avatar: 'MR', text: 'The inventory tracking is a game-changer. We reduced waste by 60%.', rating: 5 },
         { name: 'Aisha Patel', role: 'E-commerce Director', avatar: 'AP', text: 'Beautiful interface, powerful analytics. Best POS investment we have made.', rating: 5 },
     ];
@@ -152,7 +152,7 @@ const Landing = () => {
                         <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-200 rotate-3 group-hover:rotate-6 transition-transform duration-300">
                             <Store size={22} className="text-white -rotate-3" />
                         </div>
-                        <h1 className="font-black text-xl tracking-tighter">LUXE<span className="text-primary-500">POS</span></h1>
+                        <h1 className="font-black text-xl tracking-tighter">Bikin<span className="text-primary-500">POS</span></h1>
                     </Link>
 
                     <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-500">
@@ -330,8 +330,8 @@ const Landing = () => {
                     </h2>
                     <p className="text-lg md:text-xl text-slate-300 font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
                         {locale === 'id'
-                            ? 'Mulai hari ini dan rasakan kemudahan mengelola bisnis dengan LuxePOS. Gratis untuk dicoba!'
-                            : 'Start today and experience the ease of managing your business with LuxePOS. Free to try!'}
+                            ? 'Mulai hari ini dan rasakan kemudahan mengelola bisnis dengan BikinPOS. Gratis untuk dicoba!'
+                            : 'Start today and experience the ease of managing your business with BikinPOS. Free to try!'}
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Link to="/login?demo=true"
@@ -360,7 +360,7 @@ const Landing = () => {
                             <div className="w-8 h-8 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <Store size={18} className="text-white" />
                             </div>
-                            <h1 className="font-black text-lg tracking-tighter">LUXE<span className="text-primary-500">POS</span></h1>
+                            <h1 className="font-black text-lg tracking-tighter">Bikin<span className="text-primary-500">POS</span></h1>
                         </Link>
 
                         <div className="flex items-center gap-8">

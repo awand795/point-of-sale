@@ -55,7 +55,7 @@ const translations = {
       terms: 'Ketentuan Layanan',
       contact: 'Hubungi Kami',
       createdBy: 'Dibuat dengan ❤️ oleh',
-      rights: '© 2026 LuxePOS Enterprise. Hak cipta dilindungi.',
+      rights: '© 2026 BikinPOS Enterprise. Hak cipta dilindungi.',
     },
     // Pricing
     pricing: {
@@ -119,7 +119,7 @@ const translations = {
       mission: 'Misi Kami',
       missionText: 'Memberdayakan bisnis lokal dengan teknologi POS modern yang mudah digunakan, terjangkau, dan dapat diandalkan. Kami percaya bahwa setiap bisnis berhak mendapatkan alat terbaik untuk berkembang di era digital.',
       story: 'Cerita Kami',
-      storyText: 'LuxePOS lahir dari kebutuhan akan sistem POS yang tidak hanya fungsional tetapi juga premium. Dikembangkan oleh tim BikinSite, kami menggabungkan pengalaman bertahun-tahun dalam pengembangan web untuk menciptakan solusi yang tepat guna.',
+      storyText: 'BikinPOS lahir dari kebutuhan akan sistem POS yang tidak hanya fungsional tetapi juga premium. Dikembangkan oleh tim BikinSite, kami menggabungkan pengalaman bertahun-tahun dalam pengembangan web untuk menciptakan solusi yang tepat guna.',
       creator: 'Dikembangkan oleh',
       bikinsite: {
         title: 'BikinSite',
@@ -148,7 +148,7 @@ const translations = {
     // Login
     login: {
       welcomeBack: 'Selamat Datang',
-      subtitle: 'Akses terminal LuxePOS Anda',
+      subtitle: 'Akses terminal BikinPOS Anda',
       demoMode: 'Mode Demo Aktif',
       demoText: 'Kami telah mengisi kredensial untuk Anda. Cukup klik Masuk untuk menjelajah!',
       email: 'Alamat Email',
@@ -359,7 +359,7 @@ const translations = {
       terms: 'Terms of Service',
       contact: 'Contact Support',
       createdBy: 'Created with ❤️ by',
-      rights: '© 2026 LuxePOS Enterprise. All rights reserved.',
+      rights: '© 2026 BikinPOS Enterprise. All rights reserved.',
     },
     pricing: {
       title: 'Choose Your Plan',
@@ -421,7 +421,7 @@ const translations = {
       mission: 'Our Mission',
       missionText: 'Empowering local businesses with modern POS technology that is easy to use, affordable, and reliable. We believe every business deserves the best tools to thrive in the digital era.',
       story: 'Our Story',
-      storyText: 'LuxePOS was born from the need for a POS system that is both functional and premium. Developed by the BikinSite team, we combine years of web development experience to create practical solutions.',
+      storyText: 'BikinPOS was born from the need for a POS system that is both functional and premium. Developed by the BikinSite team, we combine years of web development experience to create practical solutions.',
       creator: 'Developed by',
       bikinsite: {
         title: 'BikinSite',
@@ -449,7 +449,7 @@ const translations = {
     },
     login: {
       welcomeBack: 'Welcome Back',
-      subtitle: 'Access your LuxePOS terminal',
+      subtitle: 'Access your BikinPOS terminal',
       demoMode: 'Demo Mode Active',
       demoText: "We've pre-filled the credentials for you. Just click Sign In to explore!",
       email: 'Email Address',

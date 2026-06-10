@@ -61,8 +61,8 @@ const discounts = [
 ].map(d => ({ ...d, start_date: now.toISOString().split('T')[0], end_date: new Date(now.getTime()+30*86400000).toISOString().split('T')[0], created_at: now.toISOString() }));
 
 const stores = [
-    { id: 1, name: 'LuxePOS Pusat', code: 'PST', address: 'Jl. Thamrin No. 1, Jakarta Pusat', phone: '021-5550101', email: 'pusat@luxepos.com', is_active: true },
-    { id: 2, name: 'LuxePOS Cabang Bandung', code: 'BDG', address: 'Jl. Braga No. 25, Bandung', phone: '022-5550202', email: 'bandung@luxepos.com', is_active: true },
+    { id: 1, name: 'BikinPOS Pusat', code: 'PST', address: 'Jl. Thamrin No. 1, Jakarta Pusat', phone: '021-5550101', email: 'pusat@bikinpos.com', is_active: true },
+    { id: 2, name: 'BikinPOS Cabang Bandung', code: 'BDG', address: 'Jl. Braga No. 25, Bandung', phone: '022-5550202', email: 'bandung@bikinpos.com', is_active: true },
 ].map(s => ({ ...s, created_at: now.toISOString() }));
 
 const transactionItems = [
@@ -85,8 +85,8 @@ const purchases = [{
 }];
 
 const settings = {
-    general: [{ key: 'app_name', value: 'LuxePOS Enterprise', group: 'general' }, { key: 'currency', value: 'IDR', group: 'general' }, { key: 'tax_rate', value: '11', group: 'general' }],
-    business: [{ key: 'company_name', value: 'PT LuxePOS Teknologi Indonesia', group: 'business' }, { key: 'company_email', value: 'hello@luxepos.com', group: 'business' }],
+    general: [{ key: 'app_name', value: 'BikinPOS Enterprise', group: 'general' }, { key: 'currency', value: 'IDR', group: 'general' }, { key: 'tax_rate', value: '11', group: 'general' }],
+    business: [{ key: 'company_name', value: 'PT BikinPOS Teknologi Indonesia', group: 'business' }, { key: 'company_email', value: 'hello@bikinpos.com', group: 'business' }],
     receipt: [{ key: 'receipt_footer', value: 'Terima kasih!', group: 'receipt' }],
     notifications: [{ key: 'low_stock_alert', value: 'true', group: 'notifications' }],
 };
@@ -159,13 +159,13 @@ export function handleDemoRequest(method, url, data, params) {
     }
 
     if (resource === 'login' && method === 'post') {
-        return respond({ status: 'success', message: 'Login successfully', data: { user: demoUser, token: 'demo-token-luxepos' } });
+        return respond({ status: 'success', message: 'Login successfully', data: { user: demoUser, token: 'demo-token-bikinpos' } });
     }
     if (resource === 'logout' && method === 'post') {
         return respond({ status: 'success', message: 'Logout successfully' });
     }
     if (resource === 'register' && method === 'post') {
-        return respond({ status: 'success', message: 'Register successfully', data: { user: demoUser, token: 'demo-token-luxepos' } }, 201);
+        return respond({ status: 'success', message: 'Register successfully', data: { user: demoUser, token: 'demo-token-bikinpos' } }, 201);
     }
     if (resource === 'me' && method === 'get') {
         return respond({ status: 'success', data: demoUser });

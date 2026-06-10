@@ -57,4 +57,4 @@ Setelah Anda memasukkan semua variabel di atas ke Vercel:
 3. Pilih **Redeploy**.
 4. Proses build akan berjalan ulang dan otomatis menggunakan variabel yang baru saja Anda masukkan.
 
-Aplikasi LuxePOS Enterprise Anda sekarang sudah berjalan penuh di cloud!
+Aplikasi BikinPOS Enterprise Anda sekarang sudah berjalan penuh di cloud!

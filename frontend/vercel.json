@@ -10,7 +10,7 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://luxepos-backend.vercel.app/api",
+    "VITE_API_URL": "https://bikinpos-backend.vercel.app/api",
     "VITE_SUPABASE_URL": "https://kmuqkviozrzmyynyueof.supabase.co",
     "VITE_SUPABASE_ANON_KEY": "sb_publishable_izXrYm8ZWPn6XA8R8YfA5A_Ni34wl66"
   }

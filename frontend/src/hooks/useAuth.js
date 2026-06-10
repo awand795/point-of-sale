@@ -56,7 +56,7 @@ export const useAuth = () => {
                 last_login_at: new Date().toISOString(),
                 roles: [{ id: 1, name: 'admin', guard_name: 'web' }],
             };
-            localStorage.setItem("token", "demo-token-luxepos");
+            localStorage.setItem("token", "demo-token-bikinpos");
             localStorage.setItem("user", JSON.stringify(demoUserData));
             localStorage.setItem("isDemo", "true");
             setUser(demoUserData);
