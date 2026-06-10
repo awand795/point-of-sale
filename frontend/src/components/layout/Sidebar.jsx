@@ -84,7 +84,7 @@ const Sidebar = () => {
                     <Store size={22} className="text-white -rotate-3" />
                 </div>
                 <div>
-                    <h1 className="text-white font-black text-xl tracking-tighter leading-none">LUXE<span className="text-primary-500">POS</span></h1>
+                    <h1 className="text-white font-black text-xl tracking-tighter leading-none">Bikin<span className="text-primary-500">POS</span></h1>
                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">{t('sidebar.enterprise')}</p>
                 </div>
             </div>

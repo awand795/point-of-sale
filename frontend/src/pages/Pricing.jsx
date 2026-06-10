@@ -18,7 +18,7 @@ const Pricing = () => {
             <div className="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-100 rotate-3">
               <Store size={22} className="text-white -rotate-3" />
             </div>
-            <h1 className="font-black text-xl tracking-tighter leading-none">LUXE<span className="text-primary-500">POS</span></h1>
+            <h1 className="font-black text-xl tracking-tighter leading-none">Bikin<span className="text-primary-500">POS</span></h1>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-500">
             <Link to="/" className="hover:text-primary-600 transition-colors">{t('nav.features')}</Link>
@@ -146,7 +146,7 @@ const Pricing = () => {
               <div className="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center">
                 <Store size={18} className="text-white" />
               </div>
-              <h1 className="font-black text-lg tracking-tighter">LUXE<span className="text-primary-500">POS</span></h1>
+              <h1 className="font-black text-lg tracking-tighter">Bikin<span className="text-primary-500">POS</span></h1>
             </Link>
             <div className="flex gap-10 text-[10px] font-black text-slate-400 uppercase tracking-widest">
               <a href="#" className="hover:text-primary-600 transition-colors">{t('footer.privacy')}</a>
