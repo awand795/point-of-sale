@@ -571,7 +571,7 @@ export const exportReceiptPdf = (data, options = {}) => {
         }
 
         thinDivider(y);
-        y += 4;
+        y += 5;
 
         // ── Totals ──
         doc.setFontSize(7.5);
@@ -589,18 +589,20 @@ export const exportReceiptPdf = (data, options = {}) => {
             doc.setFont('helvetica', 'normal');
             doc.text(row.label, leftCol, y);
             doc.text(row.value, rightCol, y, { align: 'right' });
-            y += 4;
+            y += 4.5;
         });
 
-        // Total (bold, larger)
+        // ── TOTAL (bold, larger) ──
+        // Give extra spacing so 11pt text (~3.9mm tall) doesn't overlap with divider
+        y += 3;
+        divider(y);
+        y += 4.5;
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
         doc.setTextColor(0, 0, 0);
-        divider(y - 0.5);
-        y += 2;
         doc.text('TOTAL', leftCol, y);
         doc.text(fmtCurrency(data.total), rightCol, y, { align: 'right' });
-        y += 7;
+        y += 8;
 
         // ── Footer ──
         doc.setFont('helvetica', 'normal');
