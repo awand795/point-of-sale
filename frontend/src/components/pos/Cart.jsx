@@ -688,17 +688,12 @@ const Cart = ({ cart }) => {
                 <button
                     onClick={handleCheckout}
                     disabled={isEmpty || processing || !isValidPayment}
-                    className="w-full h-12 bg-primary-500 hover:bg-primary-600 disabled:bg-slate-200 dark:disabled:bg-slate-700 disabled:text-slate-400 dark:disabled:text-slate-500 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all active:scale-[0.98] flex items-center justify-between px-5 shadow-sm"
+                    className="w-full py-3.5 bg-[#FF6B35] hover:bg-[#E55A2B] disabled:bg-slate-200 dark:disabled:bg-slate-700 disabled:text-slate-400 dark:disabled:text-slate-500 disabled:cursor-not-allowed text-white text-[15px] font-bold rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md shadow-[#FF6B35]/25"
                 >
-                    <div className="flex items-center gap-2">
-                        {processing ? (
-                            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                        ) : <ShoppingCart size={18} />}
-                        <span>{processing ? t('pos.processing') : t('pos.completeTransaction')}</span>
-                    </div>
-                    {!processing && (
-                        <span className="tabular-nums">Rp {total.toLocaleString('id-ID')}</span>
-                    )}
+                    {processing ? (
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                    ) : <CreditCard size={18} />}
+                    <span>{processing ? t('pos.processing') : `${t('pos.completeTransaction')} — Rp ${total.toLocaleString('id-ID')}`}</span>
                 </button>
             </div>
             )}

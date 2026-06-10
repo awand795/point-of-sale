@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Store, ArrowLeft, Check, Zap } from 'lucide-react';
+import { Store, ArrowRight, Check, Zap, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 
 const Pricing = () => {
@@ -10,25 +10,43 @@ const Pricing = () => {
   const plans = t('pricing.plans');
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-slate-100 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-100 rotate-3">
-              <Store size={22} className="text-white -rotate-3" />
+    <div className="min-h-screen bg-surface text-slate-900 dark:text-white overflow-x-hidden font-['Geist',system-ui,sans-serif]">
+      {/* Navbar — Floating Pill Island (matches Landing) */}
+      <nav className="fixed top-3 left-1/2 -translate-x-1/2 z-50">
+        <div className="flex items-center gap-1 px-1.5 py-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/60 dark:border-white/[0.08] shadow-sm rounded-2xl">
+          <Link to="/" className="flex items-center gap-2 px-3 py-1.5 group">
+            <div className="w-7 h-7 bg-primary-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Store size={16} className="text-white" />
             </div>
-            <h1 className="font-black text-xl tracking-tighter leading-none">Bikin<span className="text-primary-500">POS</span></h1>
+            <span className="font-bold text-[15px] tracking-[-0.03em]">
+              Bikin<span className="text-primary-500">POS</span>
+            </span>
+          </Link>
+          <div className="hidden md:flex items-center gap-0.5 ml-1">
+            {[
+              { href: '/', label: t('nav.features'), isLink: true },
+              { href: '/pricing', label: t('nav.pricing'), isLink: true, active: true },
+              { href: '/about', label: t('nav.about'), isLink: true },
+            ].map((item) => (
+              <Link
+                key={item.label}
+                to={item.href}
+                className={`px-3.5 py-1.5 text-[14px] font-medium rounded-xl transition-all ${
+                  item.active
+                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06]'
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-500">
-            <Link to="/" className="hover:text-primary-600 transition-colors">{t('nav.features')}</Link>
-            <Link to="/pricing" className="text-primary-600">{t('nav.pricing')}</Link>
-            <Link to="/about" className="hover:text-primary-600 transition-colors">{t('nav.about')}</Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="/login" className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">{t('nav.signIn')}</Link>
-            <Link to="/login?demo=true" className="px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-2xl hover:bg-primary-600 shadow-xl shadow-slate-200 transition-all active:scale-95 flex items-center gap-2">
-              {t('nav.tryDemo')} <ArrowLeft size={16} className="rotate-180" />
+          <div className="flex items-center gap-1.5 ml-1">
+            <Link to="/login" className="hidden sm:block px-3.5 py-1.5 text-[14px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all">
+              {t('nav.signIn')}
+            </Link>
+            <Link to="/login?demo=true" className="px-4 py-1.5 bg-primary-500 text-white text-[14px] font-semibold rounded-xl hover:bg-primary-600 transition-all active:scale-95 flex items-center gap-1.5 shadow-sm">
+              {t('nav.tryDemo')} <ArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -36,38 +54,34 @@ const Pricing = () => {
 
       {/* Hero */}
       <section className="relative pt-40 pb-20 px-6">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none opacity-50">
-          <div className="absolute top-40 left-1/4 w-96 h-96 bg-primary-100 rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-20 right-1/4 w-80 h-80 bg-violet-100 rounded-full blur-[100px]"></div>
-        </div>
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-full mb-8">
-            <span className="flex h-2 w-2 rounded-full bg-primary-500 animate-pulse"></span>
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t('pricing.popular')}</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-primary-50 dark:bg-primary-500/10 border border-primary-100 dark:border-primary-500/20 rounded-full mb-8">
+            <Sparkles size={14} className="text-primary-600 dark:text-primary-400" />
+            <span className="text-[13px] font-medium text-primary-700 dark:text-primary-300">{t('pricing.popular')}</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-slate-900 leading-[0.9] mb-6">
+          <h1 className="text-[48px] md:text-[64px] font-bold tracking-[-0.03em] text-slate-900 dark:text-white leading-[0.95] mb-6">
             {t('pricing.title')}
           </h1>
-          <p className="max-w-2xl mx-auto text-lg text-slate-500 font-medium leading-relaxed mb-12">
+          <p className="max-w-2xl mx-auto text-[16px] text-slate-500 dark:text-slate-400 leading-relaxed mb-12">
             {t('pricing.subtitle')}
           </p>
 
           {/* Toggle Monthly/Yearly */}
           <div className="flex items-center justify-center gap-4">
-            <span className={`text-sm font-bold ${!isYearly ? 'text-slate-900' : 'text-slate-400'} transition-colors`}>{t('pricing.monthly')}</span>
+            <span className={`text-[14px] font-medium ${!isYearly ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'} transition-colors`}>{t('pricing.monthly')}</span>
             <button
               onClick={() => setIsYearly(!isYearly)}
-              className={`relative w-16 h-8 rounded-full transition-all duration-300 ${
-                isYearly ? 'bg-primary-600' : 'bg-slate-200'
+              className={`relative w-14 h-7 rounded-full transition-all duration-300 ${
+                isYearly ? 'bg-primary-500' : 'bg-slate-200 dark:bg-white/[0.10]'
               }`}
             >
-              <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${
-                isYearly ? 'left-9' : 'left-1'
+              <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${
+                isYearly ? 'left-7.5' : 'left-0.5'
               }`}></div>
             </button>
-            <span className={`text-sm font-bold ${isYearly ? 'text-slate-900' : 'text-slate-400'} transition-colors`}>{t('pricing.yearly')}</span>
+            <span className={`text-[14px] font-medium ${isYearly ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'} transition-colors`}>{t('pricing.yearly')}</span>
             {isYearly && (
-              <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-widest">
+              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-1 rounded-lg">
                 Hemat 20%
               </span>
             )}
@@ -78,7 +92,7 @@ const Pricing = () => {
       {/* Pricing Cards */}
       <section className="pb-32 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {plans.map((plan, idx) => {
               const price = isYearly ? Math.round((locale === 'id' ? plan.priceId : plan.priceEn) * 0.8) : (locale === 'id' ? plan.priceId : plan.priceEn);
               const isPopular = idx === 1;
@@ -86,47 +100,49 @@ const Pricing = () => {
               return (
                 <div
                   key={idx}
-                  className={`relative bg-white rounded-[2.5rem] border shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2 ${
+                  className={`relative bg-white dark:bg-surface-raised rounded-2xl border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
                     isPopular
-                      ? 'border-primary-200 shadow-xl shadow-primary-100/50 ring-2 ring-primary-500/20'
-                      : 'border-slate-100'
+                      ? 'border-primary-300 dark:border-primary-500/40 shadow-md shadow-primary-100 dark:shadow-primary-900/20'
+                      : 'border-slate-200 dark:border-white/[0.06]'
                   }`}
                 >
                   {isPopular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary-600 to-violet-600 text-white text-[10px] font-black uppercase tracking-[0.3em] px-6 py-1.5 rounded-full shadow-lg">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary-500 text-white text-[11px] font-semibold px-5 py-1 rounded-full shadow-sm">
                       {t('pricing.popular')}
                     </div>
                   )}
-                  <div className="p-10">
-                    <div className="mb-8">
-                      <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">{plan.name}</h3>
-                      <p className="text-sm text-slate-500 font-medium">{plan.desc}</p>
+                  <div className="p-7">
+                    <div className="mb-6">
+                      <h3 className="text-[18px] font-bold text-slate-900 dark:text-white tracking-tight mb-1.5">{plan.name}</h3>
+                      <p className="text-[14px] text-slate-500 dark:text-slate-400">{plan.desc}</p>
                     </div>
-                    <div className="mb-8">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-sm font-bold text-slate-400">Rp</span>
-                        <span className="text-5xl font-black text-slate-900 tracking-tighter">{price.toLocaleString('id-ID')}</span>
+                    <div className="mb-7">
+                      <div className="flex items-baseline gap-1 mb-1">
+                        <span className="text-[14px] font-medium text-slate-400">Rp</span>
+                        <span className="text-[48px] font-bold tracking-[-0.03em] text-slate-900 dark:text-white">
+                          {price.toLocaleString('id-ID')}
+                        </span>
                       </div>
-                      <p className="text-xs text-slate-400 font-medium mt-1">/{isYearly ? 'tahun' : 'bulan'}</p>
+                      <p className="text-[13px] text-slate-400">/{isYearly ? 'tahun' : 'bulan'}</p>
                     </div>
                     <Link
                       to={idx === 2 ? '/contact' : '/login?demo=true'}
-                      className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 mb-10 ${
+                      className={`w-full py-3 rounded-xl text-[14px] font-semibold transition-all flex items-center justify-center gap-2 mb-8 ${
                         isPopular
-                          ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-xl shadow-primary-200'
-                          : 'bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-200'
+                          ? 'bg-[#FF6B35] text-white hover:bg-[#E55A2B] shadow-sm shadow-[#FF6B35]/25'
+                          : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100'
                       }`}
                     >
-                      <Zap size={14} />
+                      <Zap size={16} />
                       {idx === 2 ? t('pricing.contactSales') : t('pricing.getStarted')}
                     </Link>
-                    <ul className="space-y-4">
+                    <ul className="space-y-3">
                       {plan.features.map((feature, fIdx) => (
-                        <li key={fIdx} className="flex items-start gap-3">
-                          <div className="w-5 h-5 bg-primary-50 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
-                            <Check size={12} className="text-primary-600" />
+                        <li key={fIdx} className="flex items-start gap-2.5">
+                          <div className="w-4 h-4 rounded-md bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <Check size={10} className="text-primary-600 dark:text-primary-400" />
                           </div>
-                          <span className="text-sm font-medium text-slate-600">{feature}</span>
+                          <span className="text-[14px] text-slate-600 dark:text-slate-400">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -138,30 +154,30 @@ const Pricing = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-100 py-20">
+      {/* Footer (matches Landing) */}
+      <footer className="bg-surface border-t border-slate-200 dark:border-white/[0.06] py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-10">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center">
-                <Store size={18} className="text-white" />
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="w-7 h-7 bg-primary-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Store size={16} className="text-white" />
               </div>
-              <h1 className="font-black text-lg tracking-tighter">Bikin<span className="text-primary-500">POS</span></h1>
+              <span className="font-bold text-[15px] tracking-[-0.03em]">
+                Bikin<span className="text-primary-500">POS</span>
+              </span>
             </Link>
-            <div className="flex gap-10 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              <a href="#" className="hover:text-primary-600 transition-colors">{t('footer.privacy')}</a>
-              <a href="#" className="hover:text-primary-600 transition-colors">{t('footer.terms')}</a>
-              <a href="#" className="hover:text-primary-600 transition-colors">{t('footer.contact')}</a>
+            <div className="flex items-center gap-6">
+              <a href="#" className="text-[14px] font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">{t('footer.privacy')}</a>
+              <a href="#" className="text-[14px] font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">{t('footer.terms')}</a>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-bold text-slate-400">
-                {t('footer.createdBy')} <Link to="/about" className="text-slate-900 font-black tracking-tighter hover:text-primary-600 transition-colors">bikinsite</Link>
-              </p>
-            </div>
+            <p className="text-[14px] text-slate-400">
+              {t('footer.createdBy')}{' '}
+              <Link to="/about" className="font-medium text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">bikinsite</Link>
+            </p>
           </div>
-          <div className="mt-16 pt-8 border-t border-slate-50 text-center">
-            <p className="text-[10px] text-slate-300 font-black uppercase tracking-[0.2em]">{t('footer.rights')}</p>
-          </div>
+          <p className="text-center mt-8 text-[13px] text-slate-300 dark:text-slate-600">
+            {t('footer.rights')}
+          </p>
         </div>
       </footer>
     </div>

@@ -52,9 +52,12 @@ const DataTable = ({
 
     if (loading) {
         return (
-            <div className="bg-surface dark:bg-surface-raised rounded-xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden">
+            <div className="bg-white dark:bg-surface-raised rounded-2xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden">
                 <div className="p-8 flex items-center justify-center">
-                    <div className="w-6 h-6 border-2 border-slate-200 dark:border-white/[0.06] border-t-primary-500 rounded-full animate-spin" />
+                    <div className="relative w-8 h-8">
+                        <div className="absolute inset-0 rounded-full border-3 border-slate-200 dark:border-white/[0.08]" />
+                        <div className="absolute inset-0 rounded-full border-3 border-primary-500 border-t-transparent animate-spin" />
+                    </div>
                 </div>
             </div>
         );
@@ -65,15 +68,17 @@ const DataTable = ({
     }
 
     return (
-        <div className="bg-surface dark:bg-surface-raised rounded-xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden">
+        <div className="bg-white dark:bg-surface-raised rounded-2xl border border-slate-200/70 dark:border-white/[0.06] overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
                     <thead>
-                        <tr className="border-b border-slate-100 dark:border-white/[0.06]">
+                        <tr className="border-b border-slate-100 dark:border-white/[0.06]
+                            bg-slate-50/60 dark:bg-white/[0.02]">
                             {columns.map((col) => (
                                 <th
                                     key={col.key}
-                                    className={`px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 ${
+                                    className={`px-5 py-3.5 text-[12px] font-semibold
+                                        text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em] ${
                                         col.sortable ? 'cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 select-none' : ''
                                     } ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}
                                     onClick={() => col.sortable && handleSort(col.key)}
@@ -89,16 +94,16 @@ const DataTable = ({
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50 dark:divide-white/[0.04]">
+                    <tbody className="divide-y divide-slate-100/70 dark:divide-white/[0.04]">
                         {pageData.map((row, i) => (
                             <tr
                                 key={row.id ?? i}
-                                className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors group"
+                                className="hover:bg-slate-50/60 dark:hover:bg-white/[0.02] transition-colors group"
                             >
                                 {columns.map((col) => (
                                     <td
                                         key={col.key}
-                                        className={`px-4 py-3 text-sm ${
+                                        className={`px-5 py-3.5 ${
                                             col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                                         }`}
                                     >
@@ -113,15 +118,16 @@ const DataTable = ({
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-white/[0.06]">
-                    <p className="text-xs text-slate-400 dark:text-slate-500">
-                        Showing {start + 1}–{Math.min(start + pageSize, data.length)} of {data.length}
+                <div className="flex items-center justify-between px-5 py-3.5
+                    border-t border-slate-100 dark:border-white/[0.06]">
+                    <p className="text-[13px] text-slate-400 dark:text-slate-500">
+                        Menampilkan {start + 1}–{Math.min(start + pageSize, data.length)} dari {data.length}
                     </p>
                     <div className="flex items-center gap-1">
                         <button
                             onClick={() => goTo(page - 1)}
                             disabled={page <= 1}
-                            className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                             <ChevronLeft size={14} />
                         </button>
@@ -129,7 +135,7 @@ const DataTable = ({
                             <button
                                 key={p}
                                 onClick={() => goTo(p)}
-                                className={`w-7 h-7 flex items-center justify-center rounded-md text-xs font-medium transition-all ${
+                                className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium transition-all ${
                                     page === p
                                         ? 'bg-primary-500 text-white'
                                         : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
@@ -141,7 +147,7 @@ const DataTable = ({
                         <button
                             onClick={() => goTo(page + 1)}
                             disabled={page >= totalPages}
-                            className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                             <ChevronRight size={14} />
                         </button>

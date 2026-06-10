@@ -39,14 +39,14 @@ const POS = () => {
 
     return (
         <div className="h-[calc(100vh-5rem)] flex flex-col gap-4">
-            {/* Compact Top Bar */}
-            <div className="flex items-center justify-between px-1">
+            {/* Top Bar — premium card container */}
+            <div className="flex items-center justify-between px-1 py-0.5">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center">
-                        <Store size={16} className="text-primary-600 dark:text-primary-400" />
+                    <div className="w-9 h-9 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                        <Store size={18} className="text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
-                        <h1 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                        <h1 className="text-[16px] font-semibold tracking-[-0.01em] text-slate-900 dark:text-white flex items-center gap-2">
                             {t('pos.title')}
                             {isDemo && (
                                 <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[9px] font-medium rounded border border-amber-200 dark:border-amber-700/50">
@@ -59,7 +59,7 @@ const POS = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     {/* Register status pill */}
-                    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#161B22] border border-slate-200 dark:border-white/[0.08] rounded-lg">
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#161B22] border border-slate-200 dark:border-white/[0.08] rounded-lg shadow-sm">
                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full">
                             <span className="sr-only">Active</span>
                         </div>
@@ -68,7 +68,7 @@ const POS = () => {
                     {/* Mobile cart toggle */}
                     <button
                         onClick={() => setCartOpen(!cartOpen)}
-                        className="xl:hidden relative w-10 h-10 bg-white dark:bg-[#161B22] border border-slate-200 dark:border-white/[0.08] rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:border-primary-300 dark:hover:border-primary-500 transition-all"
+                        className="xl:hidden relative w-10 h-10 bg-white dark:bg-[#161B22] border border-slate-200 dark:border-white/[0.08] rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:border-primary-300 dark:hover:border-primary-500 transition-all"
                     >
                         <ShoppingCart size={18} />
                         {cart.itemCount > 0 && (
@@ -108,20 +108,20 @@ const POS = () => {
                         }}
                     >
                         <div
-                            className="shrink-0 flex items-center justify-between px-4 pt-3 pb-3 border-b border-slate-100 dark:border-white/[0.08]"
+                            className="shrink-0 flex items-center justify-between px-4 py-3.5 border-b border-slate-100 dark:border-white/[0.08]"
                             onTouchStart={handleTouchStart}
                             onTouchMove={handleTouchMove}
                             onTouchEnd={handleTouchEnd}
                         >
                             <div className="flex items-center gap-2">
-                                <div className="w-8 h-1 bg-slate-300 dark:bg-slate-600 rounded-full" />
+                                <div className="w-10 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full" />
                                 <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{t('pos.currentOrder')}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 {cart.itemCount > 0 && (
                                     <span className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">{cart.itemCount} items</span>
                                 )}
-                                <button onClick={() => setCartOpen(false)} className="w-7 h-7 bg-slate-100 dark:bg-white/[0.06] rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-all">
+                                <button onClick={() => setCartOpen(false)} className="w-7 h-7 bg-slate-100 dark:bg-white/[0.06] rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-all">
                                     <ChevronDown size={16} />
                                 </button>
                             </div>
@@ -137,7 +137,7 @@ const POS = () => {
             {!cartOpen && cart.itemCount > 0 && (
                 <button
                     onClick={() => setCartOpen(true)}
-                    className="xl:hidden fixed bottom-6 right-6 z-40 bg-primary-500 text-white px-5 py-3.5 rounded-xl shadow-xl flex items-center gap-3 active:scale-95 transition-transform"
+                    className="xl:hidden fixed bottom-6 right-6 z-40 bg-[#FF6B35] text-white px-5 py-3.5 rounded-2xl shadow-xl shadow-[#FF6B35]/30 flex items-center gap-3 active:scale-95 transition-transform"
                     style={{ animation: 'fadeInUp 0.4s ease-out' }}
                 >
                     <ShoppingCart size={18} />

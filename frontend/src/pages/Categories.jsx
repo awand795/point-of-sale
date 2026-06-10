@@ -8,7 +8,7 @@ import PageHeader from "../components/shared/PageHeader";
 import { LoadingSpinner } from "../components/shared/EmptyState";
 
 const Categories = () => {
-    const { t } = useLanguage();
+    const { t, locale } = useLanguage();
     const {
         categories,
         loading,
@@ -109,53 +109,62 @@ const Categories = () => {
                 onAction={openCreateModal}
             />
 
-            {/* Search — debounced */}
-            <div className="relative max-w-sm">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                    type="text"
-                    placeholder={t('categories.search')}
-                    value={searchTerm}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full pl-9 pr-4 h-9 bg-surface dark:bg-surface-raised border border-slate-200 dark:border-white/[0.12] rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 dark:focus:border-primary-400 transition-colors placeholder:text-slate-400 dark:placeholder-slate-500"
-                />
+            {/* Search */}
+            <div className="flex items-center gap-3 mb-5">
+                <div className="relative flex-1 max-w-sm">
+                    <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                        type="text"
+                        placeholder={t('categories.search')}
+                        value={searchTerm}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 h-10 bg-white dark:bg-surface-raised border border-slate-200 dark:border-white/[0.10] rounded-xl text-[14px] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all"
+                    />
+                </div>
             </div>
 
             {error && (
-                <div className="px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-lg text-xs font-medium text-red-600 dark:text-red-400">{error}</div>
+                <div className="flex items-center gap-3 px-4 py-3.5 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl">
+                    <div className="w-5 h-5 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                    <p className="text-[14px] font-medium text-red-700 dark:text-red-400">{error}</p>
+                </div>
             )}
 
-            <div className="bg-surface dark:bg-surface-raised rounded-xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden">
+            <div className="bg-white dark:bg-surface-raised rounded-2xl border border-slate-200/70 dark:border-white/[0.06] overflow-hidden shadow-sm">
                 <table className="min-w-full">
                     <thead>
-                        <tr className="border-b border-slate-100 dark:border-white/[0.06]">
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('categories.name')}</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('categories.description')}</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('categories.status')}</th>
-                            <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400">{t('categories.actions')}</th>
+                        <tr className="border-b border-slate-100 dark:border-white/[0.06] bg-slate-50/60 dark:bg-white/[0.02]">
+                            <th className="px-5 py-3.5 text-left text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('categories.name')}</th>
+                            <th className="px-5 py-3.5 text-left text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('categories.description')}</th>
+                            <th className="px-5 py-3.5 text-left text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('categories.status')}</th>
+                            <th className="px-5 py-3.5 text-right text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('categories.actions')}</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50 dark:divide-white/[0.04]">
+                    <tbody className="divide-y divide-slate-100/70 dark:divide-white/[0.04]">
                         {categories.length === 0 ? (
                             <tr>
-                                <td colSpan="4" className="px-4 py-12 text-center">
-                                    <FolderOpen size={28} className="mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-                                    <p className="text-sm text-slate-400 dark:text-slate-500">{t('categories.noCategories')}</p>
+                                <td colSpan="4" className="px-5 py-16 text-center">
+                                    <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-white/[0.04] flex items-center justify-center mx-auto mb-4">
+                                        <FolderOpen size={28} className="text-slate-300 dark:text-slate-600" />
+                                    </div>
+                                    <p className="text-[15px] font-semibold text-slate-500 dark:text-slate-400">{t('categories.noCategories')}</p>
                                 </td>
                             </tr>
                         ) : (
                             categories.map((category) => (
-                                <tr key={category.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors group">
-                                    <td className="px-4 py-3">
-                                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{category.name}</p>
+                                <tr key={category.id} className="hover:bg-slate-50/60 dark:hover:bg-white/[0.02] transition-colors group">
+                                    <td className="px-5 py-3.5">
+                                        <p className="text-[14px] font-medium text-slate-800 dark:text-slate-200">{category.name}</p>
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium truncate max-w-xs">
+                                    <td className="px-5 py-3.5">
+                                        <p className="text-[14px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-xs">
                                             {category.description || '-'}
                                         </p>
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-md ${
+                                    <td className="px-5 py-3.5">
+                                        <span className={`inline-flex px-2.5 py-1 rounded-lg text-[12px] font-semibold ${
                                             category.is_active
                                                 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
                                                 : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
@@ -163,19 +172,23 @@ const Categories = () => {
                                             {category.is_active ? t('categories.active') : t('categories.inactive')}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <button
-                                            onClick={() => openEditModal(category)}
-                                            className="p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all"
-                                        >
-                                            <Edit size={14} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(category.id)}
-                                            className="p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all ml-1"
-                                        >
-                                            <Trash2 size={14} />
-                                        </button>
+                                    <td className="px-5 py-3.5 text-right">
+                                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-150">
+                                            <button
+                                                onClick={() => openEditModal(category)}
+                                                className="p-2 rounded-lg text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all"
+                                                title="Edit"
+                                            >
+                                                <Edit size={15} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(category.id)}
+                                                className="p-2 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                                                title="Hapus"
+                                            >
+                                                <Trash2 size={15} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
@@ -185,59 +198,70 @@ const Categories = () => {
             </div>
 
             {pagination?.last_page > 1 && (
-                <div className="flex justify-center gap-1">
-                    {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((page) => (
-                        <button
-                            key={page}
-                            onClick={() => goToPage(page)}
-                            className={`w-7 h-7 flex items-center justify-center rounded-md text-xs font-medium transition-all ${
-                                pagination.current_page === page
-                                    ? 'bg-primary-500 text-white'
-                                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
-                            }`}
-                        >
-                            {page}
-                        </button>
-                    ))}
+                <div className="flex items-center justify-between px-1">
+                    <p className="text-[13px] text-slate-400 dark:text-slate-500">
+                        {locale === 'id' ? 'Menampilkan' : 'Showing'} {((pagination.current_page - 1) * pagination.per_page) + 1}–{Math.min(pagination.current_page * pagination.per_page, pagination.total)} {locale === 'id' ? 'dari' : 'of'} {pagination.total}
+                    </p>
+                    <div className="flex items-center gap-1">
+                        {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((page) => (
+                            <button
+                                key={page}
+                                onClick={() => goToPage(page)}
+                                className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium transition-all ${
+                                    pagination.current_page === page
+                                        ? 'bg-primary-500 text-white'
+                                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
+                                }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
 
             {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md p-6 mx-4">
-                        <div className="flex justify-between items-center mb-5">
-                            <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                <div className="fixed inset-0 bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-surface-raised rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+                        {/* Modal header */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-white/[0.06]">
+                            <h2 className="text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white">
                                 {editingCategory ? t('categories.edit') : t('categories.addNew')}
                             </h2>
-                            <button onClick={() => setShowModal(false)} className="p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                            <button onClick={() => setShowModal(false)} className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all">
                                 <X size={18} />
                             </button>
                         </div>
 
                         {formError && (
-                            <div className="mb-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-lg text-xs font-medium text-red-600 dark:text-red-400">{formError}</div>
+                            <div className="mx-6 mt-4 flex items-center gap-3 px-4 py-3.5 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl">
+                                <div className="w-5 h-5 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </div>
+                                <p className="text-[14px] font-medium text-red-700 dark:text-red-400">{formError}</p>
+                            </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('categories.name')}</label>
+                                <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5">{t('categories.name')}</label>
                                 <input
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                    className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                    className="w-full px-4 py-2.5 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.10] rounded-xl text-[14px] text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all"
                                     placeholder="Category name"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('categories.description')}</label>
+                                <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5">{t('categories.description')}</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                                    className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                                    className="w-full px-4 py-2.5 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.10] rounded-xl text-[14px] text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all resize-none"
                                     placeholder="Optional description"
                                     rows="3"
                                 />
@@ -251,23 +275,23 @@ const Categories = () => {
                                         onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-9 h-5 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:dark:border-slate-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
-                                    <span className="ml-2.5 text-sm font-medium text-slate-700 dark:text-slate-300">{t('categories.active')}</span>
+                                    <div className="w-9 h-5 bg-slate-200 dark:bg-white/[0.10] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:dark:border-slate-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
+                                    <span className="ml-2.5 text-[14px] font-medium text-slate-700 dark:text-slate-300">{t('categories.active')}</span>
                                 </label>
                             </div>
 
-                            <div className="flex justify-end gap-2 pt-2">
+                            <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-white/[0.06]">
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
+                                    className="px-4 py-2.5 text-[14px] font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/[0.06] rounded-xl hover:bg-slate-200 dark:hover:bg-white/[0.10] transition-all"
                                 >
                                     {t('categories.cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting || isDemo}
-                                    className="px-4 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 disabled:opacity-50 transition-all shadow-sm"
+                                    className="px-5 py-2.5 text-[14px] font-semibold text-white bg-primary-500 rounded-xl hover:bg-primary-600 disabled:opacity-50 transition-all shadow-sm shadow-primary-500/20 active:scale-[0.97]"
                                 >
                                     {submitting ? t('categories.saving') : t('categories.save')}
                                 </button>

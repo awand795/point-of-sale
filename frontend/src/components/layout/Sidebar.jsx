@@ -62,10 +62,10 @@ const Sidebar = () => {
         return (
             <Link
                 to={item.path}
-                className={`relative flex items-center gap-3 px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`relative flex items-center gap-3 px-4 py-2 text-[14px] font-medium transition-all duration-200 ${
                     isActive
-                        ? 'text-white'
-                        : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'
+                        ? 'text-white bg-white/[0.06] rounded-xl'
+                        : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04] rounded-xl'
                 }`}
             >
                 {/* Active indicator bar */}
@@ -86,30 +86,38 @@ const Sidebar = () => {
         </div>
     );
 
-    const Divider = () => (
-        <div className="my-3 mx-4 border-t border-white/[0.06]" />
+    const SectionLabel = ({ label }) => (
+        <div className="px-4 pt-4 pb-1.5">
+            <span className="text-[10px] font-semibold tracking-[0.1em] uppercase text-slate-600">
+                {label}
+            </span>
+        </div>
     );
 
     return (
         <aside className="w-60 bg-[#0A0F14] flex flex-col h-screen shrink-0 select-none">
-            {/* Logo — compact */}
-            <div className="px-5 h-14 flex items-center gap-3 shrink-0">
-                <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
+            {/* Logo — premium */}
+            <div className="px-5 h-16 flex items-center gap-3 shrink-0">
+                <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center shrink-0">
                     <Store size={18} className="text-white" />
                 </div>
-                <h1 className="text-white font-semibold text-base tracking-tight leading-none">
-                    Bikin<span className="text-primary-400">POS</span>
-                </h1>
+                <div>
+                    <h1 className="text-white font-semibold text-base tracking-tight leading-none">
+                        Bikin<span className="text-primary-400">POS</span>
+                    </h1>
+                    <p className="text-[9px] text-slate-600 font-medium mt-0.5">Enterprise POS</p>
+                </div>
             </div>
 
             {/* Navigation */}
             <nav className="flex-1 px-3 py-2 overflow-y-auto space-y-1">
+                <SectionLabel label={t('sidebar.main')} />
                 <MenuGroup items={mainMenu} />
-                <Divider />
+                <SectionLabel label={t('sidebar.crm')} />
                 <MenuGroup items={crmMenu} />
-                <Divider />
+                <SectionLabel label={t('sidebar.inventory')} />
                 <MenuGroup items={inventoryMenu} />
-                <Divider />
+                <SectionLabel label={t('sidebar.management')} />
                 <MenuGroup items={managementMenu} />
             </nav>
 
@@ -119,16 +127,18 @@ const Sidebar = () => {
                     {/* User row — clickable to open dropdown */}
                     <button
                         onClick={() => setUserMenuOpen(!userMenuOpen)}
-                        className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-all text-left"
+                        className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-all text-left ${
+                            userMenuOpen ? 'ring-1 ring-primary-500/40' : ''
+                        }`}
                     >
-                        <div className="w-7 h-7 rounded-md bg-primary-500/20 flex items-center justify-center text-primary-400 text-[11px] font-semibold shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-primary-500/20 flex items-center justify-center text-primary-400 text-[13px] font-semibold shrink-0">
                             {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-xs font-medium text-slate-300 truncate">
                                 {user?.name || 'User'}
                             </p>
-                            <p className="text-[10px] text-slate-500 truncate">
+                            <p className="text-[10px] text-slate-600 truncate">
                                 {user?.email || ''}
                             </p>
                         </div>
@@ -142,7 +152,7 @@ const Sidebar = () => {
 
                     {/* User dropdown */}
                     {userMenuOpen && (
-                        <div className="absolute bottom-full left-2 right-2 mb-2 bg-[#161B22] border border-white/[0.06] rounded-xl shadow-xl overflow-hidden animate-fadeIn">
+                        <div className="absolute bottom-full left-2 right-2 mb-2 bg-[#161B22] border border-white/[0.06] rounded-2xl shadow-xl overflow-hidden animate-fadeIn">
                             <button
                                 onClick={(e) => {
                                     toggleTheme(e.clientX, e.clientY);

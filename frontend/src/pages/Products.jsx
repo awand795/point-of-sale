@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Search, Package, X, Plus, Edit } from 'lucide-react';
+import { Trash2, Search, Package, Edit } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import EmptyState, { LoadingSpinner } from "../components/shared/EmptyState";
 import PageHeader from "../components/shared/PageHeader";
@@ -42,16 +42,16 @@ const Products = () => {
             sortable: true,
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/[0.06] overflow-hidden flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-white/[0.06] overflow-hidden flex items-center justify-center shrink-0">
                         {row.image ? (
                             <img src={row.image} alt={row.name} className="w-full h-full object-cover" />
                         ) : (
-                            <Package size={14} className="text-slate-400 dark:text-slate-500" />
+                            <Package size={16} className="text-slate-400 dark:text-slate-500" />
                         )}
                     </div>
                     <div className="min-w-0">
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{row.name}</p>
-                        {row.sku && <p className="text-[10px] text-slate-400 dark:text-slate-500">{row.sku}</p>}
+                        <p className="text-[14px] font-semibold text-slate-800 dark:text-slate-200 truncate">{row.name}</p>
+                        {row.sku && <p className="text-[12px] text-slate-400 dark:text-slate-500">{row.sku}</p>}
                     </div>
                 </div>
             ),
@@ -62,8 +62,19 @@ const Products = () => {
             sortable: true,
             align: 'right',
             render: (row) => (
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 tabular-nums">
+                <span className="text-[14px] font-semibold text-primary-600 dark:text-primary-400 tabular-nums">
                     Rp {Number(row.selling_price).toLocaleString('id-ID')}
+                </span>
+            ),
+        },
+        {
+            key: 'category',
+            label: 'Kategori',
+            sortable: false,
+            align: 'left',
+            render: (row) => (
+                <span className="text-[13px] text-slate-500 dark:text-slate-400 font-medium">
+                    {row.category?.name || '-'}
                 </span>
             ),
         },
@@ -74,11 +85,11 @@ const Products = () => {
             align: 'center',
             render: (row) => {
                 const stock = Number(row.stock);
-                let color = 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400';
-                if (stock <= 0) color = 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
-                else if (stock < 10) color = 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400';
+                let style = 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400';
+                if (stock <= 0) style = 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
+                else if (stock < 10) style = 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400';
                 return (
-                    <span className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-medium ${color}`}>
+                    <span className={`inline-flex px-2.5 py-1 rounded-lg text-[12px] font-semibold ${style}`}>
                         {stock} {t('products.units')}
                     </span>
                 );
@@ -90,15 +101,16 @@ const Products = () => {
             align: 'right',
             width: '80px',
             render: (row) => (
-                <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-1.5 rounded-md text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all">
-                        <Edit size={14} />
+                <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-150">
+                    <button className="p-2 rounded-lg text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all" title="Edit">
+                        <Edit size={15} />
                     </button>
                     <button
                         onClick={() => handleDelete(row.id)}
-                        className="p-1.5 rounded-md text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                        className="p-2 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                        title="Hapus"
                     >
-                        <Trash2 size={14} />
+                        <Trash2 size={15} />
                     </button>
                 </div>
             ),
@@ -124,20 +136,25 @@ const Products = () => {
             />
 
             {/* Search */}
-            <div className="relative max-w-sm">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                    type="text"
-                    placeholder={t('products.search')}
-                    value={searchTerm}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full pl-9 pr-4 h-9 bg-surface dark:bg-surface-raised border border-slate-200 dark:border-white/[0.12] rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 dark:focus:border-primary-400 transition-colors placeholder:text-slate-400 dark:placeholder-slate-500"
-                />
+            <div className="flex items-center gap-3 mb-5">
+                <div className="relative flex-1 max-w-sm">
+                    <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                        type="text"
+                        placeholder={t('products.search')}
+                        value={searchTerm}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 h-10 bg-white dark:bg-surface-raised border border-slate-200 dark:border-white/[0.10] rounded-xl text-[14px] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all"
+                    />
+                </div>
             </div>
 
             {error && (
-                <div className="px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-lg text-xs font-medium text-red-600 dark:text-red-400">
-                    {error}
+                <div className="flex items-center gap-3 px-4 py-3.5 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl">
+                    <div className="w-5 h-5 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                    <p className="text-[14px] font-medium text-red-700 dark:text-red-400">{error}</p>
                 </div>
             )}
 
@@ -149,7 +166,7 @@ const Products = () => {
                 totalPages={pagination?.last_page}
                 onPageChange={goToPage}
                 emptyState={
-                    <div className="bg-surface dark:bg-surface-raised rounded-xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden">
+                    <div className="bg-white dark:bg-surface-raised rounded-2xl border border-slate-200/70 dark:border-white/[0.06] overflow-hidden">
                         <EmptyState
                             icon={Package}
                             title={locale === 'id' ? 'Belum Ada Produk' : 'No Products'}

@@ -156,35 +156,33 @@ const Transactions = () => {
                 onAction={handleExportAll}
             />
 
-            {/* Filters */}
-            <div className="flex flex-wrap items-center gap-4 bg-surface dark:bg-surface-raised p-4 rounded-xl border border-slate-200/60 dark:border-white/[0.06]">
-                <div className="flex items-center gap-2 px-1">
+            {/* Filters — inline clean */}
+            <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-surface-raised border border-slate-200 dark:border-white/[0.10] rounded-xl">
                     <Filter size={14} className="text-slate-400" />
-                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('transactions.filters')}</span>
+                    <span className="text-[13px] font-medium text-slate-500 dark:text-slate-400">{t('transactions.filters')}</span>
                 </div>
                 
-                <form onSubmit={handleDateFilter} className="flex items-center gap-2">
+                <form onSubmit={handleDateFilter} className="flex items-center gap-1.5">
                     <div className="relative">
                         <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                             type="date"
                             value={dateFilter}
                             onChange={(e) => setDateFilter(e.target.value)}
-                            className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.12] rounded-lg text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 dark:focus:border-primary-400 transition-colors"
+                            className="pl-9 pr-3 py-2 bg-white dark:bg-surface-raised border border-slate-200 dark:border-white/[0.10] rounded-xl text-[13px] font-medium text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all"
                         />
                     </div>
-                    <button type="submit" className="p-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all shadow-sm">
+                    <button type="submit" className="p-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-sm shadow-primary-500/20">
                         <Search size={16} />
                     </button>
                 </form>
-
-                <div className="h-5 w-px bg-slate-200 dark:bg-white/[0.08]"></div>
 
                 <div className="relative">
                     <select
                         value={statusFilter}
                         onChange={(e) => handleStatusFilter(e.target.value)}
-                        className="pl-3 pr-8 py-2 bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.12] rounded-lg text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 dark:focus:border-primary-400 transition-colors appearance-none cursor-pointer"
+                        className="pl-3 pr-8 py-2 bg-white dark:bg-surface-raised border border-slate-200 dark:border-white/[0.10] rounded-xl text-[13px] font-medium text-slate-900 dark:text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all appearance-none cursor-pointer"
                     >
                         <option value="">{t('transactions.allStatus')}</option>
                         <option value="completed">{t('transactions.completed')}</option>
@@ -198,95 +196,100 @@ const Transactions = () => {
             </div>
 
             {error && (
-                <div className="px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 flex items-center gap-2">
-                    <X size={14} />
-                    {error}
+                <div className="flex items-center gap-3 px-4 py-3.5 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl">
+                    <div className="w-5 h-5 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                    <p className="text-[14px] font-medium text-red-700 dark:text-red-400">{error}</p>
                 </div>
             )}
 
             {/* Table */}
-            <div className="bg-surface dark:bg-surface-raised rounded-xl border border-slate-200/60 dark:border-white/[0.06] overflow-hidden">
+            <div className="bg-white dark:bg-surface-raised rounded-2xl border border-slate-200/70 dark:border-white/[0.06] overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-left">
                         <thead>
-                            <tr className="border-b border-slate-100 dark:border-white/[0.06]">
-                                <th className="px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('transactions.invoice')}</th>
-                                <th className="px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('transactions.dateTime')}</th>
-                                <th className="px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('transactions.cashier')}</th>
-                                <th className="px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 text-right">{t('transactions.amount')}</th>
-                                <th className="px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('transactions.method')}</th>
-                                <th className="px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 text-center">{t('transactions.status')}</th>
-                                <th className="px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 text-right">{t('transactions.actions')}</th>
+                            <tr className="border-b border-slate-100 dark:border-white/[0.06] bg-slate-50/60 dark:bg-white/[0.02]">
+                                <th className="px-5 py-3.5 text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('transactions.invoice')}</th>
+                                <th className="px-5 py-3.5 text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('transactions.dateTime')}</th>
+                                <th className="px-5 py-3.5 text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('transactions.cashier')}</th>
+                                <th className="px-5 py-3.5 text-right text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('transactions.amount')}</th>
+                                <th className="px-5 py-3.5 text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('transactions.method')}</th>
+                                <th className="px-5 py-3.5 text-center text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('transactions.status')}</th>
+                                <th className="px-5 py-3.5 text-right text-[12px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em]">{t('transactions.actions')}</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50 dark:divide-white/[0.04]">
+                        <tbody className="divide-y divide-slate-100/70 dark:divide-white/[0.04]">
                             {transactions.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="px-4 py-12 text-center">
-                                        <div className="w-12 h-12 bg-slate-50 dark:bg-white/[0.04] rounded-xl flex items-center justify-center mx-auto mb-3 border border-slate-100 dark:border-white/[0.06]">
-                                            <Receipt size={24} className="text-slate-300 dark:text-slate-600" />
+                                    <td colSpan="7" className="px-5 py-16 text-center">
+                                        <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-white/[0.04] flex items-center justify-center mx-auto mb-4">
+                                            <Receipt size={28} className="text-slate-300 dark:text-slate-600" />
                                         </div>
-                                        <p className="text-sm font-medium text-slate-400 dark:text-slate-500">{t('transactions.noRecords')}</p>
-                                        <p className="text-xs text-slate-300 dark:text-slate-600 mt-1">{t('transactions.noRecordsDesc')}</p>
+                                        <p className="text-[15px] font-semibold text-slate-500 dark:text-slate-400">{t('transactions.noRecords')}</p>
+                                        <p className="text-[13px] text-slate-400 dark:text-slate-500 mt-1">{t('transactions.noRecordsDesc')}</p>
                                     </td>
                                 </tr>
                             ) : (
                                 transactions.map((trx) => (
-                                    <tr key={trx.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors group">
-                                        <td className="px-4 py-3">
-                                            <span className="text-sm font-medium text-slate-800 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{trx.invoice_number}</span>
+                                    <tr key={trx.id} className="hover:bg-slate-50/60 dark:hover:bg-white/[0.02] transition-colors group">
+                                        <td className="px-5 py-3.5">
+                                            <span className="text-[14px] font-mono font-medium text-slate-800 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{trx.invoice_number}</span>
                                         </td>
-                                        <td className="px-4 py-3">
-                                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        <td className="px-5 py-3.5">
+                                            <p className="text-[14px] font-medium text-slate-700 dark:text-slate-300">
                                                 {new Date(trx.created_at).toLocaleDateString('id-ID', {
-                                                    day: '2-digit',
-                                                    month: 'short',
-                                                    year: 'numeric',
+                                                    day: '2-digit', month: 'short', year: 'numeric',
                                                 })}
                                             </p>
-                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+                                            <p className="text-[12px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
                                                 {new Date(trx.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                                             </p>
                                         </td>
-                                        <td className="px-4 py-3">
+                                        <td className="px-5 py-3.5">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center text-[10px] font-medium text-slate-400 dark:text-slate-500 capitalize">
+                                                <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center text-[11px] font-medium text-slate-400 dark:text-slate-500 capitalize">
                                                     {trx.user?.name?.charAt(0) || '-'}
                                                 </div>
-                                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{trx.user?.name || 'Walk-in'}</span>
+                                                <span className="text-[14px] font-medium text-slate-600 dark:text-slate-400">{trx.user?.name || 'Walk-in'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 text-right">
-                                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
+                                        <td className="px-5 py-3.5 text-right">
+                                            <p className="text-[14px] font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
                                                 Rp {Number(trx.total).toLocaleString('id-ID')}
                                             </p>
                                         </td>
-                                        <td className="px-4 py-3">
-                                            <span className="text-xs font-medium text-slate-400 dark:text-slate-500">{trx.payment_method || '-'}</span>
+                                        <td className="px-5 py-3.5">
+                                            <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500">{trx.payment_method || '-'}</span>
                                         </td>
-                                        <td className="px-4 py-3 text-center">
-                                            <span className={`inline-flex px-2.5 py-0.5 rounded-md text-[10px] font-medium border ${
-                                                statusStyles[trx.status] || 'bg-slate-50 dark:bg-white/[0.04] text-slate-400 dark:text-slate-500 border-slate-100 dark:border-white/[0.08]'
+                                        <td className="px-5 py-3.5 text-center">
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-semibold ${
+                                                statusStyles[trx.status] || 'bg-slate-100 dark:bg-white/[0.06] text-slate-500 dark:text-slate-400'
                                             }`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${
+                                                    trx.status === 'completed' || trx.status === 'paid' ? 'bg-emerald-500' :
+                                                    trx.status === 'pending' ? 'bg-amber-500' :
+                                                    trx.status === 'cancelled' ? 'bg-red-500' : 'bg-slate-400'
+                                                }`} />
                                                 {trx.status}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 text-right">
-                                            <div className="flex items-center justify-end gap-1">
+                                        <td className="px-5 py-3.5 text-right">
+                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-150">
                                                 <button
                                                     onClick={() => setShowDetail(trx)}
-                                                    className="p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all"
+                                                    className="p-2 rounded-lg text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all"
                                                     title={t('transactions.viewDetails')}
                                                 >
-                                                    <Eye size={16} />
+                                                    <Eye size={15} />
                                                 </button>
                                                 {trx.status !== 'cancelled' && (
                                                     <button
                                                         onClick={() => handleCancel(trx.id)}
-                                                        className="p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                                                        className="p-2 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
                                                         title={t('transactions.cancelOrder')}
                                                     >
-                                                        <X size={16} />
+                                                        <X size={15} />
                                                     </button>
                                                 )}
                                             </div>
@@ -327,7 +330,7 @@ const Transactions = () => {
             {showDetail && (
                 <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[100] p-4">
                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-xl overflow-hidden animate-fadeInModal">
-                        <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-start">
+                        <div className="px-6 py-5 bg-gradient-to-r from-primary-700 to-primary-900 text-white flex justify-between items-start">
                             <div>
                                 <h2 className="text-lg font-semibold">{t('transactions.receipt')}</h2>
                                 <p className="text-xs text-slate-400 font-medium mt-0.5">{showDetail.invoice_number}</p>
