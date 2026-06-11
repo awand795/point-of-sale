@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useLanguage } from '../i18n/LanguageContext';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { Store, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 

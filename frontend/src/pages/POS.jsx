@@ -1,15 +1,33 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import ProductGrid from '../components/pos/ProductGrid';
 import Cart from '../components/pos/Cart';
-import { useCart } from '../hooks/useCart';
+import { useCartStore } from '../store/useCartStore';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
-import { ShoppingCart, Store, X as XIcon, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Store, ChevronDown } from 'lucide-react';
 
 const POS = () => {
-    const { t, locale } = useLanguage();
+    const { t } = useLanguage();
     const { isDemo } = useAuth();
-    const cart = useCart();
+    
+    // Zustand Store
+    const cartStore = useCartStore();
+    const { subtotal, itemCount, isEmpty } = cartStore.getCartStats();
+    
+    // Maintain compatibility with Cart component by grouping actions
+    const cart = useMemo(() => ({
+        items: cartStore.items,
+        addToCart: cartStore.addToCart,
+        removeFromCart: cartStore.removeFromCart,
+        updateQuantity: cartStore.updateQuantity,
+        clearCart: cartStore.clearCart,
+        getCartItemsForApi: cartStore.getCartItemsForApi,
+        calculateTotal: cartStore.calculateTotal,
+        subtotal,
+        itemCount,
+        isEmpty,
+    }), [cartStore, subtotal, itemCount, isEmpty]);
+
     const [cartOpen, setCartOpen] = useState(true);
 
     // Swipe to close
