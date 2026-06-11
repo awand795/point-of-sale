@@ -127,9 +127,10 @@ function getDemoData() {
             subtotal: product.selling_price * quantity,
         }));
         const subtotal = txItems.reduce((s, i) => s + i.subtotal, 0);
+        const currentId = txId++;
         return {
-            id: txId++,
-            invoice_number: `INV-${String(txId).padStart(6, '0')}`,
+            id: currentId,
+            invoice_number: `INV-${String(currentId).padStart(6, '0')}`,
             user_id: 1,
             user: { id: 1, name: 'Demo User' },
             type: 'sale',

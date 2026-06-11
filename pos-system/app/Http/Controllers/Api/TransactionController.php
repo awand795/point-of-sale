@@ -117,9 +117,15 @@ class TransactionController extends Controller
 
     public function dashboard(){
         $today = now()->toDateString();
+        $now = now();
+
+        // ── Base query: sale transactions only (not cancelled) ──
+        $todaySaleQuery = Transaction::whereDate('created_at', $today)
+            ->where('type', 'sale')
+            ->where('status', '!=', 'cancelled');
 
         // Hourly sales: 24-element array (index = hour, value = total)
-        $hourlyRaw = Transaction::whereDate('created_at', $today)->where('type', 'sale')
+        $hourlyRaw = (clone $todaySaleQuery)
             ->selectRaw('HOUR(created_at) as hour, SUM(total) as total')
             ->groupBy('hour')
             ->pluck('total', 'hour')
@@ -130,18 +136,66 @@ class TransactionController extends Controller
             $hourlySales[(int)$hour] = (int)$total;
         }
 
+        // ── Weekly sales (Mon–Sun, 7 slots) ──
+        $weekStart = (clone $now)->startOfWeek(); // Monday 00:00
+        $weekEnd = (clone $weekStart)->addDays(6)->endOfDay(); // Sunday 23:59
+
+        $weeklyRaw = Transaction::whereBetween('created_at', [$weekStart, $weekEnd])
+            ->where('type', 'sale')
+            ->where('status', '!=', 'cancelled')
+            ->selectRaw('DAYOFWEEK(created_at) as day_of_week, SUM(total) as total')
+            ->groupBy('day_of_week')
+            ->pluck('total', 'day_of_week')
+            ->toArray();
+
+        $weeklySales = array_fill(0, 7, 0);
+        // MySQL DAYOFWEEK: 1=Sun,2=Mon,...,7=Sat
+        // We want index 0=Mon,1=Tue,...,6=Sun
+        foreach ($weeklyRaw as $dayOfWeek => $total) {
+            $index = ((int)$dayOfWeek + 5) % 7; // 2->0, 3->1, ..., 1->6 (Sun)
+            $weeklySales[$index] = (int)$total;
+        }
+
+        // ── Monthly sales (by day of month) ──
+        $monthStart = (clone $now)->copy()->startOfMonth();
+        $monthEnd = (clone $now)->copy()->endOfMonth();
+        $daysInMonth = (clone $now)->copy()->daysInMonth;
+
+        $monthlyRaw = Transaction::whereBetween('created_at', [$monthStart, $monthEnd])
+            ->where('type', 'sale')
+            ->where('status', '!=', 'cancelled')
+            ->selectRaw('DAY(created_at) as day, SUM(total) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day')
+            ->toArray();
+
+        $monthlySales = array_fill(0, $daysInMonth, 0);
+        foreach ($monthlyRaw as $day => $total) {
+            $monthlySales[(int)$day - 1] = (int)$total;
+        }
+
         $stats = [
-            'today_sales' => Transaction::whereDate('created_at', $today)->where('type', 'sale')->sum('total'),
-            'today_transactions' => Transaction::whereDate('created_at', $today)->where('type', 'sale')->count(),
+            'today_sales' => (clone $todaySaleQuery)->sum('total'),
+            'today_transactions' => (clone $todaySaleQuery)->count(),
             'today_items_sold' => TransactionItem::whereHas('transaction', function($query) use ($today){
-                $query->whereDate('created_at', $today)->where('type', 'sale');
+                $query->whereDate('created_at', $today)
+                    ->where('type', 'sale')
+                    ->where('status', '!=', 'cancelled');
             })->sum('quantity'),
             'low_stock_products' => Product::whereColumn('stock', '<=', 'min_stock')->count(),
             'total_products' => Product::count(),
             'hourly_sales' => $hourlySales,
+            'weekly_sales' => $weeklySales,
+            'monthly_sales' => $monthlySales,
         ];
 
-        $recentTransactions = Transaction::with('user')->latest()->limit(5)->get();
+        // Recent transactions: only today's sales (not cancelled), newest first
+        $recentTransactions = Transaction::with('user')
+            ->whereDate('created_at', $today)
+            ->where('type', 'sale')
+            ->latest()
+            ->limit(5)
+            ->get();
 
         $topProducts = TransactionItem::select('product_id', DB::raw('SUM(quantity) as total_sold'))
             ->groupBy('product_id')
@@ -150,14 +204,14 @@ class TransactionController extends Controller
             ->with('product')
             ->get();
 
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    'stats' => $stats,
-                    'recent_transactions' => $recentTransactions,
-                    'top_products' => $topProducts
-                ]
-            ]);
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'stats' => $stats,
+                'recent_transactions' => $recentTransactions,
+                'top_products' => $topProducts
+            ]
+        ]);
     }
 
     /**
