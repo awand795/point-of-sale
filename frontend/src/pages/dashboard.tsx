@@ -350,7 +350,7 @@ const RevenueChart = ({ hourlySales = [], weeklySales = [], monthlySales = [], p
                             />
                             <Tooltip content={<CustomChartTooltip />} cursor={{ stroke: '#94A3B8', strokeWidth: 1, strokeDasharray: '4 4' }} />
                             <Area
-                                type="monotone"
+                                type="linear"
                                 dataKey="value"
                                 stroke="#0D5C63"
                                 strokeWidth={2.5}
