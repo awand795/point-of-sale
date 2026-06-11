@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
+import PublicNavbar from '../components/layout/PublicNavbar';
 import {
     Store,
     ShoppingCart,
@@ -48,13 +49,6 @@ const storeLogos = [
 const Landing = () => {
     const { t, locale, toggleLanguage } = useLanguage();
     const features = t('features.items');
-    const [scrolled, setScrolled] = useState(false);
-
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 60);
-        window.addEventListener('scroll', onScroll, { passive: true });
-        return () => window.removeEventListener('scroll', onScroll);
-    }, []);
 
     return (
         <div className="min-h-screen bg-surface text-slate-900 dark:text-white overflow-x-hidden font-['Geist',system-ui,sans-serif]">
@@ -62,70 +56,7 @@ const Landing = () => {
             {/* ═══ Marquee Styles ═══ */}
             <style>{marqueeStyles}</style>
 
-            {/* ═══ Navigation — Floating Pill Island ═══ */}
-            <nav
-                className={`fixed top-3 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${
-                    scrolled ? 'shadow-xl shadow-slate-900/8' : ''
-                }`}
-            >
-                <div
-                    className={`flex items-center gap-1 px-1.5 py-1.5 transition-all duration-500 ${
-                        scrolled
-                            ? 'bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/60 dark:border-white/[0.08] shadow-sm'
-                            : 'bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm border border-slate-200/30 dark:border-white/[0.05]'
-                    } rounded-2xl`}
-                >
-                    {/* Logo */}
-                    <Link
-                        to="/"
-                        className="flex items-center gap-2 px-3 py-1.5 group"
-                    >
-                        <div className="w-7 h-7 bg-primary-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <Store size={16} className="text-white" />
-                        </div>
-                        <span className="font-bold text-[15px] tracking-[-0.03em]">
-                            Bikin<span className="text-primary-500">POS</span>
-                        </span>
-                    </Link>
-
-                    {/* Nav Links */}
-                    <div className="hidden md:flex items-center gap-0.5 ml-1">
-                        {[
-                            { href: '#features', label: t('nav.features') },
-                            { href: '/pricing', label: t('nav.pricing'), isLink: true },
-                            { href: '/about', label: t('nav.about'), isLink: true },
-                        ].map((item) => {
-                            const cls =
-                                'px-3.5 py-1.5 text-[14px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all';
-                            return item.isLink ? (
-                                <Link key={item.label} to={item.href} className={cls}>
-                                    {item.label}
-                                </Link>
-                            ) : (
-                                <a key={item.label} href={item.href} className={cls}>
-                                    {item.label}
-                                </a>
-                            );
-                        })}
-                    </div>
-
-                    {/* Right side */}
-                    <div className="flex items-center gap-1.5 ml-1">
-                        <Link
-                            to="/login"
-                            className="hidden sm:block px-3.5 py-1.5 text-[14px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all"
-                        >
-                            {t('nav.signIn')}
-                        </Link>
-                        <Link
-                            to="/login?demo=true"
-                            className="px-4 py-1.5 bg-primary-500 text-white text-[14px] font-semibold rounded-xl hover:bg-primary-600 transition-all active:scale-95 flex items-center gap-1.5 shadow-sm"
-                        >
-                            {t('nav.tryDemo')} <ArrowRight size={14} />
-                        </Link>
-                    </div>
-                </div>
-            </nav>
+            <PublicNavbar />
 
             {/* ═══ Hero — Asymmetric Editorial ═══ */}
             <section className="relative pt-32 pb-20 md:pb-28 px-6 overflow-hidden min-h-[90vh] flex items-center">

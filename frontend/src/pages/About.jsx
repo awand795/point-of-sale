@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Store, ArrowLeft, Globe, Code, Palette, ShoppingBag, Search, ExternalLink, Target, Heart, Users, Lightbulb, CheckCircle } from 'lucide-react';
+import { Globe, Palette, ShoppingBag, Search, ExternalLink, Target, Heart, Users, Lightbulb } from 'lucide-react';
+import PublicNavbar from '../components/layout/PublicNavbar';
 
 const About = () => {
   const { t, locale } = useLanguage();
@@ -17,33 +18,11 @@ const About = () => {
     { icon: <ShoppingBag size={28} />, text: t('about.bikinsite.servicesList.1') },
     { icon: <Palette size={28} />, text: t('about.bikinsite.servicesList.2') },
     { icon: <Search size={28} />, text: t('about.bikinsite.servicesList.3') },
-    { icon: <Code size={28} />, text: t('about.bikinsite.servicesList.4') },
   ];
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-slate-100 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-100 rotate-3">
-              <Store size={22} className="text-white -rotate-3" />
-            </div>
-            <h1 className="font-black text-xl tracking-tighter leading-none">Bikin<span className="text-primary-500">POS</span></h1>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-500">
-            <Link to="/" className="hover:text-primary-600 transition-colors">{t('nav.features')}</Link>
-            <Link to="/pricing" className="hover:text-primary-600 transition-colors">{t('nav.pricing')}</Link>
-            <Link to="/about" className="text-primary-600">{t('nav.about')}</Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="/login" className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">{t('nav.signIn')}</Link>
-            <Link to="/login?demo=true" className="px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-2xl hover:bg-primary-600 shadow-xl shadow-slate-200 transition-all active:scale-95 flex items-center gap-2">
-              {t('nav.tryDemo')} <ArrowLeft size={16} className="rotate-180" />
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-surface text-slate-900 dark:text-white overflow-x-hidden font-['Geist',system-ui,sans-serif]">
+      <PublicNavbar />
 
       {/* Hero */}
       <section className="relative pt-40 pb-24 px-6">
