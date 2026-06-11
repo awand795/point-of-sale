@@ -118,6 +118,18 @@ class TransactionController extends Controller
     public function dashboard(){
         $today = now()->toDateString();
 
+        // Hourly sales: 24-element array (index = hour, value = total)
+        $hourlyRaw = Transaction::whereDate('created_at', $today)->where('type', 'sale')
+            ->selectRaw('HOUR(created_at) as hour, SUM(total) as total')
+            ->groupBy('hour')
+            ->pluck('total', 'hour')
+            ->toArray();
+
+        $hourlySales = array_fill(0, 24, 0);
+        foreach ($hourlyRaw as $hour => $total) {
+            $hourlySales[(int)$hour] = (int)$total;
+        }
+
         $stats = [
             'today_sales' => Transaction::whereDate('created_at', $today)->where('type', 'sale')->sum('total'),
             'today_transactions' => Transaction::whereDate('created_at', $today)->where('type', 'sale')->count(),
@@ -126,6 +138,7 @@ class TransactionController extends Controller
             })->sum('quantity'),
             'low_stock_products' => Product::whereColumn('stock', '<=', 'min_stock')->count(),
             'total_products' => Product::count(),
+            'hourly_sales' => $hourlySales,
         ];
 
         $recentTransactions = Transaction::with('user')->latest()->limit(5)->get();

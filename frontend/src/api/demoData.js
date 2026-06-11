@@ -65,18 +65,6 @@ const stores = [
     { id: 2, name: 'BikinPOS Cabang Bandung', code: 'BDG', address: 'Jl. Braga No. 25, Bandung', phone: '022-5550202', email: 'bandung@bikinpos.com', is_active: true },
 ].map(s => ({ ...s, created_at: now.toISOString() }));
 
-const transactionItems = [
-    { id: 1, product_id: 1, product: products[0], quantity: 2, purchase_price: 50000, selling_price: 75000, subtotal: 150000 },
-    { id: 2, product_id: 6, product: products[5], quantity: 3, purchase_price: 2000, selling_price: 3500, subtotal: 10500 },
-];
-
-const transactions = [{
-    id: 1, invoice_number: 'INV-000001', user_id: 1, user: { id: 1, name: 'Demo User' },
-    type: 'sale', status: 'paid', subtotal: 160500, tax: 0, discount: 0, total: 160500,
-    paid_amount: 160500, payment_method: 'cash', created_at: now.toISOString(), completed_at: now.toISOString(),
-    items: transactionItems,
-}];
-
 const purchases = [{
     id: 1, invoice_number: 'PO-001', supplier_id: 1, supplier: suppliers[0], user_id: 1, user: { id: 1, name: 'Demo User' },
     status: 'received', subtotal: 500000, discount: 0, tax: 0, total: 500000,
@@ -101,64 +89,222 @@ const users = [
     { id: 3, name: 'Budi Kasir', email: 'cashier@example.com', phone: '087812345678', is_active: true, last_login_at: now.toISOString(), roles: [{ id: 2, name: 'cashier' }] },
 ].map(u => ({ ...u, created_at: now.toISOString() }));
 
-const generateMonthlySales = () => {
-    const months = [];
-    const now = new Date();
-    for (let i = 11; i >= 0; i--) {
-        const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const base = 120000 + Math.random() * 180000;
-        const peak = m.getMonth() === 11 || m.getMonth() === 0 ? 1.4 : m.getMonth() >= 5 && m.getMonth() <= 7 ? 1.2 : 1;
-        months.push({
-            month: m.toLocaleString('en-US', { month: 'short' }),
-            year: m.getFullYear(),
-            revenue: Math.round(base * peak),
-            orders: Math.round((base * peak) / 45000),
-        });
+// ─── Lazy-generated demo transactions & stats ───
+// Generates realistic transactions spread across today (per hour) & past 7 days,
+// then computes dashboard stats (hourly/weekly/monthly sales) from them.
+
+let _demoData = null;
+
+function getDemoData() {
+    if (_demoData) return _demoData;
+
+    const _now = new Date();
+    const txList = [];
+    let txId = 1;
+    let itemId = 1;
+
+    function pickItems() {
+        const count = 1 + Math.floor(Math.random() * 3);
+        const map = {};
+        for (let i = 0; i < count; i++) {
+            const idx = Math.floor(Math.random() * products.length);
+            const p = products[idx];
+            const qty = 1 + Math.floor(Math.random() * (p.selling_price > 50000 ? 2 : 4));
+            if (map[p.id]) map[p.id].quantity += qty;
+            else map[p.id] = { product: p, quantity: qty };
+        }
+        return Object.values(map);
     }
-    return months;
-};
 
-const reports = {
-    total_revenue: 189250000,
-    total_orders: 1423,
-    total_items: 5280,
-    avg_order_value: 133000,
-    total_revenue_change: 12.5,
-    total_orders_change: 8.3,
-    total_items_change: 15.2,
-    avg_order_value_change: 3.8,
-    monthly_sales: generateMonthlySales(),
-    yearly_sales: [
-        { year: 2022, revenue: 1250000000, orders: 9820 },
-        { year: 2023, revenue: 1580000000, orders: 12450 },
-        { year: 2024, revenue: 1920000000, orders: 15100 },
-        { year: 2025, revenue: 2350000000, orders: 18300 },
-        { year: 2026, revenue: 1420000000, orders: 11000 },
-    ],
-    top_products: [
-        { name: 'Wireless Mouse', total_sold: 284, revenue: 21300000, category: 'Electronics' },
-        { name: 'Mineral Water 600ml', total_sold: 256, revenue: 896000, category: 'Food & Beverage' },
-        { name: 'Teh Botol 450ml', total_sold: 198, revenue: 990000, category: 'Food & Beverage' },
-        { name: 'Kaos Polos Hitam', total_sold: 167, revenue: 10855000, category: 'Clothing' },
-        { name: 'USB Keyboard', total_sold: 145, revenue: 21750000, category: 'Electronics' },
-    ],
-    category_breakdown: [
-        { name: 'Electronics', revenue: 78500000, percentage: 38 },
-        { name: 'Food & Beverage', revenue: 45200000, percentage: 22 },
-        { name: 'Clothing', revenue: 38500000, percentage: 18 },
-        { name: 'Home & Garden', revenue: 28500000, percentage: 14 },
-        { name: 'Others', revenue: 16500000, percentage: 8 },
-    ],
-};
+    function makeTx(date, items) {
+        const txItems = items.map(({ product, quantity }) => ({
+            id: itemId++,
+            product_id: product.id,
+            product,
+            quantity,
+            purchase_price: product.purchase_price,
+            selling_price: product.selling_price,
+            subtotal: product.selling_price * quantity,
+        }));
+        const subtotal = txItems.reduce((s, i) => s + i.subtotal, 0);
+        return {
+            id: txId++,
+            invoice_number: `INV-${String(txId).padStart(6, '0')}`,
+            user_id: 1,
+            user: { id: 1, name: 'Demo User' },
+            type: 'sale',
+            status: 'paid',
+            subtotal,
+            tax: 0,
+            discount: 0,
+            total: subtotal,
+            paid_amount: subtotal,
+            payment_method: Math.random() > 0.5 ? 'cash' : 'qris',
+            created_at: date.toISOString(),
+            completed_at: date.toISOString(),
+            items: txItems,
+        };
+    }
 
-const dashboardStats = {
-    stats: { today_sales: 160500, today_transactions: 1, today_items_sold: 5, low_stock_products: 0, total_products: products.length },
-    recent_transactions: transactions,
-    top_products: [
-        { product: products[0], total_sold: 2 },
-        { product: products[5], total_sold: 3 },
-    ],
-};
+    // 1) TODAY: 1-2 tx per business hour (08:00 – 21:00) that have already passed
+    for (let hour = 8; hour <= 21; hour++) {
+        const txHour = 1 + Math.floor(Math.random() * 2); // 1 or 2 tx per hour
+        for (let i = 0; i < txHour; i++) {
+            const d = new Date(_now);
+            d.setHours(hour, Math.floor(Math.random() * 60), 0, 0);
+            if (d <= _now) txList.push(makeTx(d, pickItems()));
+        }
+    }
+
+    // 2) PAST 7 DAYS: 2-4 tx per day
+    for (let day = 1; day <= 7; day++) {
+        const txPerDay = 2 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < txPerDay; i++) {
+            const d = new Date(_now);
+            d.setDate(d.getDate() - day);
+            d.setHours(8 + Math.floor(Math.random() * 12), Math.floor(Math.random() * 60), 0, 0);
+            txList.push(makeTx(d, pickItems()));
+        }
+    }
+
+    // Sort most-recent-first
+    txList.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // ── Compute stats from generated transactions ──
+    const todayStart = new Date(_now);
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayTx = txList.filter(tx => new Date(tx.created_at) >= todayStart);
+    const todaySales = todayTx.reduce((s, tx) => s + tx.total, 0);
+    const todayTxCount = todayTx.length;
+    const todayItemsSold = todayTx.reduce((s, tx) => s + tx.items.reduce((si, i) => si + i.quantity, 0), 0);
+
+    // Hourly sales today (24 slots)
+    const hourlySales = Array(24).fill(0);
+    todayTx.forEach(tx => { hourlySales[new Date(tx.created_at).getHours()] += tx.total; });
+
+    // Weekly sales (Mon–Sun, 7 slots)
+    const weekStart = new Date(_now);
+    const dow = weekStart.getDay(); // 0=Sun,1=Mon,...
+    weekStart.setDate(weekStart.getDate() + (dow === 0 ? -6 : 1 - dow));
+    weekStart.setHours(0, 0, 0, 0);
+    const weeklySales = Array(7).fill(0);
+    txList.forEach(tx => {
+        const d = new Date(tx.created_at);
+        if (d >= weekStart) weeklySales[(d.getDay() + 6) % 7] += tx.total;
+    });
+
+    // Monthly sales (by day of month)
+    const monthStart = new Date(_now.getFullYear(), _now.getMonth(), 1);
+    const daysInMonth = new Date(_now.getFullYear(), _now.getMonth() + 1, 0).getDate();
+    const monthlySales = Array(daysInMonth).fill(0);
+    txList.forEach(tx => {
+        const d = new Date(tx.created_at);
+        if (d >= monthStart) monthlySales[d.getDate() - 1] += tx.total;
+    });
+
+    // Top products (aggregated across all generated tx)
+    const prodAgg = {};
+    txList.forEach(tx =>
+        tx.items.forEach(item => {
+            if (prodAgg[item.product_id]) {
+                prodAgg[item.product_id].total_sold += item.quantity;
+                prodAgg[item.product_id].revenue += item.subtotal;
+            } else {
+                prodAgg[item.product_id] = {
+                    product: item.product,
+                    total_sold: item.quantity,
+                    revenue: item.subtotal,
+                };
+            }
+        })
+    );
+
+    const topBySold = Object.values(prodAgg).sort((a, b) => b.total_sold - a.total_sold);
+    const top5Dashboard = topBySold.slice(0, 5).map(({ product, total_sold }) => ({ product, total_sold }));
+    const top5Report = topBySold.slice(0, 5).map(({ product, total_sold, revenue }) => ({
+        name: product.name,
+        total_sold,
+        revenue,
+        category: product.category?.name || '',
+    }));
+
+    // Category breakdown
+    const catAgg = {};
+    Object.values(prodAgg).forEach(({ product, revenue }) => {
+        const catName = product.category?.name || 'Others';
+        if (catAgg[catName]) catAgg[catName] += revenue;
+        else catAgg[catName] = revenue;
+    });
+    const catTotal = Object.values(catAgg).reduce((s, v) => s + v, 0);
+    const categoryBreakdown = Object.entries(catAgg)
+        .sort((a, b) => b[1] - a[1])
+        .map(([name, revenue]) => ({
+            name,
+            revenue,
+            percentage: catTotal > 0 ? Math.round((revenue / catTotal) * 100) : 0,
+        }));
+
+    const allTxTotal = txList.reduce((s, tx) => s + tx.total, 0);
+    const allTxItems = txList.reduce((s, tx) => s + tx.items.reduce((si, i) => si + i.quantity, 0), 0);
+
+    // Monthly sales for reports (existing helper)
+    const generateMonthlySales = () => {
+        const months = [];
+        for (let i = 11; i >= 0; i--) {
+            const m = new Date(_now.getFullYear(), _now.getMonth() - i, 1);
+            const base = 120000 + Math.random() * 180000;
+            const peak = m.getMonth() === 11 || m.getMonth() === 0 ? 1.4 : m.getMonth() >= 5 && m.getMonth() <= 7 ? 1.2 : 1;
+            months.push({
+                month: m.toLocaleString('en-US', { month: 'short' }),
+                year: m.getFullYear(),
+                revenue: Math.round(base * peak),
+                orders: Math.round((base * peak) / 45000),
+            });
+        }
+        return months;
+    };
+
+    _demoData = {
+        transactions: txList,
+        dashboardStats: {
+            stats: {
+                today_sales: todaySales,
+                today_transactions: todayTxCount,
+                today_items_sold: todayItemsSold,
+                low_stock_products: 0,
+                total_products: products.length,
+                hourly_sales: hourlySales,
+                weekly_sales: weeklySales,
+                monthly_sales: monthlySales,
+            },
+            recent_transactions: txList.slice(0, 5),
+            top_products: top5Dashboard,
+        },
+        reports: {
+            total_revenue: allTxTotal,
+            total_orders: txList.length,
+            total_items: allTxItems,
+            avg_order_value: txList.length > 0 ? Math.round(allTxTotal / txList.length) : 0,
+            total_revenue_change: 12.5,
+            total_orders_change: 8.3,
+            total_items_change: 15.2,
+            avg_order_value_change: 3.8,
+            monthly_sales: generateMonthlySales(),
+            yearly_sales: [
+                { year: 2022, revenue: 1250000000, orders: 9820 },
+                { year: 2023, revenue: 1580000000, orders: 12450 },
+                { year: 2024, revenue: 1920000000, orders: 15100 },
+                { year: 2025, revenue: 2350000000, orders: 18300 },
+                { year: 2026, revenue: 1420000000, orders: 11000 },
+            ],
+            top_products: top5Report,
+            category_breakdown: categoryBreakdown,
+        },
+    };
+
+    return _demoData;
+}
 
 function paginate(data, params = {}) {
     const perPage = parseInt(params.per_page) || 10;
@@ -225,11 +371,10 @@ export function handleDemoRequest(method, url, data, params) {
     if (resource === 'seed-demo' && method === 'post') {
         return respond({ status: 'success', message: 'Demo data ready', data: { products_count: products.length } });
     }
-    if (path === 'dashboard' && method === 'get') {
-        return respond({ status: 'success', data: dashboardStats });
-    }
-    if (path === 'reports' && method === 'get') {
-        return respond({ status: 'success', data: reports });
+    if (method === 'get' && (path === 'dashboard' || path === 'reports')) {
+        const demo = getDemoData();
+        const data = path === 'dashboard' ? demo.dashboardStats : demo.reports;
+        return respond({ status: 'success', data });
     }
     if (resource === 'products') {
         if (method === 'get') {
@@ -347,11 +492,11 @@ export function handleDemoRequest(method, url, data, params) {
     }
     if (resource === 'transactions') {
         if (method === 'get') {
-            let f = [...transactions];
+            let f = [...getDemoData().transactions];
             if (params?.status) f = f.filter(t => t.status === params.status);
             return respond({ status: 'success', data: paginate(f, params) });
         }
-        if (method === 'post') return respond({ status: 'success', message: 'Transaction created', data: transactions[0] }, 201);
+        if (method === 'post') return respond({ status: 'success', message: 'Transaction created', data: getDemoData().transactions[0] }, 201);
         if (path.includes('cancel') && method === 'post') return respond({ status: 'success', message: 'Transaction cancelled' });
     }
     if (resource === 'settings') {

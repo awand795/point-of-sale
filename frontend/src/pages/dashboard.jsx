@@ -227,27 +227,39 @@ const CustomChartTooltip = ({ active, payload, label }) => {
 };
 
 // ─── Revenue Chart (Recharts AreaChart) ───
-const RevenueChart = ({ hourlySales = [], period }) => {
+const RevenueChart = ({ hourlySales = [], weeklySales = [], monthlySales = [], period }) => {
     const { t, locale } = useLanguage();
 
     const chartData = useMemo(() => {
+        const now = new Date();
+
         if (period === 'today') {
-            const data = hourlySales.length >= 6 ? hourlySales : [4, 7, 3, 9, 5, 11, 8, 14, 10, 16, 12, 18, 15, 20, 22, 25, 18, 21, 15, 10, 8, 5, 3, 2];
-            const now = new Date();
+            const data = hourlySales.length >= 6 ? hourlySales : [];
             const currentHour = now.getHours();
             return data.slice(0, currentHour + 1 || 24).map((val, i) => ({
-                value: val,
+                value: Math.round(val),
                 label: i % 3 === 0 ? `${String(i).padStart(2, '0')}:00` : '',
                 tooltip: `${String(i).padStart(2, '0')}:00`,
             }));
         } else if (period === 'week') {
-            const avg = hourlySales.length ? Math.round(hourlySales.reduce((a, b) => a + b, 0) / hourlySales.length) * 8 : 120;
             const dayNames = locale === 'id'
                 ? ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
                 : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             const dayFull = locale === 'id'
                 ? ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
                 : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+            if (weeklySales.length >= 7) {
+                const max = Math.max(...weeklySales, 1);
+                return weeklySales.map((val, i) => ({
+                    value: Math.round(val),
+                    label: dayNames[i],
+                    tooltip: dayFull[i],
+                }));
+            }
+
+            // Fallback: synthetic data
+            const avg = 120;
             return dayNames.map((name, i) => {
                 const multiplier = i >= 5 ? 0.6 : [1, 0.85, 0.95, 1.1, 1.2, 0.7, 0.5][i];
                 return {
@@ -257,19 +269,31 @@ const RevenueChart = ({ hourlySales = [], period }) => {
                 };
             });
         } else {
-            const avg = hourlySales.length ? Math.round(hourlySales.reduce((a, b) => a + b, 0) / hourlySales.length) * 6 : 90;
-            return Array.from({ length: 30 }, (_, i) => {
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+            if (monthlySales.length >= daysInMonth) {
+                return monthlySales.map((val, i) => ({
+                    value: Math.round(val),
+                    label: (i + 1) % 5 === 1 ? `${i + 1}` : '',
+                    tooltip: `${i + 1} ${now.toLocaleString(locale === 'id' ? 'id-ID' : 'en-US', { month: 'long' })} ${now.getFullYear()}`,
+                }));
+            }
+
+            // Fallback: synthetic data
+            const avg = 90;
+            return Array.from({ length: daysInMonth }, (_, i) => {
                 const day = i + 1;
-                const dow = new Date(2026, 5, day).getDay();
+                const d = new Date(now.getFullYear(), now.getMonth(), day);
+                const dow = d.getDay();
                 const multiplier = dow === 0 || dow === 6 ? 0.55 : 1;
                 return {
                     value: Math.round(avg * multiplier * (0.7 + Math.random() * 0.6)),
                     label: day % 5 === 1 ? `${day}` : '',
-                    tooltip: `${day} Juni 2026`,
+                    tooltip: `${day} ${d.toLocaleString(locale === 'id' ? 'id-ID' : 'en-US', { month: 'long' })} ${now.getFullYear()}`,
                 };
             });
         }
-    }, [period, hourlySales, locale]);
+    }, [period, hourlySales, weeklySales, monthlySales, locale]);
 
     const totalRevenue = chartData.reduce((sum, d) => sum + d.value, 0);
 
@@ -516,7 +540,12 @@ const Dashboard = () => {
             </div>
 
             {/* Revenue Chart */}
-            <RevenueChart hourlySales={dashboard?.stats?.hourly_sales} period={period} />
+            <RevenueChart
+                hourlySales={dashboard?.stats?.hourly_sales}
+                weeklySales={dashboard?.stats?.weekly_sales}
+                monthlySales={dashboard?.stats?.monthly_sales}
+                period={period}
+            />
 
             {/* Bottom Grid: Transactions + Top Products */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
