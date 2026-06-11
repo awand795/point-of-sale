@@ -157,8 +157,8 @@ function getDemoData() {
         }
     }
 
-    // 2) PAST 7 DAYS: 2-4 tx per day
-    for (let day = 1; day <= 7; day++) {
+    // 2) PAST 30 DAYS: 2-4 tx per day
+    for (let day = 1; day <= 30; day++) {
         const txPerDay = 2 + Math.floor(Math.random() * 3);
         for (let i = 0; i < txPerDay; i++) {
             const d = new Date(_now);
@@ -179,6 +179,10 @@ function getDemoData() {
     const todaySales = todayTx.reduce((s, tx) => s + tx.total, 0);
     const todayTxCount = todayTx.length;
     const todayItemsSold = todayTx.reduce((s, tx) => s + tx.items.reduce((si, i) => si + i.quantity, 0), 0);
+
+    const salesTrend = 12.5;
+    const txTrend = 8.4;
+    const itemsTrend = 15.2;
 
     // Hourly sales today (24 slots)
     const hourlySales = Array(24).fill(0);
