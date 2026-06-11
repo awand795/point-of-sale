@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Globe, Palette, ShoppingBag, Search, ExternalLink, Target, Heart, Users, Lightbulb } from 'lucide-react';
+import { Globe, Palette, ShoppingBag, Search, ExternalLink, Target, Heart, Users, Lightbulb, Store } from 'lucide-react';
 import PublicNavbar from '../components/layout/PublicNavbar';
 
 const About = () => {
