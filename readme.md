@@ -1,5 +1,15 @@
 # Point of Sale (POS) System
 
+## 🚀 Proyek Status: Live & Premium
+Sistem POS ini sedang dalam pengembangan aktif dengan fokus pada estetika eksekutif dan performa retail modern.
+
+### ✨ Key Highlights
+- **Premium UI/UX:** Antarmuka bergaya dashboard eksekutif yang memukau.
+- **Modern Stack:** React 19, Vite, Tailwind CSS, dan arsitektur RESTful.
+- **Robust Analytics:** Visualisasi data real-time untuk wawasan bisnis yang lebih cerdas.
+
+---
+
 ![Laravel](https://img.shields.io/badge/laravel-%23FF2D20.svg?style=for-the-badge&logo=laravel&logoColor=white)
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
