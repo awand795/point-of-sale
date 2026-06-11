@@ -271,8 +271,11 @@ function getDemoData() {
         dashboardStats: {
             stats: {
                 today_sales: todaySales,
+                today_sales_trend: salesTrend,
                 today_transactions: todayTxCount,
+                today_transactions_trend: txTrend,
                 today_items_sold: todayItemsSold,
+                today_items_sold_trend: itemsTrend,
                 low_stock_products: 0,
                 total_products: products.length,
                 hourly_sales: hourlySales,

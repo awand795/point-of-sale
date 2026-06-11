@@ -259,7 +259,7 @@ const RevenueChart = ({ hourlySales = [], weeklySales = [], monthlySales = [], p
             }
 
             // Fallback: synthetic data
-            const avg = 120;
+            const avg = 540000;
             return dayNames.map((name, i) => {
                 const multiplier = i >= 5 ? 0.6 : [1, 0.85, 0.95, 1.1, 1.2, 0.7, 0.5][i];
                 return {
@@ -280,7 +280,7 @@ const RevenueChart = ({ hourlySales = [], weeklySales = [], monthlySales = [], p
             }
 
             // Fallback: synthetic data
-            const avg = 90;
+            const avg = 420000;
             return Array.from({ length: daysInMonth }, (_, i) => {
                 const day = i + 1;
                 const d = new Date(now.getFullYear(), now.getMonth(), day);
@@ -459,27 +459,29 @@ const Dashboard = () => {
             value: dashboard?.stats?.today_sales ?? 0,
             icon: <DollarSign size={18} />,
             color: '#059669',
-            trend: 12.5,
-            trendLabel: 'vs last month',
+            trend: dashboard?.stats?.today_sales_trend ?? 0,
+            trendLabel: locale === 'id' ? 'vs kemarin' : 'vs yesterday',
             isCurrency: true,
             BackgroundIcon: DollarSign,
+            sparkData: dashboard?.stats?.hourly_sales,
         },
         {
             title: t('dashboard.transactionCount'),
             value: dashboard?.stats?.today_transactions ?? 0,
             icon: <ShoppingBag size={18} />,
             color: '#0D5C63',
-            trend: 8.3,
-            trendLabel: 'vs last month',
+            trend: dashboard?.stats?.today_transactions_trend ?? 0,
+            trendLabel: locale === 'id' ? 'vs kemarin' : 'vs yesterday',
             BackgroundIcon: ShoppingBag,
+            sparkData: dashboard?.stats?.hourly_sales?.map(v => v > 0 ? 1 : 0), // simplistic tx spark
         },
         {
             title: t('dashboard.itemsMoved'),
             value: dashboard?.stats?.today_items_sold ?? 0,
             icon: <Package size={18} />,
             color: '#2563EB',
-            trend: 15.2,
-            trendLabel: 'vs last month',
+            trend: dashboard?.stats?.today_items_sold_trend ?? 0,
+            trendLabel: locale === 'id' ? 'vs kemarin' : 'vs yesterday',
             BackgroundIcon: Package,
         },
         {
@@ -487,8 +489,8 @@ const Dashboard = () => {
             value: dashboard?.stats?.low_stock_products ?? 0,
             icon: <AlertTriangle size={18} />,
             color: '#DC2626',
-            trend: -5.1,
-            trendLabel: 'vs last month',
+            trend: 0,
+            trendLabel: locale === 'id' ? 'produk stok rendah' : 'low stock items',
             BackgroundIcon: AlertTriangle,
         },
     ];

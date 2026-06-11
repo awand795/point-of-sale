@@ -51,6 +51,7 @@ class SeedDemoController extends Controller
             $this->seedDiscounts();
             $this->seedStores();
             $this->seedSettings();
+            $this->seedTransactions($user);
 
             // User Alert for demo user
             UserAlert::create([
@@ -124,9 +125,6 @@ class SeedDemoController extends Controller
         return $createdProducts;
     }
 
- 
-
-
     private function seedCustomers()
     {
         $customers = [
@@ -190,5 +188,62 @@ class SeedDemoController extends Controller
             ['key' => 'email_notifications', 'value' => 'true', 'group' => 'notifications'],
         ];
         foreach ($settingData as $s) { Setting::create($s); }
+    }
+
+    private function seedTransactions($user)
+    {
+        $products = Product::all();
+        $now = now();
+
+        // Seed transactions for the last 14 days
+        for ($i = 14; $i >= 0; $i--) {
+            $date = (clone $now)->subDays($i);
+            
+            // 3-7 transactions per day
+            $txCount = rand(3, 7);
+            for ($j = 0; $j < $txCount; $j++) {
+                $txDate = (clone $date)->setHour(rand(9, 21))->setMinute(rand(0, 59));
+                
+                $transaction = Transaction::create([
+                    'user_id' => $user->id,
+                    'type' => 'sale',
+                    'status' => 'paid',
+                    'subtotal' => 0,
+                    'tax' => 0,
+                    'discount' => 0,
+                    'total' => 0,
+                    'paid_amount' => 0,
+                    'payment_method' => rand(0, 1) ? 'cash' : 'qris',
+                    'created_at' => $txDate,
+                    'completed_at' => $txDate,
+                ]);
+
+                $subtotal = 0;
+                $itemsCount = rand(1, 4);
+                $randomProducts = $products->random($itemsCount);
+
+                foreach ($randomProducts as $product) {
+                    $qty = rand(1, 3);
+                    $lineSubtotal = $product->selling_price * $qty;
+                    $subtotal += $lineSubtotal;
+
+                    TransactionItem::create([
+                        'transaction_id' => $transaction->id,
+                        'product_id' => $product->id,
+                        'quantity' => $qty,
+                        'purchase_price' => $product->purchase_price,
+                        'selling_price' => $product->selling_price,
+                        'subtotal' => $lineSubtotal,
+                        'created_at' => $txDate,
+                    ]);
+                }
+
+                $transaction->update([
+                    'subtotal' => $subtotal,
+                    'total' => $subtotal,
+                    'paid_amount' => $subtotal,
+                ]);
+            }
+        }
     }
 }

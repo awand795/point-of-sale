@@ -117,14 +117,17 @@ class TransactionController extends Controller
 
     public function dashboard(){
         $today = now()->toDateString();
+        $yesterday = now()->subDay()->toDateString();
         $now = now();
 
         // ── Base query: sale transactions only (not cancelled) ──
-        $todaySaleQuery = Transaction::whereDate('created_at', $today)
-            ->where('type', 'sale')
+        $baseSaleQuery = Transaction::where('type', 'sale')
             ->where('status', '!=', 'cancelled');
 
-        // Hourly sales: 24-element array (index = hour, value = total)
+        $todaySaleQuery = (clone $baseSaleQuery)->whereDate('created_at', $today);
+        $yesterdaySaleQuery = (clone $baseSaleQuery)->whereDate('created_at', $yesterday);
+
+        // Hourly sales: 24-element array
         $hourlyRaw = (clone $todaySaleQuery)
             ->selectRaw('HOUR(created_at) as hour, SUM(total) as total')
             ->groupBy('hour')
@@ -133,27 +136,24 @@ class TransactionController extends Controller
 
         $hourlySales = array_fill(0, 24, 0);
         foreach ($hourlyRaw as $hour => $total) {
-            $hourlySales[(int)$hour] = (int)$total;
+            $hourlySales[(int)$hour] = (float)$total;
         }
 
         // ── Weekly sales (Mon–Sun, 7 slots) ──
         $weekStart = (clone $now)->startOfWeek(); // Monday 00:00
         $weekEnd = (clone $weekStart)->addDays(6)->endOfDay(); // Sunday 23:59
 
-        $weeklyRaw = Transaction::whereBetween('created_at', [$weekStart, $weekEnd])
-            ->where('type', 'sale')
-            ->where('status', '!=', 'cancelled')
+        $weeklyRaw = (clone $baseSaleQuery)
+            ->whereBetween('created_at', [$weekStart, $weekEnd])
             ->selectRaw('DAYOFWEEK(created_at) as day_of_week, SUM(total) as total')
             ->groupBy('day_of_week')
             ->pluck('total', 'day_of_week')
             ->toArray();
 
         $weeklySales = array_fill(0, 7, 0);
-        // MySQL DAYOFWEEK: 1=Sun,2=Mon,...,7=Sat
-        // We want index 0=Mon,1=Tue,...,6=Sun
         foreach ($weeklyRaw as $dayOfWeek => $total) {
-            $index = ((int)$dayOfWeek + 5) % 7; // 2->0, 3->1, ..., 1->6 (Sun)
-            $weeklySales[$index] = (int)$total;
+            $index = ((int)$dayOfWeek + 5) % 7; 
+            $weeklySales[$index] = (float)$total;
         }
 
         // ── Monthly sales (by day of month) ──
@@ -161,9 +161,8 @@ class TransactionController extends Controller
         $monthEnd = (clone $now)->copy()->endOfMonth();
         $daysInMonth = (clone $now)->copy()->daysInMonth;
 
-        $monthlyRaw = Transaction::whereBetween('created_at', [$monthStart, $monthEnd])
-            ->where('type', 'sale')
-            ->where('status', '!=', 'cancelled')
+        $monthlyRaw = (clone $baseSaleQuery)
+            ->whereBetween('created_at', [$monthStart, $monthEnd])
             ->selectRaw('DAY(created_at) as day, SUM(total) as total')
             ->groupBy('day')
             ->pluck('total', 'day')
@@ -171,17 +170,33 @@ class TransactionController extends Controller
 
         $monthlySales = array_fill(0, $daysInMonth, 0);
         foreach ($monthlyRaw as $day => $total) {
-            $monthlySales[(int)$day - 1] = (int)$total;
+            $monthlySales[(int)$day - 1] = (float)$total;
         }
 
+        // Trend calculations
+        $todayRevenue = (float)$todaySaleQuery->sum('total');
+        $yesterdayRevenue = (float)$yesterdaySaleQuery->sum('total');
+        $revenueTrend = $yesterdayRevenue > 0 ? round((($todayRevenue - $yesterdayRevenue) / $yesterdayRevenue) * 100, 1) : 0;
+
+        $todayTxCount = $todaySaleQuery->count();
+        $yesterdayTxCount = $yesterdaySaleQuery->count();
+        $txCountTrend = $yesterdayTxCount > 0 ? round((($todayTxCount - $yesterdayTxCount) / $yesterdayTxCount) * 100, 1) : 0;
+
+        $todayItemsCount = (int)TransactionItem::whereHas('transaction', function($q) use ($today) {
+            $q->whereDate('created_at', $today)->where('type', 'sale')->where('status', '!=', 'cancelled');
+        })->sum('quantity');
+        $yesterdayItemsCount = (int)TransactionItem::whereHas('transaction', function($q) use ($yesterday) {
+            $q->whereDate('created_at', $yesterday)->where('type', 'sale')->where('status', '!=', 'cancelled');
+        })->sum('quantity');
+        $itemsTrend = $yesterdayItemsCount > 0 ? round((($todayItemsCount - $yesterdayItemsCount) / $yesterdayItemsCount) * 100, 1) : 0;
+
         $stats = [
-            'today_sales' => (clone $todaySaleQuery)->sum('total'),
-            'today_transactions' => (clone $todaySaleQuery)->count(),
-            'today_items_sold' => TransactionItem::whereHas('transaction', function($query) use ($today){
-                $query->whereDate('created_at', $today)
-                    ->where('type', 'sale')
-                    ->where('status', '!=', 'cancelled');
-            })->sum('quantity'),
+            'today_sales' => $todayRevenue,
+            'today_sales_trend' => $revenueTrend,
+            'today_transactions' => $todayTxCount,
+            'today_transactions_trend' => $txCountTrend,
+            'today_items_sold' => $todayItemsCount,
+            'today_items_sold_trend' => $itemsTrend,
             'low_stock_products' => Product::whereColumn('stock', '<=', 'min_stock')->count(),
             'total_products' => Product::count(),
             'hourly_sales' => $hourlySales,
@@ -189,19 +204,24 @@ class TransactionController extends Controller
             'monthly_sales' => $monthlySales,
         ];
 
-        // Recent transactions: only today's sales (not cancelled), newest first
+        // Recent transactions: last 5 sales (not just today)
         $recentTransactions = Transaction::with('user')
-            ->whereDate('created_at', $today)
             ->where('type', 'sale')
+            ->where('status', '!=', 'cancelled')
             ->latest()
             ->limit(5)
             ->get();
 
-        $topProducts = TransactionItem::select('product_id', DB::raw('SUM(quantity) as total_sold'))
+        // Top products: only from valid sales
+        $topProducts = TransactionItem::whereHas('transaction', function($query) {
+                $query->where('type', 'sale')
+                    ->where('status', '!=', 'cancelled');
+            })
+            ->select('product_id', DB::raw('SUM(quantity) as total_sold'))
             ->groupBy('product_id')
             ->orderByDesc('total_sold')
             ->limit(5)
-            ->with('product')
+            ->with('product.category')
             ->get();
 
         return response()->json([
