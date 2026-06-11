@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Check, Zap, Sparkles } from 'lucide-react';
+import { Check, Zap, Sparkles, Store } from 'lucide-react';
 import { useState } from 'react';
 import PublicNavbar from '../components/layout/PublicNavbar';
 
