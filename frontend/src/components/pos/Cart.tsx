@@ -518,7 +518,7 @@ const Cart = ({ cart }) => {
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto min-h-0 px-3 py-2 space-y-0.5 scrollbar-thin">
+            <div className="flex-1 min-h-[140px] overflow-y-auto px-3 py-2 space-y-0.5 scrollbar-thin">
                 {items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-slate-200 dark:text-slate-600">
                         <div className="w-16 h-16 bg-slate-50/50 dark:bg-slate-700/50 rounded-2xl flex items-center justify-center mb-4 border border-dashed border-slate-200 dark:border-slate-600">
@@ -570,7 +570,7 @@ const Cart = ({ cart }) => {
 
             {/* Checkout Footer - Compact */}
             {!receiptData && (
-            <div className="shrink-0 border-t border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 px-4 py-3 space-y-2.5 transition-colors">
+            <div className="shrink min-h-0 overflow-y-auto scrollbar-thin border-t border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 px-4 py-3 space-y-2.5 transition-colors">
                 {/* Totals Row */}
                 <div className="flex items-center gap-2">
                     <div className="flex-1 flex items-center justify-between px-3 py-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-600 shadow-sm">
